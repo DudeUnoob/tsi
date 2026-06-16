@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/supabase";
 import { THEME_PALETTES } from "@/lib/mockData";
+import { cookies } from "next/headers";
 
 const displayFont = Fredoka({
   variable: "--font-display",
@@ -50,7 +51,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettings();
-  const paletteKey = settings.color_palette || 'default';
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get('sanga_palette')?.value;
+  const paletteKey = themeCookie || settings.color_palette || 'default';
   const palette = THEME_PALETTES[paletteKey] || THEME_PALETTES.default;
 
   return (

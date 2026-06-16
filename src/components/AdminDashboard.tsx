@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Subscriber {
   email: string;
@@ -29,6 +30,7 @@ interface ContactMessage {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   // Authentication state
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState('');
@@ -137,12 +139,17 @@ export default function AdminDashboard() {
 
   // Settings Save
   const handleSaveSettings = async (section: string, updatedSettings: Partial<SiteSettings>) => {
+    if (updatedSettings.color_palette) {
+      document.cookie = `sanga_palette=${updatedSettings.color_palette}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+
     const nextSettings = { ...siteSettings, ...updatedSettings };
     setSiteSettings(nextSettings);
 
     if (!isSupabaseConfigured) {
       setTimeout(() => {
         triggerToast(`Local Mode: Settings mock-saved!`);
+        router.refresh();
       }, 800);
       return;
     }
@@ -155,6 +162,7 @@ export default function AdminDashboard() {
           .upsert({ key, value: val }, { onConflict: 'key' });
       }
       triggerToast('Settings updated successfully!');
+      router.refresh();
     } catch (err) {
       console.error(err);
       triggerToast('Error saving settings.');
