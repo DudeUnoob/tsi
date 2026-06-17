@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar } from 'lucide-react';
+import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/mockData';
 
 interface HomeClientProps {
@@ -13,6 +13,26 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ settings, events }: HomeClientProps) {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+
+  const row1Images = [
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515990475221-G6PMK88KDKEZBVPTKG5Q/20449208_1382154528538531_900680314886261379_o.jpg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/42af22d1-ea73-4806-ba7b-17c7c415afa5/DSCF0624.jpeg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
+  ];
+
+  const row2Images = [
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/aca2ad4f-66ca-4068-8f63-ab6a20bdbb67/1000133787.png",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/f1d1c411-95f8-4755-80a8-2afc7ffd537b/4.png",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg",
+    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/24f4d1b2-d8b6-451a-9eb5-5d0fceca8616/3.png"
+  ];
+
   // Animation presets
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -90,6 +110,66 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               {settings.secondary_cta_label}
             </a>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Moving Images Showcase */}
+      <section className="w-full overflow-hidden py-12 bg-linen/25 border-b border-plum/5 relative">
+        <div className="max-w-7xl mx-auto px-6 mb-8 text-center">
+          <span className="text-xs uppercase tracking-wider text-tangerine font-bold font-sans">
+            Sanga in Motion
+          </span>
+          <h2 className="font-display text-2xl sm:text-4xl font-bold text-plum mt-1">
+            Friendship, Chanting, and Adventure
+          </h2>
+        </div>
+
+        {/* Outer marquee container */}
+        <div className="space-y-6 relative">
+          {/* Left & Right fading overlays */}
+          <div className="absolute inset-y-0 left-0 w-16 sm:w-48 bg-gradient-to-r from-linen to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-16 sm:w-48 bg-gradient-to-l from-linen to-transparent z-10 pointer-events-none" />
+
+          {/* Row 1: Leftward */}
+          <div className="w-full overflow-hidden relative">
+            <div className="flex w-max gap-4 animate-marquee hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
+              {[...row1Images, ...row1Images].map((src, index) => (
+                <div 
+                  key={`r1-${index}`}
+                  className="relative w-64 sm:w-80 h-40 sm:h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
+                >
+                  <Image 
+                    src={src} 
+                    alt={`Sanga Moment ${index + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 256px, 320px"
+                    className="object-cover pointer-events-none"
+                    priority={index < 4}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 2: Rightward */}
+          <div className="w-full overflow-hidden relative">
+            <div className="flex w-max gap-4 animate-marquee-reverse hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
+              {[...row2Images, ...row2Images].map((src, index) => (
+                <div 
+                  key={`r2-${index}`}
+                  className="relative w-64 sm:w-80 h-40 sm:h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
+                >
+                  <Image 
+                    src={src} 
+                    alt={`Sanga Moment ${index + 7}`}
+                    fill
+                    sizes="(max-width: 640px) 256px, 320px"
+                    className="object-cover pointer-events-none"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -263,8 +343,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             Take a look at snapshots of conversations, musical kirtans, workshops, and shared memories from our recent summer retreats.
           </p>
           
-          {/* Mock Video Container */}
-          <div className="relative aspect-video w-full max-w-3xl mx-auto bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 group">
+          {/* Interactive Video Container */}
+          <div 
+            onClick={() => setIsVideoOpen(true)}
+            className="relative aspect-video w-full max-w-3xl mx-auto bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 group cursor-pointer"
+          >
             <Image 
               src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg" 
               alt="Sanga Video Cover" 
@@ -273,12 +356,12 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             />
             {/* Play Button Overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <button 
-                className="p-5 sm:p-6 bg-pink text-warm-black rounded-full shadow-lg hover:scale-110 active:scale-95 hover:bg-sunshine transition-all duration-300 cursor-pointer"
+              <div 
+                className="p-5 sm:p-6 bg-pink text-warm-black rounded-full shadow-lg group-hover:scale-110 group-active:scale-95 group-hover:bg-sunshine transition-all duration-300"
                 aria-label="Play video"
               >
                 <Play className="h-6 sm:h-8 w-6 sm:w-8 fill-current translate-x-0.5" />
-              </button>
+              </div>
             </div>
             {/* Small label */}
             <div className="absolute bottom-4 left-6 text-xs text-linen/60 font-sans tracking-wide">
@@ -306,6 +389,29 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           Become a Supporter <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </section>
+      {/* Video Modal Overlay */}
+      {isVideoOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-warm-black/85 backdrop-blur-md transition-opacity duration-300">
+          <div className="absolute inset-0" onClick={() => setIsVideoOpen(false)} />
+          <div className="relative w-full max-w-4xl bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 aspect-video z-10 scale-95 animate-in fade-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setIsVideoOpen(false)}
+              className="absolute top-4 right-4 z-20 p-2 bg-warm-black/50 hover:bg-warm-black/80 text-linen hover:text-pink rounded-full transition-all cursor-pointer"
+              aria-label="Close video"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <iframe
+              src="https://www.youtube.com/embed/bEBlO9HGTvQ?autoplay=1"
+              title="Sanga Retreat Highlights"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
