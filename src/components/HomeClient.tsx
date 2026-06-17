@@ -55,12 +55,12 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     <div className="relative w-full overflow-hidden">
       
       {/* 1. Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center px-6 py-20 bg-gradient-to-b from-linen via-linen to-linen/60">
+      <section className="relative min-h-[92vh] flex flex-col items-center justify-center px-6 py-20 bg-gradient-to-b from-linen via-linen to-linen/60 overflow-hidden">
         {/* Soft floating background circles */}
         <div className="absolute top-1/4 left-10 w-72 h-72 rounded-full bg-sunshine/10 blur-3xl -z-10" />
         <div className="absolute bottom-1/4 right-10 w-96 h-96 rounded-full bg-pink/10 blur-3xl -z-10" />
 
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center mb-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -111,66 +111,36 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </a>
           </motion.div>
         </div>
-      </section>
 
-      {/* Moving Images Showcase */}
-      <section className="w-full overflow-hidden py-12 bg-linen/25 border-b border-plum/5 relative">
-        <div className="max-w-7xl mx-auto px-6 mb-8 text-center">
-          <span className="text-xs uppercase tracking-wider text-tangerine font-bold font-sans">
-            Sanga in Motion
-          </span>
-          <h2 className="font-display text-2xl sm:text-4xl font-bold text-plum mt-1">
-            Friendship, Chanting, and Adventure
-          </h2>
-        </div>
-
-        {/* Outer marquee container */}
-        <div className="space-y-6 relative">
+        {/* Full-width Horizontal Marquee in Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="w-full max-w-7xl mx-auto overflow-hidden relative"
+        >
           {/* Left & Right fading overlays */}
-          <div className="absolute inset-y-0 left-0 w-16 sm:w-48 bg-gradient-to-r from-linen to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-16 sm:w-48 bg-gradient-to-l from-linen to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-linen to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-linen to-transparent z-10 pointer-events-none" />
 
-          {/* Row 1: Leftward */}
-          <div className="w-full overflow-hidden relative">
-            <div className="flex w-max gap-4 animate-marquee hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
-              {[...row1Images, ...row1Images].map((src, index) => (
-                <div 
-                  key={`r1-${index}`}
-                  className="relative w-64 sm:w-80 h-40 sm:h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
-                >
-                  <Image 
-                    src={src} 
-                    alt={`Sanga Moment ${index + 1}`}
-                    fill
-                    sizes="(max-width: 640px) 256px, 320px"
-                    className="object-cover pointer-events-none"
-                    priority={index < 4}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="flex w-max gap-4 animate-marquee hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
+            {[...row1Images, ...row2Images, ...row1Images, ...row2Images].map((src, index) => (
+              <div 
+                key={`hero-marquee-${index}`}
+                className="relative w-48 sm:w-64 h-32 sm:h-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
+              >
+                <Image 
+                  src={src} 
+                  alt={`Sanga Moment ${index + 1}`}
+                  fill
+                  sizes="(max-width: 640px) 192px, 256px"
+                  className="object-cover pointer-events-none"
+                  priority={index < 5}
+                />
+              </div>
+            ))}
           </div>
-
-          {/* Row 2: Rightward */}
-          <div className="w-full overflow-hidden relative">
-            <div className="flex w-max gap-4 animate-marquee-reverse hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
-              {[...row2Images, ...row2Images].map((src, index) => (
-                <div 
-                  key={`r2-${index}`}
-                  className="relative w-64 sm:w-80 h-40 sm:h-48 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
-                >
-                  <Image 
-                    src={src} 
-                    alt={`Sanga Moment ${index + 7}`}
-                    fill
-                    sizes="(max-width: 640px) 256px, 320px"
-                    className="object-cover pointer-events-none"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 2. Intro Section */}
