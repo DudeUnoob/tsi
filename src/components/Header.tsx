@@ -42,9 +42,6 @@ export default function Header() {
             <span className="font-display text-4xl font-black tracking-tight text-[#6E0B64] lowercase select-none leading-none group-hover:opacity-90 transition-opacity">
               sanga
             </span>
-            <span className="text-[10px] tracking-widest uppercase text-[#6E0B64]/80 font-black mt-1 font-sans">
-              A Vaishnava Youth Collective
-            </span>
           </Link>
           
           {/* Navigation Links */}
@@ -73,9 +70,6 @@ export default function Header() {
           <Link href="/" className="flex flex-col group">
             <span className="font-display text-3xl font-black tracking-tight text-[#6E0B64] lowercase select-none leading-none">
               sanga
-            </span>
-            <span className="text-[9px] tracking-widest uppercase text-[#6E0B64]/80 font-black mt-0.5 font-sans">
-              A Vaishnava Youth Collective
             </span>
           </Link>
 
