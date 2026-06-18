@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/supabase";
 import { THEME_PALETTES } from "@/lib/mockData";
 import { cookies } from "next/headers";
+import { CartProvider } from "@/context/CartContext";
 
 const displayFont = Fredoka({
   variable: "--font-display",
@@ -79,9 +80,11 @@ export default async function RootLayout({
         `}} />
       </head>
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

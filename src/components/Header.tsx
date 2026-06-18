@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -18,6 +19,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,6 +65,20 @@ export default function Header() {
               );
             })}
           </nav>
+          
+          {/* Desktop Cart Indicator */}
+          <Link
+            href="/store/cart"
+            className="relative p-1.5 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer ml-4"
+            aria-label="View shopping cart"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#E65C17] text-[#FFEFBF] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm select-none">
+                {cartCount}
+              </span>
+            )}
+          </Link>
         </div>
 
         {/* Mobile Header: Row Layout */}
@@ -73,13 +89,29 @@ export default function Header() {
             </span>
           </Link>
 
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 text-[#6E0B64] hover:text-[#E65C17] focus:outline-none cursor-pointer"
-            aria-label="Toggle navigation menu"
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex items-center space-x-3">
+            {/* Mobile Cart Indicator */}
+            <Link
+              href="/store/cart"
+              className="relative p-2 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer"
+              aria-label="View shopping cart"
+            >
+              <ShoppingBag className="h-5.5 w-5.5" />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 bg-[#E65C17] text-[#FFEFBF] text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm select-none">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 text-[#6E0B64] hover:text-[#E65C17] focus:outline-none cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
       </div>

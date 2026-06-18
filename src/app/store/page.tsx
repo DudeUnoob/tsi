@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { getProducts } from '@/lib/supabase';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
@@ -38,7 +39,10 @@ export default async function StorePage() {
                   className="group flex flex-col bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Image wrapper */}
-                  <div className="relative h-64 w-full bg-[#6E0B64]/5 overflow-hidden">
+                  <Link 
+                    href={`/store/${product.slug}`}
+                    className="relative h-64 w-full bg-[#6E0B64]/5 overflow-hidden block"
+                  >
                     {product.image ? (
                       <Image 
                         src={product.image} 
@@ -63,13 +67,15 @@ export default async function StorePage() {
                         Unavailable
                       </span>
                     )}
-                  </div>
+                  </Link>
 
                   {/* Description Box */}
                   <div className="p-6 flex-grow flex flex-col justify-between space-y-6">
                     <div className="space-y-3">
                       <h2 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
-                        {product.product_title}
+                        <Link href={`/store/${product.slug}`}>
+                          {product.product_title}
+                        </Link>
                       </h2>
                       <p className="text-sm text-[#1E1D1B]/80 leading-relaxed font-sans font-light line-clamp-3">
                         {product.description}
@@ -81,15 +87,13 @@ export default async function StorePage() {
                         {product.price}
                       </span>
                       
-                      {isAvailable && product.external_checkout_url ? (
-                        <a
-                          href={product.external_checkout_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                      {isAvailable ? (
+                        <Link
+                          href={`/store/${product.slug}`}
                           className="px-5 py-2.5 bg-[#6E0B64] text-[#FFEFBF] hover:bg-[#E65C17] hover:text-[#FFEFBF] font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all duration-200 inline-flex items-center gap-1 active:scale-97 cursor-pointer"
                         >
-                          Checkout <ArrowUpRight className="h-3.5 w-3.5" />
-                        </a>
+                          View Details <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
                       ) : (
                         <button
                           disabled
