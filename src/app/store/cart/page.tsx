@@ -11,14 +11,17 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   
-  // Shipping form fields
+  // Shipping & Mock Payment form fields
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     address: '',
     city: '',
     state: '',
-    zip: ''
+    zip: '',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCvv: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -44,6 +47,27 @@ export default function CartPage() {
     if (!formData.city.trim()) tempErrors.city = 'City is required';
     if (!formData.state.trim()) tempErrors.state = 'State is required';
     if (!formData.zip.trim()) tempErrors.zip = 'Zip code is required';
+    
+    // Payment details validation (for local mock checkouts)
+    const rawCard = formData.cardNumber.replace(/\s+/g, '');
+    if (!rawCard.trim()) {
+      tempErrors.cardNumber = 'Card number is required';
+    } else if (rawCard.length !== 16) {
+      tempErrors.cardNumber = 'Card must be 16 digits';
+    }
+
+    if (!formData.cardExpiry.trim()) {
+      tempErrors.cardExpiry = 'Expiry is required';
+    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.cardExpiry)) {
+      tempErrors.cardExpiry = 'Format MM/YY required';
+    }
+
+    const rawCvv = formData.cardCvv.replace(/\D/g, '');
+    if (!rawCvv.trim()) {
+      tempErrors.cardCvv = 'CVC is required';
+    } else if (rawCvv.length < 3 || rawCvv.length > 4) {
+      tempErrors.cardCvv = 'Must be 3-4 digits';
+    }
     
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -383,6 +407,83 @@ export default function CartPage() {
                     }`}
                   />
                   {errors.zip && <p className="text-[9px] text-[#E65C17] font-bold">{errors.zip}</p>}
+                </div>
+              </div>
+
+              {/* Card Information (Mock Fields) */}
+              <div className="space-y-4 pt-4 border-t border-[#6E0B64]/10">
+                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[#6E0B64]">
+                  Mock Payment Details
+                </h3>
+                
+                {/* Card Number */}
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                    Card Number
+                  </label>
+                  <input
+                    type="text"
+                    name="cardNumber"
+                    value={formData.cardNumber}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').substring(0, 16);
+                      const formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+                      setFormData({ ...formData, cardNumber: formatted });
+                      if (errors.cardNumber) setErrors({ ...errors, cardNumber: '' });
+                    }}
+                    placeholder="4111 2222 3333 4444"
+                    className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
+                      errors.cardNumber ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    }`}
+                  />
+                  {errors.cardNumber && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardNumber}</p>}
+                </div>
+
+                {/* Expiry & CVV */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                      Expiration Date
+                    </label>
+                    <input
+                      type="text"
+                      name="cardExpiry"
+                      value={formData.cardExpiry}
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+                        if (val.length > 2) {
+                          val = val.substring(0, 2) + '/' + val.substring(2);
+                        }
+                        setFormData({ ...formData, cardExpiry: val });
+                        if (errors.cardExpiry) setErrors({ ...errors, cardExpiry: '' });
+                      }}
+                      placeholder="MM/YY"
+                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
+                        errors.cardExpiry ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      }`}
+                    />
+                    {errors.cardExpiry && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardExpiry}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                      CVC / CVV
+                    </label>
+                    <input
+                      type="text"
+                      name="cardCvv"
+                      value={formData.cardCvv}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').substring(0, 4);
+                        setFormData({ ...formData, cardCvv: val });
+                        if (errors.cardCvv) setErrors({ ...errors, cardCvv: '' });
+                      }}
+                      placeholder="123"
+                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
+                        errors.cardCvv ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      }`}
+                    />
+                    {errors.cardCvv && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardCvv}</p>}
+                  </div>
                 </div>
               </div>
 
