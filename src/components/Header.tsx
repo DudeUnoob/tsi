@@ -29,11 +29,8 @@ export default function Header() {
 
   // Close mobile nav on path changes
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => setIsOpen(false), 0);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, isOpen]);
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <header 
