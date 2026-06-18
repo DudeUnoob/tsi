@@ -76,9 +76,6 @@ export default async function RootLayout({
             background-color: var(--background) !important;
             color: var(--foreground) !important;
           }
-          h1, h2, h3, h4, h5, h6 {
-            color: var(--color-plum);
-          }
         `}} />
       </head>
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
