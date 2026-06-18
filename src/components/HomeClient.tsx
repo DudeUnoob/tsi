@@ -134,7 +134,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.7 }}
-              className="relative w-[420px] h-[270px] sm:w-[520px] sm:h-[335px]"
+              className="relative w-[480px] h-[310px] sm:w-[600px] sm:h-[385px]"
             >
               {/* Back card — decorative, slightly more rotated */}
               <div className="absolute inset-0 rounded-3xl bg-[#FFA526]/60 border-4 border-[#FFA526]/40 shadow-xl transform rotate-6 scale-95 translate-y-2" />
