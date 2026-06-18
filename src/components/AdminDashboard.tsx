@@ -534,7 +534,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-[#FFEFBF] flex font-sans">
+    <div className="min-h-screen bg-[#FFEFBF] flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden font-sans">
       {/* Toast Alert popup */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 bg-plum text-[#FFEFBF] px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xl flex items-center animate-fadeIn border border-[#FFEFBF]/10">
@@ -542,8 +542,8 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Sidebar navigation */}
-      <aside className="w-64 bg-plum text-[#FFEFBF] p-8 flex flex-col justify-between hidden lg:flex border-r border-[#FFEFBF]/5 h-full overflow-y-auto flex-shrink-0">
+      {/* Sidebar navigation — desktop only */}
+      <aside className="w-64 bg-plum text-[#FFEFBF] p-8 flex-col justify-between hidden lg:flex border-r border-[#FFEFBF]/5 h-full overflow-y-auto flex-shrink-0">
         <div className="space-y-10">
           <Link href="/" className="space-y-1 block hover:opacity-90 transition-opacity">
             <span className="font-display text-3xl font-bold text-white tracking-tight block">sanga</span>
@@ -601,8 +601,59 @@ export default function AdminDashboard() {
         </button>
       </aside>
 
+      {/* Mobile top bar — visible below lg */}
+      <div className="lg:hidden flex-shrink-0 bg-plum text-[#FFEFBF]">
+        {/* Mobile header */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <Link href="/" className="font-display text-2xl font-bold text-white tracking-tight">
+            sanga
+            <span className="block text-[9px] tracking-wider uppercase text-[#FFA526] font-bold leading-none">Admin Portal</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-[#FFEFBF]/60 hover:text-[#FF7DB4] text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+          >
+            <LogOut className="h-4 w-4" /> Log Out
+          </button>
+        </div>
+        {/* Scrollable tab strip */}
+        <div className="overflow-x-auto scrollbar-none pb-1">
+          <div className="flex gap-1 px-3 pb-2 min-w-max">
+            {[
+              { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+              { id: 'homepage', label: 'Homepage', icon: Home },
+              { id: 'gatherings', label: 'Gatherings', icon: Calendar },
+              { id: 'store', label: 'Store', icon: ShoppingBag },
+              { id: 'support', label: 'Support', icon: Heart },
+              { id: 'community', label: 'Community', icon: MessageCircle },
+              { id: 'resources', label: 'Resources', icon: FileText },
+              { id: 'media', label: 'Media', icon: ImageIcon },
+              { id: 'submissions', label: 'Submissions', icon: Users },
+              { id: 'settings', label: 'Settings', icon: SettingsIcon },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 ${
+                    isSelected
+                      ? 'bg-[#FFA526] text-plum'
+                      : 'text-[#FFEFBF]/60 hover:bg-[#FFEFBF]/10 hover:text-white'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="text-[9px] font-bold uppercase tracking-wide leading-none">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Main Panel Content */}
-      <main className="flex-grow p-8 md:p-12 overflow-y-auto h-full">
+      <main className="flex-grow p-5 md:p-8 lg:p-12 overflow-y-auto lg:h-full">
         
         {/* Active Tab render checks */}
         {activeTab === 'overview' && (
