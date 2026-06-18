@@ -48,7 +48,9 @@ export default function Header() {
           {/* Navigation Links */}
           <nav className="flex items-center space-x-8">
             {navLinks.map((link) => {
-              const isActive = pathname === link.path;
+              const isActive = link.path === '/' 
+                ? pathname === '/' 
+                : pathname === link.path || pathname.startsWith(link.path + '/');
               return (
                 <Link
                   key={link.path}
@@ -126,7 +128,9 @@ export default function Header() {
             className="absolute top-full left-0 w-full bg-[#FFA526] border-t border-[#6E0B64]/10 shadow-lg px-6 py-6 md:hidden flex flex-col space-y-4 z-50 overflow-hidden"
           >
             {navLinks.map((link) => {
-              const isActive = pathname === link.path;
+              const isActive = link.path === '/' 
+                ? pathname === '/' 
+                : pathname === link.path || pathname.startsWith(link.path + '/');
               return (
                 <Link
                   key={link.path}
