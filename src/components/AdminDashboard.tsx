@@ -15,6 +15,7 @@ import {
 import { Session } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Subscriber {
   email: string;
@@ -533,7 +534,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFEFBF] flex font-sans">
+    <div className="h-screen overflow-hidden bg-[#FFEFBF] flex font-sans">
       {/* Toast Alert popup */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 bg-plum text-[#FFEFBF] px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xl flex items-center animate-fadeIn border border-[#FFEFBF]/10">
@@ -542,12 +543,12 @@ export default function AdminDashboard() {
       )}
 
       {/* Sidebar navigation */}
-      <aside className="w-64 bg-plum text-[#FFEFBF] p-8 flex flex-col justify-between hidden lg:flex border-r border-[#FFEFBF]/5">
+      <aside className="w-64 bg-plum text-[#FFEFBF] p-8 flex flex-col justify-between hidden lg:flex border-r border-[#FFEFBF]/5 h-full overflow-y-auto flex-shrink-0">
         <div className="space-y-10">
-          <div className="space-y-1">
+          <Link href="/" className="space-y-1 block hover:opacity-90 transition-opacity">
             <span className="font-display text-3xl font-bold text-white tracking-tight block">sanga</span>
             <span className="text-[10px] tracking-wider uppercase text-[#FFA526] block font-bold">Volunteer Admin Portal</span>
-          </div>
+          </Link>
 
           {!isSupabaseConfigured && (
             <div className="bg-[#FFA526]/10 border border-[#FFA526]/20 rounded-2xl p-4 text-[10px] text-[#FFA526] leading-relaxed flex items-start">
@@ -601,7 +602,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main Panel Content */}
-      <main className="flex-grow p-8 md:p-12 overflow-y-auto max-h-screen">
+      <main className="flex-grow p-8 md:p-12 overflow-y-auto h-full">
         
         {/* Active Tab render checks */}
         {activeTab === 'overview' && (

@@ -21,6 +21,10 @@ export default function Header() {
   const pathname = usePathname();
   const { cartCount } = useCart();
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);

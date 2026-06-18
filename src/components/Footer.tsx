@@ -2,11 +2,17 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { subscribeNewsletter } from '@/lib/supabase';
 import { Mail, ArrowRight, Loader2, Heart } from 'lucide-react';
 
 export default function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState('');
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
