@@ -721,15 +721,25 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="md:col-span-2 space-y-2 pt-2 border-t border-plum/5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Hero Cover Photo Image URL</label>
-                  <input
-                    type="text"
-                    defaultValue={siteSettings.hero_image_url}
-                    onBlur={(e) => handleSaveSettings('hero', { hero_image_url: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] font-mono text-xs"
-                    placeholder="https://images.squarespace-cdn.com/..."
-                  />
+                <div className="md:col-span-2 space-y-4 pt-2 border-t border-plum/5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Hero Slideshow Images (3 cards)</label>
+                  <p className="text-xs text-plum/50 -mt-2">Paste image URLs for each card in the rotating photo stack on the homepage.</p>
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-xs font-black text-plum/40 uppercase tracking-wider w-16 flex-shrink-0">Card {i + 1}</span>
+                      <input
+                        type="text"
+                        defaultValue={siteSettings.hero_slideshow_images?.[i] ?? ''}
+                        onBlur={(e) => {
+                          const updated = [...(siteSettings.hero_slideshow_images ?? ['', '', ''])];
+                          updated[i] = e.target.value;
+                          handleSaveSettings('hero', { hero_slideshow_images: updated });
+                        }}
+                        className="flex-1 px-5 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[#FFA526] transition-all"
+                        placeholder="https://images.squarespace-cdn.com/..."
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

@@ -12,7 +12,7 @@ interface HomeClientProps {
   events: Event[];
 }
 
-const HERO_IMAGES = [
+const DEFAULT_HERO_IMAGES = [
   {
     src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
     label: "Summer Camp '26"
@@ -31,12 +31,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
 
+  // Build slideshow images: use admin-configured URLs if available, otherwise fall back to defaults
+  const heroImages = (settings.hero_slideshow_images && settings.hero_slideshow_images.filter(Boolean).length > 0)
+    ? settings.hero_slideshow_images.filter(Boolean).map((src, i) => ({
+        src,
+        label: DEFAULT_HERO_IMAGES[i]?.label ?? `Photo ${i + 1}`
+      }))
+    : DEFAULT_HERO_IMAGES;
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlideIndex(prev => (prev + 1) % HERO_IMAGES.length);
+      setSlideIndex(prev => (prev + 1) % heroImages.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroImages.length]);
+
 
   // Group events by category for the showcase cards
   const retreatsEvent = events.find(e => e.category === 'retreat' || e.slug === 'tsi-summit') || events[0];
@@ -142,7 +151,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               {/* Middle card — previous image, less rotation */}
               <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-[#FFEFBF]/30 shadow-xl transform -rotate-3 scale-97">
                 <Image
-                  src={HERO_IMAGES[(slideIndex + HERO_IMAGES.length - 1) % HERO_IMAGES.length].src}
+                  src={heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src}
                   alt="Previous gathering"
                   fill
                   className="object-cover object-center"
@@ -162,8 +171,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     className="absolute inset-0"
                   >
                     <Image
-                      src={HERO_IMAGES[slideIndex].src}
-                      alt={HERO_IMAGES[slideIndex].label}
+                      src={heroImages[slideIndex].src}
+                      alt={heroImages[slideIndex].label}
                       fill
                       className="object-cover object-center"
                       priority={slideIndex === 0}
@@ -182,13 +191,13 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                       transition={{ duration: 0.35 }}
                       className="text-[#FFEFBF] text-xs font-black uppercase tracking-widest"
                     >
-                      {HERO_IMAGES[slideIndex].label}
+                      {heroImages[slideIndex].label}
                     </motion.p>
                   </AnimatePresence>
 
                   {/* Dots inside the card at bottom */}
                   <div className="flex gap-1.5 mt-2">
-                    {HERO_IMAGES.map((_, i) => (
+                    {heroImages.map((_, i) => (
                       <button
                         key={i}
                         onClick={() => setSlideIndex(i)}
