@@ -136,63 +136,99 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </motion.div>
           </div>
 
-          {/* Right Column: Auto-cycling Blob Slideshow */}
-          <div className="md:col-span-5 flex justify-center relative">
+          {/* Right Column: Stacked polaroid photo stack */}
+          <div className="md:col-span-5 flex justify-center items-center relative">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.7 }}
-              className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[400px] md:h-[400px] blob-1 overflow-hidden shadow-2xl border-4 border-[#FFA526]/40 bg-[#1E1D1B]"
+              className="relative w-72 h-80 sm:w-80 sm:h-96"
             >
-              <AnimatePresence mode="sync">
-                <motion.div
-                  key={slideIndex}
-                  initial={{ opacity: 0, scale: 1.06 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 1.1, ease: 'easeInOut' }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={HERO_IMAGES[slideIndex].src}
-                    alt={HERO_IMAGES[slideIndex].label}
-                    fill
-                    className="object-cover object-center"
-                    priority={slideIndex === 0}
-                  />
-                </motion.div>
-              </AnimatePresence>
+              {/* Back card — decorative, slightly more rotated */}
+              <div className="absolute inset-0 rounded-3xl bg-[#FFA526]/60 border-4 border-[#FFA526]/40 shadow-xl transform rotate-6 scale-95 translate-y-2" />
 
-              {/* Slide dots */}
-              <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
-                {HERO_IMAGES.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSlideIndex(i)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      i === slideIndex ? 'bg-[#FFA526] w-4' : 'bg-[#FFEFBF]/50'
-                    }`}
-                  />
-                ))}
+              {/* Middle card — previous image, less rotation */}
+              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-[#FFEFBF]/30 shadow-xl transform -rotate-3 scale-97">
+                <Image
+                  src={HERO_IMAGES[(slideIndex + HERO_IMAGES.length - 1) % HERO_IMAGES.length].src}
+                  alt="Previous gathering"
+                  fill
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-[#6E0B64]/20" />
+              </div>
+
+              {/* Top card — current image, straight on */}
+              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-[#FFEFBF]/50 shadow-2xl">
+                <AnimatePresence mode="sync">
+                  <motion.div
+                    key={slideIndex}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.9, ease: 'easeInOut' }}
+                    className="absolute inset-0"
+                  >
+                    <Image
+                      src={HERO_IMAGES[slideIndex].src}
+                      alt={HERO_IMAGES[slideIndex].label}
+                      fill
+                      className="object-cover object-center"
+                      priority={slideIndex === 0}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Caption strip at bottom of top card */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#6E0B64]/80 to-transparent px-4 pb-4 pt-10">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={`caption-${slideIndex}`}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.35 }}
+                      className="text-[#FFEFBF] text-xs font-black uppercase tracking-widest"
+                    >
+                      {HERO_IMAGES[slideIndex].label}
+                    </motion.p>
+                  </AnimatePresence>
+
+                  {/* Dots inside the card at bottom */}
+                  <div className="flex gap-1.5 mt-2">
+                    {HERO_IMAGES.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSlideIndex(i)}
+                        className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+                          i === slideIndex ? 'bg-[#FFA526] w-5' : 'bg-[#FFEFBF]/40 w-1.5'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
 
-            {/* Animated label badge — updates with slide */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`badge-top-${slideIndex}`}
-                initial={{ opacity: 0, y: -6, rotate: -14 }}
-                animate={{ opacity: 1, y: 0, rotate: -12 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.4 }}
-                className="absolute -top-4 -left-4 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
-              >
-                {HERO_IMAGES[slideIndex].label}
-              </motion.div>
-            </AnimatePresence>
-            <div className="absolute -bottom-4 -right-4 bg-[#FFA526] text-[#6E0B64] text-xs font-black py-2 px-4 rounded-full shadow-lg transform rotate-6 select-none pointer-events-none">
+            {/* Floating badge — top right */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, rotate: 8 }}
+              animate={{ opacity: 1, scale: 1, rotate: 12 }}
+              transition={{ delay: 0.6, duration: 0.5, type: 'spring' }}
+              className="absolute -top-6 -right-2 sm:-right-6 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+            >
+              Since 2014 🌿
+            </motion.div>
+
+            {/* Floating badge — bottom left */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+              animate={{ opacity: 1, scale: 1, rotate: -6 }}
+              transition={{ delay: 0.75, duration: 0.5, type: 'spring' }}
+              className="absolute -bottom-6 -left-2 sm:-left-6 bg-[#FFA526] text-[#6E0B64] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+            >
               Friendship &amp; Growth
-            </div>
+            </motion.div>
           </div>
         </div>
 
