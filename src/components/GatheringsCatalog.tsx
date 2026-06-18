@@ -687,12 +687,6 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
 
             {/* Modal Actions Footer */}
             <div className="p-5 bg-[#6E0B64]/5 border-t border-[#6E0B64]/10 flex flex-wrap justify-end gap-2">
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="px-5 py-2.5 border border-[#6E0B64]/15 hover:border-[#6E0B64] text-[#6E0B64] font-bold rounded-xl text-[10px] uppercase tracking-widest transition-all cursor-pointer bg-transparent"
-              >
-                Close
-              </button>
               <a
                 href={`/gatherings/${selectedEvent.slug}`}
                 className="px-6 py-2.5 border border-[#6E0B64] hover:bg-[#6E0B64]/10 text-[#6E0B64] font-black rounded-xl text-[10px] uppercase tracking-widest transition-all cursor-pointer text-center"
