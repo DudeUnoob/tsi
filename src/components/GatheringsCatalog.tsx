@@ -583,6 +583,12 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                           <div className="flex items-center justify-between w-full md:w-auto md:flex-col md:items-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-[#6E0B64]/5 min-w-[150px]">
                             <span className="text-base font-black text-[#6E0B64]">{event.price}</span>
                             <a
+                              href={`/gatherings/${event.slug}`}
+                              className="px-5 py-3 border border-[#6E0B64] hover:bg-[#6E0B64]/10 text-[#6E0B64] font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer text-center text-nowrap"
+                            >
+                              View Full Details →
+                            </a>
+                            <a
                               href={getTargetLink(event)}
                               target={getTargetLink(event).startsWith('http') ? '_blank' : '_self'}
                               rel="noopener noreferrer"
