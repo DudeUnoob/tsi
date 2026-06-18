@@ -17,6 +17,11 @@ export default async function ResourcesPage() {
     groupedResources[category].push(res);
   });
 
+  // Filter categories to only keep those that have at least one resource
+  const activeCategories = Object.keys(groupedResources)
+    .filter(category => groupedResources[category].length > 0)
+    .sort();
+
   return (
     <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
       {/* Wave Header Section */}
@@ -47,8 +52,8 @@ export default async function ResourcesPage() {
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-6 mt-12 relative z-20">
         <div className="space-y-16">
-          {Object.keys(groupedResources).length > 0 ? (
-            Object.keys(groupedResources).sort().map(category => (
+          {activeCategories.length > 0 ? (
+            activeCategories.map(category => (
               <section key={category} className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-plum/10 pb-4">
                   <div className="p-2 bg-[#FFA526]/20 rounded-lg text-plum">

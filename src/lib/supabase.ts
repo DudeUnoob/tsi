@@ -193,21 +193,36 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
   }
 }
 
-export async function getResources(): Promise<Resource[]> {
+export async function getResources(options?: { publishedOnly?: boolean }): Promise<Resource[]> {
+  const publishedOnly = options?.publishedOnly ?? true;
   if (!isSupabaseConfigured) {
-    return mockResources.filter(r => r.published).sort((a, b) => a.sort_order - b.sort_order);
+    let list = [...mockResources];
+    if (publishedOnly) {
+      list = list.filter(r => r.published);
+    }
+    return list.sort((a, b) => a.sort_order - b.sort_order);
   }
   try {
-    const { data, error } = await supabase!
-      .from('resources')
-      .select('*')
-      .eq('published', true)
-      .order('sort_order', { ascending: true });
-    if (error || !data) return mockResources.filter(r => r.published);
+    let query = supabase!.from('resources').select('*');
+    if (publishedOnly) {
+      query = query.eq('published', true);
+    }
+    const { data, error } = await query.order('sort_order', { ascending: true });
+    if (error || !data) {
+      let list = [...mockResources];
+      if (publishedOnly) {
+        list = list.filter(r => r.published);
+      }
+      return list;
+    }
     return data;
   } catch (e) {
     console.error("Supabase getResources error:", e);
-    return mockResources.filter(r => r.published);
+    let list = [...mockResources];
+    if (publishedOnly) {
+      list = list.filter(r => r.published);
+    }
+    return list;
   }
 }
 

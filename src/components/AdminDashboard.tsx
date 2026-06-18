@@ -10,7 +10,7 @@ import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart, 
   MessageCircle, FileText, Image as ImageIcon, LogOut, 
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
-  Video, Eye, Lock, FileUp
+  Video, Eye, Lock, FileUp, ExternalLink
 } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import Image from 'next/image';
@@ -56,9 +56,10 @@ export default function AdminDashboard() {
   
   const [toastMessage, setToastMessage] = useState('');
 
-  // Form edit states (for Gatherings and Store edit modals)
+  // Form edit states (for Gatherings, Store, and Resources edit modals)
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<StoreProduct> | null>(null);
+  const [editingResource, setEditingResource] = useState<Partial<Resource> | null>(null);
 
   // New subcomponent editor states
   const [newHighlight, setNewHighlight] = useState('');
@@ -105,7 +106,7 @@ export default function AdminDashboard() {
       const p = await getProducts();
       setProducts(p);
       
-      const r = await getResources();
+      const r = await getResources({ publishedOnly: false });
       setResources(r);
 
       if (isSupabaseConfigured) {
@@ -369,6 +370,69 @@ export default function AdminDashboard() {
       triggerToast('Product deleted.');
     } catch {
       triggerToast('Failed to delete product.');
+    }
+  };
+
+  // Resource Save
+  const handleSaveResource = async () => {
+    if (!editingResource || !editingResource.title) return;
+
+    const isNew = !editingResource.id;
+
+    if (!isSupabaseConfigured) {
+      if (isNew) {
+        const newRes = { ...(editingResource as Resource), id: resources.length + 1 };
+        setResources([...resources, newRes]);
+      } else {
+        setResources(resources.map(r => r.id === editingResource.id ? (editingResource as Resource) : r));
+      }
+      setEditingResource(null);
+      triggerToast('Local Mode: Resource mock-saved!');
+      return;
+    }
+
+    try {
+      const payload = {
+        title: editingResource.title,
+        category: editingResource.category || 'General',
+        description: editingResource.description || '',
+        external_url: editingResource.external_url || '',
+        uploaded_file_url: editingResource.uploaded_file_url || '',
+        published: editingResource.published ?? true,
+        sort_order: editingResource.sort_order ?? 0
+      };
+
+      if (isNew) {
+        await supabase!.from('resources').insert([payload]);
+      } else {
+        await supabase!.from('resources').update(payload).eq('id', editingResource.id);
+      }
+
+      const r = await getResources({ publishedOnly: false });
+      setResources(r);
+      setEditingResource(null);
+      triggerToast('Resource updated successfully!');
+    } catch (e) {
+      console.error(e);
+      triggerToast('Error saving resource.');
+    }
+  };
+
+  const handleDeleteResource = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this resource?')) return;
+
+    if (!isSupabaseConfigured) {
+      setResources(resources.filter(r => r.id !== id));
+      triggerToast('Local Mode: Resource deleted!');
+      return;
+    }
+
+    try {
+      await supabase!.from('resources').delete().eq('id', id);
+      setResources(resources.filter(r => r.id !== id));
+      triggerToast('Resource deleted.');
+    } catch {
+      triggerToast('Failed to delete resource.');
     }
   };
 
@@ -1632,36 +1696,228 @@ export default function AdminDashboard() {
         {/* Tab 7: Resources */}
         {activeTab === 'resources' && (
           <div className="space-y-8">
-            <div>
-              <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Reading Resources</h1>
-              <p className="text-sm text-warm-black/60">Configure public downloads and reading references cards.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Reading Resources</h1>
+                <p className="text-sm text-warm-black/60">Configure public downloads and reading references cards.</p>
+              </div>
+              <button
+                onClick={() => setEditingResource({
+                  title: '', category: '', description: '',
+                  external_url: '', uploaded_file_url: '',
+                  published: true, sort_order: resources.length + 1
+                })}
+                className="px-6 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+              >
+                <Plus className="mr-2 h-4.5 w-4.5" /> Add Resource
+              </button>
             </div>
-            
-            {/* List and edit resources in place */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-6 space-y-4 shadow-md">
-              {resources.map((res) => (
-                <div key={res.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-plum/5 rounded-2xl border border-plum/5 text-sm font-sans">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-[#E65C17] uppercase tracking-wider block">{res.category}</span>
-                    <h4 className="font-bold text-plum text-base">{res.title}</h4>
-                    <p className="text-xs text-warm-black/70 font-light leading-relaxed">{res.description}</p>
+
+            {/* List resources */}
+            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
+              <div className="overflow-x-auto text-sm font-sans">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-plum/5 text-plum uppercase text-[10px] font-bold tracking-wider border-b border-plum/10">
+                      <th className="p-5">Title</th>
+                      <th className="p-5">Category</th>
+                      <th className="p-5">Sort Order</th>
+                      <th className="p-5">Status</th>
+                      <th className="p-5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-plum/5">
+                    {resources.map(res => (
+                      <tr key={res.id} className="hover:bg-plum/5/20 transition-colors">
+                        <td className="p-5 font-bold text-plum">{res.title}</td>
+                        <td className="p-5 font-semibold text-plum">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FFA526]/10 text-plum border border-[#FFA526]/20">
+                            {res.category || 'General'}
+                          </span>
+                        </td>
+                        <td className="p-5 font-light text-warm-black/70">{res.sort_order}</td>
+                        <td className="p-5">
+                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full border ${
+                            res.published 
+                              ? 'bg-plum/5 text-plum border-plum/5' 
+                              : 'bg-warm-black/5 text-warm-black/40 border-warm-black/5'
+                          }`}>
+                            {res.published ? 'Published' : 'Draft'}
+                          </span>
+                        </td>
+                        <td className="p-5 text-right flex justify-end space-x-3 items-center">
+                          {(res.external_url || res.uploaded_file_url) && (
+                            <a 
+                              href={res.external_url || res.uploaded_file_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="p-2.5 hover:bg-[#FFA526]/10 rounded-xl text-plum transition-all border border-[#FFA526]/5 flex items-center justify-center"
+                              title="View Document"
+                            >
+                              <ExternalLink className="h-4.5 w-4.5" />
+                            </a>
+                          )}
+                          <button 
+                            onClick={() => setEditingResource({ ...res })}
+                            className="p-2.5 hover:bg-plum/15 rounded-xl text-plum transition-all border border-plum/5"
+                            title="Edit Resource"
+                          >
+                            <Edit className="h-4.5 w-4.5" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteResource(res.id)}
+                            className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
+                            title="Delete Resource"
+                          >
+                            <Trash2 className="h-4.5 w-4.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Resource form modal overlay */}
+            {editingResource && (
+              <div className="fixed inset-0 z-50 bg-[#1E1D1B]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 text-warm-black">
+                <div className="max-w-xl w-full bg-[#FFEFBF] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col text-plum">
+                  <div className="p-6 bg-plum text-[#FFEFBF] flex items-center justify-between border-b border-plum/10">
+                    <h3 className="font-display text-xl font-bold text-white">{editingResource.id ? 'Edit Resource Details' : 'New Reading Resource'}</h3>
+                    <button onClick={() => setEditingResource(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <a 
-                      href={res.external_url || res.uploaded_file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 bg-plum/10 hover:bg-plum/20 text-plum font-semibold rounded-full text-xs uppercase tracking-wider transition-colors"
+                  
+                  <div className="p-8 space-y-6 text-sm overflow-y-auto max-h-[70vh] text-left">
+                    <div className="space-y-4">
+                      {/* Title */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">Resource Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={editingResource.title || ''}
+                          onChange={(e) => setEditingResource({ ...editingResource, title: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] transition-all"
+                        />
+                      </div>
+
+                      {/* Category */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">Category</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Study Guides, Practices"
+                          value={editingResource.category || ''}
+                          onChange={(e) => setEditingResource({ ...editingResource, category: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                        />
+                        {Array.from(new Set(resources.map(r => r.category).filter(Boolean))).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1.5 justify-start">
+                            <span className="text-[10px] text-plum/50 font-bold self-center mr-1">Suggestions:</span>
+                            {Array.from(new Set(resources.map(r => r.category).filter(Boolean))).map(cat => (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() => setEditingResource({ ...editingResource, category: cat })}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${
+                                  editingResource.category === cat 
+                                    ? 'bg-plum text-[#FFEFBF] border-plum' 
+                                    : 'bg-plum/5 text-plum border-plum/10 hover:bg-plum/10'
+                                }`}
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">Description Details</label>
+                        <textarea
+                          rows={3}
+                          required
+                          value={editingResource.description || ''}
+                          onChange={(e) => setEditingResource({ ...editingResource, description: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] resize-none leading-relaxed text-warm-black"
+                        />
+                      </div>
+
+                      {/* External URL */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">External Document URL (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="https://docs.google.com/..."
+                          value={editingResource.external_url || ''}
+                          onChange={(e) => setEditingResource({ ...editingResource, external_url: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                        />
+                      </div>
+
+                      {/* Uploaded File URL */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">Uploaded File Path/URL (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. /my-guide.pdf"
+                          value={editingResource.uploaded_file_url || ''}
+                          onChange={(e) => setEditingResource({ ...editingResource, uploaded_file_url: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 pt-2">
+                        {/* Sort Order */}
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60 text-left">Sort Order</label>
+                          <input
+                            type="number"
+                            value={editingResource.sort_order ?? 0}
+                            onChange={(e) => setEditingResource({ ...editingResource, sort_order: parseInt(e.target.value) || 0 })}
+                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                          />
+                        </div>
+
+                        {/* Published */}
+                        <div className="flex items-center space-x-2 pt-6">
+                          <input
+                            type="checkbox"
+                            id="published"
+                            checked={!!editingResource.published}
+                            onChange={(e) => setEditingResource({ ...editingResource, published: e.target.checked })}
+                            className="h-5 w-5 rounded border-plum/15 text-plum focus:ring-[#FFA526]"
+                          />
+                          <label htmlFor="published" className="text-xs font-bold uppercase tracking-wider text-plum/70 cursor-pointer">
+                            Published Live
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 bg-plum/5 border-t border-plum/10 flex justify-end space-x-3">
+                    <button
+                      onClick={() => setEditingResource(null)}
+                      className="px-5 py-2.5 border border-plum/15 hover:border-plum text-plum font-semibold rounded-full text-xs uppercase tracking-wider transition-all cursor-pointer bg-transparent"
                     >
-                      View
-                    </a>
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveResource}
+                      className="px-6 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold rounded-full text-xs uppercase tracking-wider transition-all shadow cursor-pointer"
+                    >
+                      Save Resource
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
-
         {/* Tab 8: Media Manager */}
         {activeTab === 'media' && (
           <div className="space-y-8">
