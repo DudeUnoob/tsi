@@ -24,14 +24,6 @@ const HERO_IMAGES = [
   {
     src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg",
     label: "Friendship & Growth"
-  },
-  {
-    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1637368524541-2WK3LZQV56T1GQKQF1RZ/IMG_3950.jpg",
-    label: "Heartspace Sessions"
-  },
-  {
-    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1637368524541-2WK3LZQV56T1GQKQF1RZ/IMG_3950.jpg",
-    label: "Youth Kirtan"
   }
 ];
 
