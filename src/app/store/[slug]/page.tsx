@@ -25,11 +25,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const isSoldOut = product.status === 'sold-out';
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen py-12 font-sans text-[#1E1D1B]">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="bg-[#FFEFBF] min-h-screen py-6 font-sans text-[#1E1D1B] flex flex-col justify-center">
+      <div className="max-w-7xl mx-auto px-6 w-full">
         
         {/* Back Link */}
-        <div className="mb-8">
+        <div className="mb-4">
           <Link
             href="/store"
             className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#6E0B64] hover:text-[#E65C17] transition-colors group cursor-pointer"
@@ -40,11 +40,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* Product Workspace */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-6 sm:p-10 shadow-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-6 sm:p-8 shadow-sm">
           
           {/* Left Column: Image Display */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <div className="relative aspect-square w-full rounded-2xl bg-[#6E0B64]/5 border border-[#6E0B64]/10 overflow-hidden shadow-inner group">
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            <div className="relative h-[280px] sm:h-[360px] lg:h-[440px] w-full rounded-2xl bg-[#6E0B64]/5 border border-[#6E0B64]/10 overflow-hidden shadow-inner group">
               {product.image ? (
                 <Image
                   src={product.image}
@@ -61,12 +61,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
               {/* Status Tags */}
               {isSoldOut && (
-                <span className="absolute top-6 left-6 px-4 py-1.5 text-xs font-black uppercase tracking-widest bg-[#E65C17] text-[#FFEFBF] rounded-full shadow shadow-black/10 select-none">
+                <span className="absolute top-4 left-4 px-3 py-1 text-xs font-black uppercase tracking-widest bg-[#E65C17] text-[#FFEFBF] rounded-full shadow shadow-black/10 select-none">
                   Sold Out
                 </span>
               )}
               {!isAvailable && !isSoldOut && (
-                <span className="absolute top-6 left-6 px-4 py-1.5 text-xs font-black uppercase tracking-widest bg-[#1E1D1B]/20 text-[#FFEFBF] rounded-full shadow shadow-black/10 select-none">
+                <span className="absolute top-4 left-4 px-3 py-1 text-xs font-black uppercase tracking-widest bg-[#1E1D1B]/20 text-[#FFEFBF] rounded-full shadow shadow-black/10 select-none">
                   Unavailable
                 </span>
               )}
@@ -74,20 +74,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           {/* Right Column: details & Purchase interface */}
-          <div className="lg:col-span-5 flex flex-col justify-center space-y-6">
-            <div className="space-y-4">
-              <span className="text-xs uppercase tracking-widest text-[#E65C17] font-black bg-[#6E0B64]/5 py-1 px-3.5 rounded-full border border-[#6E0B64]/10 inline-block">
+          <div className="lg:col-span-6 flex flex-col justify-center space-y-4">
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase tracking-widest text-[#E65C17] font-black bg-[#6E0B64]/5 py-0.5 px-3 rounded-full border border-[#6E0B64]/10 inline-block">
                 Sanga Apparel & Accessories
               </span>
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-[#6E0B64] leading-tight">
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black text-[#6E0B64] leading-tight">
                 {product.product_title}
               </h1>
-              <p className="text-base text-[#1E1D1B]/80 leading-relaxed font-sans font-light">
+              <p className="text-sm text-[#1E1D1B]/80 leading-relaxed font-sans font-light">
                 {product.description}
               </p>
             </div>
 
-            <div className="pt-6 border-t border-[#6E0B64]/10">
+            <div className="pt-4 border-t border-[#6E0B64]/10">
               {isAvailable ? (
                 <ProductForm product={product} />
               ) : (
