@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/mockData';
@@ -12,8 +12,39 @@ interface HomeClientProps {
   events: Event[];
 }
 
+const HERO_IMAGES = [
+  {
+    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
+    label: "Summer Camp '26"
+  },
+  {
+    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/42af22d1-ea73-4806-ba7b-17c7c415afa5/DSCF0624.jpeg",
+    label: "Gita Nagari Farm"
+  },
+  {
+    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg",
+    label: "Friendship & Growth"
+  },
+  {
+    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1637368524541-2WK3LZQV56T1GQKQF1RZ/IMG_3950.jpg",
+    label: "Heartspace Sessions"
+  },
+  {
+    src: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1637368524541-2WK3LZQV56T1GQKQF1RZ/IMG_3950.jpg",
+    label: "Youth Kirtan"
+  }
+];
+
 export default function HomeClient({ settings, events }: HomeClientProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideIndex(prev => (prev + 1) % HERO_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Group events by category for the showcase cards
   const retreatsEvent = events.find(e => e.category === 'retreat' || e.slug === 'tsi-summit') || events[0];
@@ -105,7 +136,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </motion.div>
           </div>
 
-          {/* Right Column: Premium Blob Image Grid */}
+          {/* Right Column: Auto-cycling Blob Slideshow */}
           <div className="md:col-span-5 flex justify-center relative">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -113,21 +144,54 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               transition={{ delay: 0.35, duration: 0.7 }}
               className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[400px] md:h-[400px] blob-1 overflow-hidden shadow-2xl border-4 border-[#FFA526]/40 bg-[#1E1D1B]"
             >
-              <Image
-                src={settings.hero_image_url || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg"}
-                alt="Sanga Youth Gathering"
-                fill
-                className="object-cover object-center"
-                priority
-              />
+              <AnimatePresence mode="sync">
+                <motion.div
+                  key={slideIndex}
+                  initial={{ opacity: 0, scale: 1.06 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 1.1, ease: 'easeInOut' }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={HERO_IMAGES[slideIndex].src}
+                    alt={HERO_IMAGES[slideIndex].label}
+                    fill
+                    className="object-cover object-center"
+                    priority={slideIndex === 0}
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Slide dots */}
+              <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                {HERO_IMAGES.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSlideIndex(i)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      i === slideIndex ? 'bg-[#FFA526] w-4' : 'bg-[#FFEFBF]/50'
+                    }`}
+                  />
+                ))}
+              </div>
             </motion.div>
 
-            {/* Float badges for micro-interaction */}
-            <div className="absolute -top-4 -left-4 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg transform -rotate-12 select-none pointer-events-none">
-              Summer Camp &apos;26
-            </div>
+            {/* Animated label badge — updates with slide */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`badge-top-${slideIndex}`}
+                initial={{ opacity: 0, y: -6, rotate: -14 }}
+                animate={{ opacity: 1, y: 0, rotate: -12 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.4 }}
+                className="absolute -top-4 -left-4 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+              >
+                {HERO_IMAGES[slideIndex].label}
+              </motion.div>
+            </AnimatePresence>
             <div className="absolute -bottom-4 -right-4 bg-[#FFA526] text-[#6E0B64] text-xs font-black py-2 px-4 rounded-full shadow-lg transform rotate-6 select-none pointer-events-none">
-              Friendship & Growth
+              Friendship &amp; Growth
             </div>
           </div>
         </div>
