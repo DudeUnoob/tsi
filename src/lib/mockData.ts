@@ -482,5 +482,29 @@ export const mockStoreProducts: StoreProduct[] = [
     external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
     featured: true,
     published: true
+  },
+  {
+    id: 4,
+    product_title: "Sanga Plum Classic Tee",
+    slug: "sanga-plum-tshirt",
+    description: "Classic premium heavy-weight cotton t-shirt in our brand Plum purple, featuring the signature 'sanga' logo in vibrant Sunshine Yellow. Durable, soft, and built to last.",
+    image: "/merch-plum-tshirt.png",
+    price: "$28",
+    status: "available",
+    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
+    featured: true,
+    published: true
+  },
+  {
+    id: 5,
+    product_title: "Sanga Linen Logo Tee",
+    slug: "sanga-linen-tshirt",
+    description: "Comfortable light-weight organic cotton t-shirt in Linen off-white, featuring the minimalist 'sanga' brand name printed in deep Plum purple.",
+    image: "/merch-linen-tshirt.png",
+    price: "$28",
+    status: "available",
+    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
+    featured: true,
+    published: true
   }
 ];
