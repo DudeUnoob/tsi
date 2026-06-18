@@ -39,6 +39,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       }))
     : DEFAULT_HERO_IMAGES;
 
+  // Show slideshow only if not hidden by admin AND there is at least one image
+  const showSlideshow = !settings.hero_slideshow_hidden && heroImages.length > 0;
+
   useEffect(() => {
     const timer = setInterval(() => {
       setSlideIndex(prev => (prev + 1) % heroImages.length);
@@ -82,8 +85,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
         </div>
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
-          {/* Left Column: Heading and CTAs */}
-          <div className="md:col-span-7 space-y-8 flex flex-col items-start text-left">
+          {/* Left Column: Heading and CTAs — expands to full width if slideshow is hidden */}
+          <div className={`${showSlideshow ? 'md:col-span-7' : 'md:col-span-12'} space-y-8 flex flex-col items-start text-left`}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -137,7 +140,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </motion.div>
           </div>
 
-          {/* Right Column: Stacked polaroid photo stack */}
+          {/* Right Column: Stacked polaroid photo stack — hidden if admin disables */}
+          {showSlideshow && (
           <div className="md:col-span-5 flex justify-center items-center relative">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -231,6 +235,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               Friendship &amp; Growth
             </motion.div>
           </div>
+          )}
         </div>
 
         {/* Wavy bottom divider separating Hero from Mission */}

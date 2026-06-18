@@ -159,6 +159,7 @@ export interface SiteSettings {
   hero_image_url?: string;
   promo_video_cover_url?: string;
   hero_slideshow_images?: string[];
+  hero_slideshow_hidden?: boolean;
 }
 
 export const mockSiteSettings: SiteSettings = {
@@ -191,7 +192,8 @@ export const mockSiteSettings: SiteSettings = {
     "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
     "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/42af22d1-ea73-4806-ba7b-17c7c415afa5/DSCF0624.jpeg",
     "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"
-  ]
+  ],
+  hero_slideshow_hidden: false
 };
 
 export const mockEvents: Event[] = [

@@ -45,6 +45,7 @@ export default function AdminDashboard() {
 
   // Loaded site states
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(mockSiteSettings);
+  const [slideshowUrls, setSlideshowUrls] = useState<string[]>(mockSiteSettings.hero_slideshow_images ?? ['', '', '']);
   const [events, setEvents] = useState<Event[]>(mockEvents);
   const [products, setProducts] = useState<StoreProduct[]>(mockStoreProducts);
   const [resources, setResources] = useState<Resource[]>(mockResources);
@@ -100,6 +101,7 @@ export default function AdminDashboard() {
     const loadData = async () => {
       const s = await getSiteSettings();
       setSiteSettings(s);
+      setSlideshowUrls(s.hero_slideshow_images ?? ['', '', '']);
       
       const e = await getEvents();
       setEvents(e);
@@ -773,24 +775,65 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="md:col-span-2 space-y-4 pt-2 border-t border-plum/5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Hero Slideshow Images (3 cards)</label>
-                  <p className="text-xs text-plum/50 -mt-2">Paste image URLs for each card in the rotating photo stack on the homepage.</p>
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <span className="text-xs font-black text-plum/40 uppercase tracking-wider w-16 flex-shrink-0">Card {i + 1}</span>
-                      <input
-                        type="text"
-                        defaultValue={siteSettings.hero_slideshow_images?.[i] ?? ''}
-                        onBlur={(e) => {
-                          const updated = [...(siteSettings.hero_slideshow_images ?? ['', '', ''])];
-                          updated[i] = e.target.value;
-                          handleSaveSettings('hero', { hero_slideshow_images: updated });
-                        }}
-                        className="flex-1 px-5 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[#FFA526] transition-all"
-                        placeholder="https://images.squarespace-cdn.com/..."
-                      />
+                  {/* Hide/show toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Hero Photo Slideshow</label>
+                      <p className="text-xs text-plum/40 mt-0.5">Rotating card stack shown on the homepage hero.</p>
                     </div>
-                  ))}
+                    <button
+                      onClick={() => handleSaveSettings('hero', { hero_slideshow_hidden: !siteSettings.hero_slideshow_hidden })}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                        siteSettings.hero_slideshow_hidden ? 'bg-plum/20' : 'bg-[#66CC6E]'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
+                        siteSettings.hero_slideshow_hidden ? 'left-0.5' : 'left-6'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {/* Dynamic image list */}
+                  {!siteSettings.hero_slideshow_hidden && (
+                    <div className="space-y-3">
+                      {slideshowUrls.map((url, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <span className="text-[10px] font-black text-plum/30 uppercase tracking-wider w-6 flex-shrink-0 text-center">{i + 1}</span>
+                          <input
+                            type="text"
+                            value={url}
+                            onChange={(e) => {
+                              const updated = [...slideshowUrls];
+                              updated[i] = e.target.value;
+                              setSlideshowUrls(updated);
+                            }}
+                            onBlur={() => handleSaveSettings('hero', { hero_slideshow_images: slideshowUrls.filter(Boolean) })}
+                            className="flex-1 px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[#FFA526] transition-all"
+                            placeholder="https://images.squarespace-cdn.com/..."
+                          />
+                          <button
+                            onClick={() => {
+                              const updated = slideshowUrls.filter((_, idx) => idx !== i);
+                              setSlideshowUrls(updated);
+                              handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
+                            }}
+                            className="p-2 rounded-xl text-[#E65C17] hover:bg-[#E65C17]/10 transition-all cursor-pointer flex-shrink-0"
+                            title="Remove image"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Add image button */}
+                      <button
+                        onClick={() => setSlideshowUrls([...slideshowUrls, ''])}
+                        className="flex items-center gap-2 text-xs font-bold text-plum/60 hover:text-plum uppercase tracking-wider transition-all cursor-pointer px-4 py-2.5 border border-dashed border-plum/20 hover:border-plum/40 rounded-2xl w-full justify-center"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Add Image
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
