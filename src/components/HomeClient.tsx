@@ -78,10 +78,24 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
       <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-[#6E0B64] text-[#FFEFBF] overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6">
-        {/* Layered Wave Graphics (Absolute overlay blobs) */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10 opacity-20">
-          <div className="absolute top-[-10%] left-[-20%] w-[80vw] h-[80vw] rounded-full bg-[#FF7DB4] filter blur-[120px] mix-blend-screen" />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[90vw] h-[90vw] rounded-full bg-[#BF3078] filter blur-[150px] mix-blend-screen" />
+        {/* Flat organic blob shapes — graphic background */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
+          {/* Top-left large blob */}
+          <svg className="absolute -top-16 -left-20 w-[55vw] h-[75vh] opacity-90" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="#BF3078" opacity="0.85"/>
+          </svg>
+          {/* Bottom-left accent blob */}
+          <svg className="absolute -bottom-20 -left-16 w-[40vw] h-[55vh] opacity-75" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="#8B0A7A" opacity="0.9"/>
+          </svg>
+          {/* Right-side wavy blob */}
+          <svg className="absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] opacity-60" viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="#BF3078" opacity="0.7"/>
+          </svg>
+          {/* Small top-right accent */}
+          <svg className="absolute top-0 right-0 w-[20vw] h-[35vh] opacity-50" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <path d="M160,0 C220,60 220,200 140,260 C60,320 -20,220 10,120 C40,20 100,-60 160,0 Z" fill="#FF7DB4" opacity="0.6"/>
+          </svg>
         </div>
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
