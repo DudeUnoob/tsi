@@ -11,7 +11,7 @@ export default async function ContactPage() {
   return (
     <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
       {/* Wave Header Section */}
-      <div className="relative bg-plum text-[#FFEFBF] pt-24 pb-32 overflow-hidden">
+      <div className="relative bg-plum text-[#FFEFBF] pt-16 pb-32 overflow-hidden">
         <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-0 bottom-0 w-80 h-80 bg-[#FF7DB4]/10 rounded-full blur-3xl pointer-events-none" />
 

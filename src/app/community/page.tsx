@@ -10,7 +10,7 @@ export default async function CommunityPage() {
   return (
     <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
       {/* Hero Header Section with Arch Pattern */}
-      <div className="relative bg-plum text-[#FFEFBF] pt-24 pb-32 overflow-hidden">
+      <div className="relative bg-plum text-[#FFEFBF] pt-16 pb-32 overflow-hidden">
         {/* Layered Decorative Blob/Circles in Background */}
         <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#FF7DB4]/15 rounded-full blur-3xl pointer-events-none" />
