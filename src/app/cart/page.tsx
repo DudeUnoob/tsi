@@ -98,7 +98,7 @@ export default function CartPage() {
           customerEmail: formData.email,
           customerName: formData.name,
           shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-          successUrl: window.location.origin + `/store/checkout/success`,
+          successUrl: window.location.origin + `/checkout/success`,
           cancelUrl: window.location.href
         })
       });
@@ -133,7 +133,7 @@ export default function CartPage() {
             items: cartItems
           }));
           clearCart();
-          window.location.href = `/store/checkout/success?session_id=mock_${Date.now()}`;
+          window.location.href = `/checkout/success?session_id=mock_${Date.now()}`;
         }, 2400);
       }
     } catch (err) {

@@ -68,8 +68,10 @@ export default function Header() {
 
             {/* Desktop Cart Indicator inline with navigation links */}
             <Link
-              href="/store/cart"
-              className="relative p-1.5 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer ml-2"
+              href="/cart"
+              className={`relative p-1.5 text-[#6E0B64] hover:text-[#E65C17] transition-all flex items-center justify-center cursor-pointer ml-2 ${
+                pathname === '/cart' ? 'border-b-2 border-[#6E0B64] pb-0.5' : ''
+              }`}
               aria-label="View shopping cart"
             >
               <ShoppingBag className="h-4.5 w-4.5" />
@@ -93,8 +95,10 @@ export default function Header() {
           <div className="flex items-center space-x-3">
             {/* Mobile Cart Indicator */}
             <Link
-              href="/store/cart"
-              className="relative p-2 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer"
+              href="/cart"
+              className={`relative p-2 text-[#6E0B64] hover:text-[#E65C17] transition-all flex items-center justify-center cursor-pointer ${
+                pathname === '/cart' ? 'text-[#6E0B64] scale-105' : ''
+              }`}
               aria-label="View shopping cart"
             >
               <ShoppingBag className="h-5.5 w-5.5" />

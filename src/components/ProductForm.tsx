@@ -157,7 +157,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         </button>
 
         <Link
-          href="/store/cart"
+          href="/cart"
           className="px-5 py-3.5 border border-[#6E0B64]/20 hover:border-[#6E0B64] bg-[#FFEFBF] text-[#6E0B64] font-black uppercase text-[10px] tracking-widest rounded-xl transition-all duration-200 text-center flex items-center justify-center cursor-pointer shadow-sm hover:shadow"
         >
           View Cart
