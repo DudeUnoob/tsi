@@ -45,7 +45,6 @@ export default function Header() {
               sanga
             </span>
           </Link>
-          
           {/* Navigation Links */}
           <nav className="flex items-center space-x-8">
             {navLinks.map((link) => {
@@ -64,21 +63,21 @@ export default function Header() {
                 </Link>
               );
             })}
+
+            {/* Desktop Cart Indicator inline with navigation links */}
+            <Link
+              href="/store/cart"
+              className="relative p-1.5 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer ml-2"
+              aria-label="View shopping cart"
+            >
+              <ShoppingBag className="h-4.5 w-4.5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#E65C17] text-[#FFEFBF] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm select-none">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </nav>
-          
-          {/* Desktop Cart Indicator */}
-          <Link
-            href="/store/cart"
-            className="relative p-1.5 text-[#6E0B64] hover:text-[#E65C17] transition-colors flex items-center justify-center cursor-pointer ml-4"
-            aria-label="View shopping cart"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#E65C17] text-[#FFEFBF] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm select-none">
-                {cartCount}
-              </span>
-            )}
-          </Link>
         </div>
 
         {/* Mobile Header: Row Layout */}
