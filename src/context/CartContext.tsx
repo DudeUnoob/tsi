@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export interface CartItem {
   id: number;
@@ -54,7 +54,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartItems, isInitialized]);
 
-  const addToCart = (product: any, size: string, quantity: number) => {
+  const addToCart = useCallback((product: any, size: string, quantity: number) => {
     setCartItems((prevItems) => {
       const existingIndex = prevItems.findIndex(
         (item) => item.id === product.id && item.size === size
@@ -81,17 +81,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
       ];
     });
-  };
+  }, []);
 
-  const removeFromCart = (id: number, size: string) => {
+  const removeFromCart = useCallback((id: number, size: string) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => !(item.id === id && item.size === size))
     );
-  };
+  }, []);
 
-  const updateQuantity = (id: number, size: string, quantity: number) => {
+  const updateQuantity = useCallback((id: number, size: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id, size);
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => !(item.id === id && item.size === size))
+      );
       return;
     }
 
@@ -102,11 +104,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           : item
       )
     );
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartItems([]);
-  };
+  }, []);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
