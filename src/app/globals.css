@@ -53,6 +53,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background-color: #FFA526;
+  color: #6E0B64;
+}
+
 /* Glassmorphism panel cards */
 .glass {
   background: rgba(255, 239, 191, 0.4);
