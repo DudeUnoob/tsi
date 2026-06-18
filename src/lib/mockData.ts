@@ -155,6 +155,9 @@ export interface SiteSettings {
   stripe_secret_key?: string;
   stripe_checkout_enabled?: boolean;
   color_palette?: string;
+  promo_video_url?: string;
+  hero_image_url?: string;
+  promo_video_cover_url?: string;
 }
 
 export const mockSiteSettings: SiteSettings = {
@@ -179,7 +182,10 @@ export const mockSiteSettings: SiteSettings = {
   stripe_publishable_key: "",
   stripe_secret_key: "",
   stripe_checkout_enabled: false,
-  color_palette: "default"
+  color_palette: "default",
+  promo_video_url: "https://www.youtube.com/embed/bEBlO9HGTvQ?autoplay=1",
+  hero_image_url: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
+  promo_video_cover_url: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg"
 };
 
 export const mockEvents: Event[] = [

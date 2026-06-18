@@ -74,15 +74,17 @@ export default function ContactForm() {
 
   if (formState === 'success') {
     return (
-      <div className="bg-linen p-8 rounded-3xl border border-plum/15 text-center flex flex-col items-center space-y-4 animate-fadeIn">
-        <CheckCircle2 className="h-14 w-14 text-mint-green" />
-        <h3 className="font-display text-2xl font-bold text-plum">Message Sent!</h3>
-        <p className="text-sm text-warm-black/80 font-sans max-w-sm">
+      <div className="bg-[#FFEFBF] p-8 md:p-12 rounded-[2rem] border border-plum/15 text-center flex flex-col items-center space-y-6 animate-fadeIn">
+        <div className="p-4 bg-[#66CC6E]/15 rounded-full text-[#008030]">
+          <CheckCircle2 className="h-16 w-16" />
+        </div>
+        <h3 className="font-display text-3xl font-bold text-plum">Message Sent!</h3>
+        <p className="text-sm text-warm-black/85 max-w-sm leading-relaxed">
           Thank you for reaching out. We will read your message and get back to you as soon as possible!
         </p>
         <button
           onClick={() => setFormState('idle')}
-          className="mt-4 px-6 py-2.5 bg-plum text-linen hover:bg-tangerine rounded-full font-bold text-xs uppercase tracking-wider transition-colors"
+          className="px-8 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
         >
           Send Another Message
         </button>
@@ -106,44 +108,44 @@ export default function ContactForm() {
 
       {/* Name Input */}
       <div>
-        <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-warm-black/60 mb-2">
+        <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-plum/60 mb-2">
           Your Name (Optional)
         </label>
         <input
           id="name"
           type="text"
-          placeholder="Name"
+          placeholder="e.g. Radhanatha dasa"
           {...register('name')}
           disabled={formState === 'loading'}
-          className="w-full px-4 py-3 bg-linen border border-plum/15 rounded-2xl text-sm placeholder-warm-black/35 focus:outline-none focus:border-plum/45 transition-colors"
+          className="w-full px-5 py-4 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
         />
       </div>
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-warm-black/60 mb-2">
+        <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-plum/60 mb-2">
           Email Address
         </label>
         <input
           id="email"
           type="email"
-          placeholder="email@example.com"
+          placeholder="your.email@example.com"
           {...register('email')}
           disabled={formState === 'loading'}
-          className={`w-full px-4 py-3 bg-linen border rounded-2xl text-sm placeholder-warm-black/35 focus:outline-none focus:border-plum/45 transition-colors ${
-            errors.email ? 'border-tangerine' : 'border-plum/15'
+          className={`w-full px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 ${
+            errors.email ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
           }`}
         />
         {errors.email && (
-          <p className="text-xs text-tangerine mt-1 font-semibold flex items-center">
-            <AlertTriangle className="h-3 w-3 mr-1" /> {errors.email.message}
+          <p className="text-xs text-[#E65C17] mt-2 font-semibold flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5" /> {errors.email.message}
           </p>
         )}
       </div>
 
       {/* Message Input */}
       <div>
-        <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-warm-black/60 mb-2">
+        <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-plum/60 mb-2">
           Message
         </label>
         <textarea
@@ -152,51 +154,55 @@ export default function ContactForm() {
           placeholder="How can Sanga support your journey? Share details about registration issues, event queries, or suggestions..."
           {...register('message')}
           disabled={formState === 'loading'}
-          className={`w-full px-4 py-3 bg-linen border rounded-2xl text-sm placeholder-warm-black/35 focus:outline-none focus:border-plum/45 transition-colors resize-none ${
-            errors.message ? 'border-tangerine' : 'border-plum/15'
+          className={`w-full px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 resize-none ${
+            errors.message ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
           }`}
         />
         {errors.message && (
-          <p className="text-xs text-tangerine mt-1 font-semibold flex items-center">
-            <AlertTriangle className="h-3 w-3 mr-1" /> {errors.message.message}
+          <p className="text-xs text-[#E65C17] mt-2 font-semibold flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5" /> {errors.message.message}
           </p>
         )}
       </div>
 
       {/* Math Captcha Input */}
-      <div>
-        <label htmlFor="captchaAnswer" className="block text-xs font-bold uppercase tracking-wider text-warm-black/60 mb-2">
-          Security Check: What is 4 + 3?
-        </label>
-        <input
-          id="captchaAnswer"
-          type="text"
-          placeholder="Your answer"
-          {...register('captchaAnswer')}
-          disabled={formState === 'loading'}
-          className={`w-28 px-4 py-3 bg-linen border rounded-2xl text-sm placeholder-warm-black/35 focus:outline-none focus:border-plum/45 transition-colors text-center ${
-            errors.captchaAnswer ? 'border-tangerine' : 'border-plum/15'
-          }`}
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex-1">
+          <label htmlFor="captchaAnswer" className="block text-xs font-bold uppercase tracking-wider text-plum/60 mb-2">
+            Security Check: What is 4 + 3?
+          </label>
+          <input
+            id="captchaAnswer"
+            type="text"
+            placeholder="Answer"
+            {...register('captchaAnswer')}
+            disabled={formState === 'loading'}
+            className={`w-full sm:w-32 px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none text-center transition-all duration-200 ${
+              errors.captchaAnswer ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
+            }`}
+          />
+        </div>
         {errors.captchaAnswer && (
-          <p className="text-xs text-tangerine mt-1 font-semibold flex items-center">
-            <AlertTriangle className="h-3 w-3 mr-1" /> {errors.captchaAnswer.message}
+          <p className="text-xs text-[#E65C17] font-semibold flex items-center gap-1.5 self-end sm:mb-4">
+            <AlertTriangle className="h-3.5 w-3.5" /> {errors.captchaAnswer.message}
           </p>
         )}
       </div>
 
-      {/* Submit Button */}
+      {/* Error Message Box */}
       {formState === 'error' && (
-        <p className="text-xs text-tangerine font-semibold flex items-center bg-tangerine/5 p-3 rounded-xl border border-tangerine/10">
-          <AlertTriangle className="h-4 w-4 mr-2" /> {errorMessage}
-        </p>
+        <div className="text-xs text-[#E65C17] font-semibold flex items-center gap-2.5 bg-[#E65C17]/5 p-4 rounded-xl border border-[#E65C17]/10">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
       )}
 
-      <div>
+      {/* Submit Button */}
+      <div className="pt-2">
         <button
           type="submit"
           disabled={formState === 'loading'}
-          className="w-full sm:w-auto px-8 py-3.5 bg-plum text-linen hover:bg-tangerine hover:text-linen font-bold text-xs uppercase tracking-wider rounded-full shadow-sm hover:shadow-md transition-all duration-200 inline-flex items-center justify-center cursor-pointer"
+          className="w-full sm:w-auto px-8 py-4 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all duration-300 inline-flex items-center justify-center cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {formState === 'loading' ? (
             <>

@@ -15,23 +15,10 @@ interface HomeClientProps {
 export default function HomeClient({ settings, events }: HomeClientProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  const row1Images = [
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515990475221-G6PMK88KDKEZBVPTKG5Q/20449208_1382154528538531_900680314886261379_o.jpg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/42af22d1-ea73-4806-ba7b-17c7c415afa5/DSCF0624.jpeg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
-  ];
-
-  const row2Images = [
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/aca2ad4f-66ca-4068-8f63-ab6a20bdbb67/1000133787.png",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/f1d1c411-95f8-4755-80a8-2afc7ffd537b/4.png",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg",
-    "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/24f4d1b2-d8b6-451a-9eb5-5d0fceca8616/3.png"
-  ];
+  // Group events by category for the showcase cards
+  const retreatsEvent = events.find(e => e.category === 'retreat' || e.slug === 'tsi-summit') || events[0];
+  const talksEvent = events.find(e => e.category === 'online' || e.category === 'talk' || e.slug === 'heartspace') || events[1];
+  const tripsEvent = events.find(e => e.category === 'trip' || e.slug === 'vrindavana-yatra') || events[2];
 
   // Animation presets
   const containerVariants = {
@@ -40,149 +27,155 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       opacity: 1,
       transition: { staggerChildren: 0.15 }
     }
-  };
+  } as const;
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 35 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring' as const, stiffness: 100, damping: 20 }
+      transition: { type: 'spring' as const, stiffness: 80, damping: 20 }
     }
-  };
+  } as const;
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="relative w-full bg-[#FFEFBF] text-[#1E1D1B] font-sans">
       
-      {/* 1. Hero Section */}
-      <section className="relative min-h-[92vh] flex flex-col items-center justify-center px-6 py-20 bg-gradient-to-b from-linen via-linen to-linen/60 overflow-hidden">
-        {/* Soft floating background circles */}
-        <div className="absolute top-1/4 left-10 w-72 h-72 rounded-full bg-sunshine/10 blur-3xl -z-10" />
-        <div className="absolute bottom-1/4 right-10 w-96 h-96 rounded-full bg-pink/10 blur-3xl -z-10" />
-
-        <div className="max-w-4xl mx-auto text-center flex flex-col items-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center space-x-2 px-4 py-1.5 bg-plum/5 rounded-full border border-plum/10 mb-6"
-          >
-            <span className="w-2 h-2 rounded-full bg-pink animate-pulse" />
-            <span className="text-xs uppercase tracking-wider text-plum font-bold font-sans">
-              Welcome to the Sanga Collective
-            </span>
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.6 }}
-            className="font-display text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-plum leading-[1.08] mb-6"
-          >
-            {settings.hero_headline}
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-lg sm:text-xl text-warm-black/75 leading-relaxed max-w-2xl mb-10 font-sans"
-          >
-            {settings.hero_subheadline}
-          </motion.p>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
-          >
-            <Link 
-              href={settings.primary_cta_url}
-              className="w-full sm:w-auto px-8 py-4 bg-plum text-linen hover:bg-tangerine rounded-full font-bold text-sm tracking-wide uppercase transition-all duration-200 text-center hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {settings.primary_cta_label}
-            </Link>
-            <a 
-              href={settings.secondary_cta_url}
-              className="w-full sm:w-auto px-8 py-4 bg-linen border border-plum/20 text-plum hover:bg-plum/5 rounded-full font-bold text-sm tracking-wide uppercase transition-all duration-200 text-center"
-            >
-              {settings.secondary_cta_label}
-            </a>
-          </motion.div>
+      {/* 1. HERO SECTION WITH LAYERED WAVES */}
+      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-[#6E0B64] text-[#FFEFBF] overflow-hidden pt-12 pb-24 md:py-32 px-6">
+        {/* Layered Wave Graphics (Absolute overlay blobs) */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10 opacity-20">
+          <div className="absolute top-[-10%] left-[-20%] w-[80vw] h-[80vw] rounded-full bg-[#FF7DB4] filter blur-[120px] mix-blend-screen" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[90vw] h-[90vw] rounded-full bg-[#BF3078] filter blur-[150px] mix-blend-screen" />
         </div>
 
-        {/* Full-width Horizontal Marquee in Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="w-full max-w-7xl mx-auto overflow-hidden relative"
-        >
-          {/* Left & Right fading overlays */}
-          <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-linen to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-linen to-transparent z-10 pointer-events-none" />
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
+          {/* Left Column: Heading and CTAs */}
+          <div className="md:col-span-7 space-y-8 flex flex-col items-start text-left">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center space-x-2 px-4 py-1.5 bg-[#FFEFBF]/10 rounded-full border border-[#FFEFBF]/20"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF7DB4] animate-pulse" />
+              <span className="text-xs uppercase tracking-widest text-[#FFEFBF] font-black font-sans">
+                Welcome to Sanga
+              </span>
+            </motion.div>
 
-          <div className="flex w-max gap-4 animate-marquee hover:[animation-play-state:paused] cursor-grab active:cursor-grabbing">
-            {[...row1Images, ...row2Images, ...row1Images, ...row2Images].map((src, index) => (
-              <div 
-                key={`hero-marquee-${index}`}
-                className="relative w-48 sm:w-64 h-32 sm:h-40 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:scale-102 active:scale-99 transition-all duration-300 border border-plum/5"
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.6 }}
+              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#FFA526] leading-[1.05]"
+            >
+              Sanga is a <br className="hidden sm:inline" />
+              Vaishnava Youth <br className="hidden sm:inline" />
+              Collective
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-lg sm:text-2xl text-[#FFEFBF]/90 leading-relaxed font-light font-sans max-w-xl"
+            >
+              For friendship, growth, and shared experience
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+              className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
+            >
+              <Link
+                href={settings.primary_cta_url}
+                className="w-full sm:w-auto px-8 py-4 bg-[#FFA526] text-[#6E0B64] hover:bg-[#E65C17] hover:text-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center hover:shadow-lg active:scale-98"
               >
-                <Image 
-                  src={src} 
-                  alt={`Sanga Moment ${index + 1}`}
-                  fill
-                  sizes="(max-width: 640px) 192px, 256px"
-                  className="object-cover pointer-events-none"
-                  priority={index < 5}
-                />
-              </div>
-            ))}
+                {settings.primary_cta_label}
+              </Link>
+              <a
+                href={settings.secondary_cta_url}
+                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-[#FFEFBF]/30 text-[#FFEFBF] hover:bg-[#FFEFBF]/10 hover:border-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
+              >
+                {settings.secondary_cta_label}
+              </a>
+            </motion.div>
           </div>
-        </motion.div>
-      </section>
 
-      {/* 2. Intro Section */}
-      <section id="experiences" className="max-w-7xl mx-auto px-6 py-24 border-t border-plum/5">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-          <div className="col-span-1 md:col-span-5">
-            <span className="text-xs uppercase tracking-wider text-tangerine font-bold font-sans">
-              Who We Are
-            </span>
-            <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-plum mt-2 mb-6 leading-tight">
-              {settings.intro_headline}
-            </h2>
-            <div className="h-1 w-20 bg-sunshine rounded-full" />
+          {/* Right Column: Premium Blob Image Grid */}
+          <div className="md:col-span-5 flex justify-center relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35, duration: 0.7 }}
+              className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[400px] md:h-[400px] blob-1 overflow-hidden shadow-2xl border-4 border-[#FFA526]/40 bg-[#1E1D1B]"
+            >
+              <Image
+                src={settings.hero_image_url || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg"}
+                alt="Sanga Youth Gathering"
+                fill
+                className="object-cover object-center"
+                priority
+              />
+            </motion.div>
+
+            {/* Float badges for micro-interaction */}
+            <div className="absolute -top-4 -left-4 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg transform -rotate-12 select-none pointer-events-none">
+              Summer Camp &apos;26
+            </div>
+            <div className="absolute -bottom-4 -right-4 bg-[#FFA526] text-[#6E0B64] text-xs font-black py-2 px-4 rounded-full shadow-lg transform rotate-6 select-none pointer-events-none">
+              Friendship & Growth
+            </div>
           </div>
-          <div className="col-span-1 md:col-span-7">
-            <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans font-light">
-              {settings.intro_text}
-            </p>
-          </div>
+        </div>
+
+        {/* Wavy bottom divider separating Hero from Mission */}
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-16 fill-[#FFEFBF]">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C26.9,4.75,55.05,16.35,80,25.23,135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44Z" />
+          </svg>
         </div>
       </section>
 
-      {/* 3. Upcoming Experiences Grid */}
-      <section className="bg-linen/40 py-24 border-t border-b border-plum/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12">
-            <div>
-              <span className="text-xs uppercase tracking-wider text-pink font-bold font-sans">
+      {/* 2. MISSION STATEMENT SECTION */}
+      <section className="relative bg-[#FFEFBF] py-24 md:py-32 px-6 border-b border-[#6E0B64]/5">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <p className="font-display text-2xl sm:text-4xl leading-relaxed text-[#6E0B64] font-medium tracking-tight">
+            <span className="font-extrabold text-[#E65C17] uppercase tracking-wider text-xs block mb-4">Our Core Mission</span>
+            <strong>Sanga</strong> brings together young people exploring Krishna consciousness through friendship, conversation, and shared experience.
+          </p>
+          <div className="h-1 w-24 bg-[#FFA526] mx-auto rounded-full" />
+          <p className="font-sans text-lg sm:text-xl text-[#1E1D1B]/80 leading-relaxed max-w-2xl mx-auto font-light">
+            Through retreats, gatherings, and ongoing connection, members build relationships that carry into everyday life.
+          </p>
+        </div>
+      </section>
+
+      {/* 3. UPCOMING EXPERIENCES (ARCHED CARDS) */}
+      <section className="bg-[#FFEFBF] py-24 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-wider text-[#E65C17] font-black font-sans">
                 Gatherings
               </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-bold text-plum mt-2">
+              <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64]">
                 Upcoming Experiences
               </h2>
             </div>
             <Link 
               href="/gatherings"
-              className="inline-flex items-center text-sm font-bold uppercase tracking-wider text-plum hover:text-tangerine mt-4 sm:mt-0 transition-colors"
+              className="inline-flex items-center text-sm font-black uppercase tracking-wider text-[#6E0B64] hover:text-[#E65C17] transition-colors mt-4 md:mt-0 gap-1.5"
             >
-              View All Gatherings <ArrowRight className="ml-2 h-4 w-4" />
+              View All Gatherings <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
+          {/* Cards Grid */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
@@ -190,189 +183,298 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             viewport={{ once: true, margin: '-100px' }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
-            {events.slice(0, 3).map((event) => (
+            {/* Card 1: Retreats */}
+            {retreatsEvent && (
               <motion.div 
-                key={event.id}
                 variants={itemVariants}
-                className="group flex flex-col bg-linen rounded-3xl border border-plum/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
-                {/* Image Wrap */}
-                <div className="relative h-64 w-full bg-plum/5 overflow-hidden">
-                  {event.hero_image ? (
-                    <Image 
-                      src={event.hero_image} 
-                      alt={event.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-plum/5">
-                      <Calendar className="h-10 w-10 text-plum/20" />
-                    </div>
-                  )}
-                  {/* Category Tag */}
-                  <span className="absolute top-4 left-4 px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-linen text-plum rounded-full border border-plum/10 shadow-sm">
-                    {event.category}
+                {/* Wavy Arched Label */}
+                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                  <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
+                    Retreats
                   </span>
-                  {/* Age Tag */}
-                  {event.age_range && (
-                    <span className="absolute top-4 right-4 px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-pink text-warm-black rounded-full shadow-sm">
-                      Ages {event.age_range}
-                    </span>
-                  )}
+                  <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                      <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
+                    </svg>
+                  </div>
                 </div>
 
-                {/* Content Wrap */}
-                <div className="flex-grow p-6 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-display text-2xl font-bold text-plum group-hover:text-tangerine transition-colors mb-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-xs text-warm-black/60 font-sans font-medium mb-4">
-                      {event.location} &bull; {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                    <p className="text-sm text-warm-black/75 leading-relaxed font-sans line-clamp-3 mb-6">
-                      {event.short_description}
-                    </p>
-                  </div>
+                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                  <Image 
+                    src={retreatsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png"}
+                    alt={retreatsEvent.title}
+                    fill
+                    className="object-cover group-hover:scale-103 transition-transform duration-500"
+                  />
+                </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-plum/5">
-                    <span className="text-sm font-bold text-plum font-sans">
-                      {event.price}
-                    </span>
-                    <Link 
-                      href={`/gatherings/${event.slug}`}
-                      className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-plum group-hover:text-tangerine transition-colors"
-                    >
-                      Details <ArrowRight className="ml-1 h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                      {retreatsEvent.title}
+                    </h3>
+                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                      {new Date(retreatsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {retreatsEvent.location}
+                    </p>
                   </div>
+                  <Link 
+                    href={`/gatherings/${retreatsEvent.slug}`}
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                  >
+                    View Retreat Details &rarr;
+                  </Link>
                 </div>
               </motion.div>
-            ))}
+            )}
+
+            {/* Card 2: Talks */}
+            {talksEvent && (
+              <motion.div 
+                variants={itemVariants}
+                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+              >
+                {/* Wavy Arched Label */}
+                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                  <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
+                    Talks
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                      <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                  <Image 
+                    src={talksEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"}
+                    alt={talksEvent.title}
+                    fill
+                    className="object-cover group-hover:scale-103 transition-transform duration-500"
+                  />
+                </div>
+
+                <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                      {talksEvent.title}
+                    </h3>
+                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                      {new Date(talksEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {talksEvent.location}
+                    </p>
+                  </div>
+                  <Link 
+                    href={`/gatherings/${talksEvent.slug}`}
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                  >
+                    View Session Details &rarr;
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Card 3: Trips */}
+            {tripsEvent && (
+              <motion.div 
+                variants={itemVariants}
+                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+              >
+                {/* Wavy Arched Label */}
+                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                  <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
+                    Trips
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                      <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                  <Image 
+                    src={tripsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515990475221-G6PMK88KDKEZBVPTKG5Q/20449208_1382154528538531_900680314886261379_o.jpg"}
+                    alt={tripsEvent.title}
+                    fill
+                    className="object-cover group-hover:scale-103 transition-transform duration-500"
+                  />
+                </div>
+
+                <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
+                  <div className="space-y-3">
+                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                      {tripsEvent.title}
+                    </h3>
+                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                      {new Date(tripsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {tripsEvent.location}
+                    </p>
+                  </div>
+                  <Link 
+                    href={`/gatherings/${tripsEvent.slug}`}
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                  >
+                    View Trip Details &rarr;
+                  </Link>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
 
-      {/* 4. Connection / WhatsApp Section */}
-      <section className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-        <div className="col-span-1 md:col-span-7 flex flex-col justify-center">
-          <span className="text-xs uppercase tracking-wider text-sky-blue font-bold font-sans">
-            Stay Connected
-          </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-plum mt-2 mb-6">
-            {settings.community_headline}
-          </h2>
-          <p className="text-base sm:text-lg text-warm-black/85 leading-relaxed font-sans mb-8">
-            {settings.community_text}
-          </p>
-          <div className="flex flex-col space-y-4">
-            <p className="text-sm text-warm-black/60 font-semibold italic">
-              “For more information on TSI offerings, join the TSI Community WhatsApp.”
+      {/* 4. THE CONNECTION CONTINUES (OVERLAPPING CIRCLES GRID) */}
+      <section className="bg-[#FFEFBF] py-24 px-6 relative border-t border-[#6E0B64]/5 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+          {/* Left Side: Copy and Button */}
+          <div className="md:col-span-6 space-y-8 text-left">
+            <span className="text-xs uppercase tracking-wider text-[#FF7DB4] font-black font-sans bg-[#6E0B64]/5 py-1.5 px-4 rounded-full border border-[#6E0B64]/10">
+              The Connection Continues
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64] leading-tight">
+              More than just retreats
+            </h2>
+            <p className="text-base sm:text-lg text-[#1E1D1B]/80 leading-relaxed font-sans font-light">
+              Sanga doesn&apos;t begin and end with major events. Smaller gatherings, conversations, online sessions, and ongoing friendships continue throughout the year and across different stages of life.
             </p>
             <div>
-              <a
-                href={settings.whatsapp_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3.5 bg-mint-green hover:bg-grass-green text-warm-black hover:text-linen font-bold text-sm tracking-wide uppercase rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+              <Link 
+                href="/gatherings"
+                className="inline-flex px-8 py-4 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
-                <MessageCircle className="mr-2 h-5 w-5 fill-current" /> Join the Community WhatsApp
-              </a>
+                See What&apos;s Happening
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Side: Overlapping Concentric Circles Displays */}
+          <div className="md:col-span-6 relative h-[380px] sm:h-[450px] w-full flex items-center justify-center">
+            {/* Center Main Circle */}
+            <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full border-8 border-[#FFA526] overflow-hidden shadow-xl z-20 hover:scale-102 transition-transform duration-300">
+              <Image 
+                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
+                alt="Sanga Friendship"
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            {/* Bottom Left Circle */}
+            <div className="absolute bottom-4 left-4 sm:left-12 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-6 border-[#FF7DB4] overflow-hidden shadow-lg z-30 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
+              <Image 
+                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg"
+                alt="Sanga Laughs"
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            {/* Top Right Circle */}
+            <div className="absolute top-4 right-4 sm:right-12 w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-[#FFA526] overflow-hidden shadow-lg z-10 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
+              <Image 
+                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png"
+                alt="Sanga Association"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>
-        
-        <div className="col-span-1 md:col-span-5 bg-sunshine/5 rounded-3xl p-8 border border-plum/5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-sunshine/10 rounded-bl-full -z-10" />
-          <h3 className="font-display text-xl font-bold text-plum mb-4 flex items-center">
-            <Users className="mr-2 h-5 w-5 text-tangerine" /> Smaller Gatherings
-          </h3>
-          <p className="text-sm text-warm-black/75 leading-relaxed font-sans mb-6">
-            We meet online and offline across regions (Midwest, East Coast, South, and Canada) for weekly readings, discussions, bhajans, and check-ins.
-          </p>
-          <h3 className="font-display text-xl font-bold text-plum mb-4 flex items-center">
-            <Heart className="mr-2 h-5 w-5 text-pink" /> Devotee Friendship
-          </h3>
-          <p className="text-sm text-warm-black/75 leading-relaxed font-sans">
-            Navigating spiritual life has its challenges. Sanga helps you find like-minded friends who support you through transitions, study, and daily bhakti practice.
-          </p>
-        </div>
       </section>
 
-      {/* 5. Moments Video / Media Section */}
-      <section className="bg-plum text-linen py-24">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <span className="text-xs uppercase tracking-wider text-pink font-bold font-sans">
+      {/* 5. MOMENTS VIDEO SECTION */}
+      <section className="bg-[#6E0B64] text-[#FFEFBF] py-24 relative overflow-hidden">
+        {/* Soft background glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1E1D1B]/20 pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-6">
+          <span className="text-xs uppercase tracking-wider text-[#FF7DB4] font-black font-sans bg-[#FFEFBF]/10 py-1 px-3.5 rounded-full border border-[#FFEFBF]/20">
             Retreat Memories
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-bold text-linen mt-2 mb-6">
-            The Moments in Between
+          <h2 className="font-display text-4xl sm:text-5xl font-black text-[#FFEFBF]">
+            The moments in between
           </h2>
-          <p className="text-sm sm:text-base text-linen/75 leading-relaxed max-w-2xl mx-auto mb-10">
+          <p className="text-sm sm:text-base text-[#FFEFBF]/70 leading-relaxed max-w-2xl mx-auto font-light">
             Take a look at snapshots of conversations, musical kirtans, workshops, and shared memories from our recent summer retreats.
           </p>
           
-          {/* Interactive Video Container */}
+          {/* Video Trigger Container */}
           <div 
             onClick={() => setIsVideoOpen(true)}
-            className="relative aspect-video w-full max-w-3xl mx-auto bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 group cursor-pointer"
+            className="relative aspect-video w-full max-w-3xl mx-auto bg-[#1E1D1B] rounded-3xl overflow-hidden shadow-2xl border border-[#FFEFBF]/10 group cursor-pointer"
           >
             <Image 
-              src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg" 
+              src={settings.promo_video_cover_url || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg"} 
               alt="Sanga Video Cover" 
               fill
-              className="object-cover opacity-60 group-hover:scale-102 transition-transform duration-500"
+              className="object-cover opacity-60 group-hover:scale-101 transition-transform duration-700"
             />
             {/* Play Button Overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div 
-                className="p-5 sm:p-6 bg-pink text-warm-black rounded-full shadow-lg group-hover:scale-110 group-active:scale-95 group-hover:bg-sunshine transition-all duration-300"
+                className="p-5 sm:p-6 bg-[#FF7DB4] text-[#1E1D1B] rounded-full shadow-lg group-hover:scale-110 group-active:scale-95 group-hover:bg-[#FFA526] transition-all duration-300"
                 aria-label="Play video"
               >
                 <Play className="h-6 sm:h-8 w-6 sm:w-8 fill-current translate-x-0.5" />
               </div>
             </div>
             {/* Small label */}
-            <div className="absolute bottom-4 left-6 text-xs text-linen/60 font-sans tracking-wide">
+            <div className="absolute bottom-4 left-6 text-xs text-[#FFEFBF]/60 font-sans tracking-wide">
               Sanga Summer Retrospect Video &bull; 3:45
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Support Section */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
-        <span className="text-xs uppercase tracking-wider text-tangerine font-bold font-sans">
+      {/* 6. SUPPORT SECTION */}
+      <section className="max-w-4xl mx-auto px-6 py-24 text-center space-y-8">
+        <span className="text-xs uppercase tracking-wider text-[#E65C17] font-black font-sans">
           Support Sanga
         </span>
-        <h2 className="font-display text-3xl sm:text-5xl font-bold text-plum mt-2 mb-6">
+        <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64]">
           {settings.support_headline}
         </h2>
-        <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed mb-10 font-sans max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-[#1E1D1B]/80 leading-relaxed font-sans max-w-2xl mx-auto font-light">
           {settings.support_text}
         </p>
         <Link 
           href="/support"
-          className="inline-flex items-center px-8 py-4 bg-plum text-linen hover:bg-tangerine rounded-full font-bold text-sm tracking-wide uppercase transition-all duration-200"
+          className="inline-flex items-center px-8 py-4 bg-[#6E0B64] text-[#FFEFBF] hover:bg-[#E65C17] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
         >
           Become a Supporter <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </section>
+
       {/* Video Modal Overlay */}
       {isVideoOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-warm-black/85 backdrop-blur-md transition-opacity duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#1E1D1B]/90 backdrop-blur-md transition-opacity duration-300">
           <div className="absolute inset-0" onClick={() => setIsVideoOpen(false)} />
-          <div className="relative w-full max-w-4xl bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 aspect-video z-10 scale-95 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-4xl bg-[#1E1D1B] rounded-3xl overflow-hidden shadow-2xl border border-[#FFEFBF]/10 aspect-video z-10 scale-95 animate-in fade-in zoom-in-95 duration-200">
             <button 
               onClick={() => setIsVideoOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 bg-warm-black/50 hover:bg-warm-black/80 text-linen hover:text-pink rounded-full transition-all cursor-pointer"
+              className="absolute top-4 right-4 z-20 p-2 bg-[#1E1D1B]/50 hover:bg-[#1E1D1B]/80 text-[#FFEFBF] hover:text-[#FF7DB4] rounded-full transition-all cursor-pointer"
               aria-label="Close video"
             >
               <X className="h-6 w-6" />
             </button>
             <iframe
-              src="https://www.youtube.com/embed/bEBlO9HGTvQ?autoplay=1"
+              src={(() => {
+                const url = settings.promo_video_url || "https://www.youtube.com/embed/bEBlO9HGTvQ";
+                if (url.includes('/embed/')) {
+                  return url.includes('autoplay=1') ? url : (url.includes('?') ? `${url}&autoplay=1` : `${url}?autoplay=1`);
+                }
+                let videoId = "";
+                if (url.includes('youtu.be/')) {
+                  videoId = url.split('youtu.be/')[1]?.split(/[?#]/)[0];
+                } else if (url.includes('v=')) {
+                  videoId = url.split('v=')[1]?.split('&')[0];
+                }
+                return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : `${url}?autoplay=1`;
+              })()}
               title="Sanga Retreat Highlights"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

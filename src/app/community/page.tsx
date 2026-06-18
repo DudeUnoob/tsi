@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSiteSettings } from '@/lib/supabase';
-import { MessageCircle, Users, Compass, Globe } from 'lucide-react';
+import { MessageCircle, MapPin, Sparkles, Heart, Compass, Users, Globe } from 'lucide-react';
 
 export const revalidate = 0;
 
@@ -8,84 +8,132 @@ export default async function CommunityPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div className="bg-linen min-h-screen py-16 font-sans">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
+      {/* Hero Header Section with Arch Pattern */}
+      <div className="relative bg-plum text-[#FFEFBF] pt-24 pb-32 overflow-hidden">
+        {/* Layered Decorative Blob/Circles in Background */}
+        <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#FF7DB4]/15 rounded-full blur-3xl pointer-events-none" />
         
-        {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase tracking-wider text-tangerine font-bold font-sans">
-            Sanga Circle
+        <div className="max-w-4xl mx-auto px-6 relative z-10 text-center space-y-6">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFA526]/20 border border-[#FFA526]/40 text-[#FFA526] text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" /> Sanga Circle
           </span>
-          <h1 className="font-display text-4xl sm:text-6xl font-bold tracking-tight text-plum mt-2 mb-6">
-            The Connection Continues
+          <h1 className="font-display text-5xl sm:text-7xl font-bold tracking-tight text-white leading-tight">
+            The connection <span className="text-[#FFA526]">continues</span>
           </h1>
-          <p className="text-base sm:text-lg text-warm-black/75 leading-relaxed font-sans">
+          <p className="text-lg sm:text-xl text-[#FFEFBF]/85 max-w-2xl mx-auto font-light leading-relaxed">
             Sanga is built through people, not programmes. It doesn’t begin and end with major retreats—friendships and connections carry on day-to-day throughout the year.
           </p>
         </div>
 
-        {/* WhatsApp Call to Action */}
-        <div className="max-w-4xl mx-auto bg-plum text-linen rounded-3xl p-8 md:p-12 mb-16 shadow-lg border border-linen/10 relative overflow-hidden flex flex-col md:flex-row items-center md:justify-between gap-8">
-          <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-pink/10 rounded-full blur-2xl" />
-          <div className="absolute -left-10 -top-10 w-40 h-40 bg-sunshine/10 rounded-full blur-2xl" />
-          
-          <div className="flex-grow space-y-4 max-w-xl text-center md:text-left">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-linen">
-              Join the Sanga Circle
-            </h2>
-            <p className="text-sm sm:text-base text-linen/80 leading-relaxed font-light">
-              For more information on TSI offerings, join the TSI Community WhatsApp. It&apos;s the central hub for local meetups, announcements, and direct conversations.
+        {/* Decorative Wave Separator */}
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0]">
+          <svg className="relative block w-full h-12 text-[#FFEFBF] fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,60 C300,100 600,20 900,80 L1200,60 L1200,120 L0,120 Z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 -mt-16 relative z-20">
+        {/* Quote Card (Brand Identity System Statement) */}
+        <div className="bg-[#FFA526] text-plum rounded-3xl p-8 md:p-12 mb-16 shadow-xl border border-plum/10 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="absolute right-0 top-0 w-64 h-64 bg-[#FF7DB4]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="space-y-3 max-w-xl">
+            <p className="font-display text-3xl sm:text-4xl font-bold leading-tight">
+              &ldquo;Come for the experience. Stay for the people.&rdquo;
+            </p>
+            <p className="text-[#6E0B64]/80 text-sm font-sans tracking-wide uppercase font-semibold">
+              The foundational heart of the Vaishnava Youth Collective
             </p>
           </div>
-          
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 w-full md:w-auto">
             <a
-              href={settings.whatsapp_url}
+              href={settings.whatsapp_url || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-4 bg-mint-green hover:bg-grass-green text-warm-black hover:text-linen font-bold text-sm tracking-wide uppercase rounded-full shadow-md transition-all duration-200"
+              className="w-full md:w-auto inline-flex items-center justify-center px-8 py-4 bg-plum hover:bg-plum/90 text-[#FFEFBF] hover:text-[#FFA526] font-bold text-sm tracking-wide uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
             >
               <MessageCircle className="mr-2 h-5 w-5 fill-current" /> Join Sanga WhatsApp
             </a>
           </div>
         </div>
 
+        {/* Section Heading */}
+        <div className="text-center mb-12 space-y-2">
+          <h2 className="font-display text-3xl sm:text-4xl text-plum">How We Stay Connected</h2>
+          <div className="w-12 h-1 bg-[#FFA526] mx-auto rounded-full" />
+        </div>
+
         {/* Community Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-linen p-8 rounded-3xl border border-plum/10 flex flex-col space-y-4">
-            <div className="p-3 bg-pink/15 rounded-2xl w-fit text-plum">
-              <Compass className="h-6 w-6" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          {/* Card 1 */}
+          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#FF7DB4]/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+            <div className="space-y-6">
+              <div className="p-4 bg-[#FF7DB4]/15 rounded-2xl w-fit text-plum">
+                <Compass className="h-7 w-7" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                  Regional Circles
+                </h3>
+                <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
+                  Active regional circles organize offline gatherings across the Midwest, Northeast, West Coast, and parts of Canada. Meetups include hiking trips, potlucks, and backyard kirtans.
+                </p>
+              </div>
             </div>
-            <h3 className="font-display text-xl font-bold text-plum">Regional Sanga Circles</h3>
-            <p className="text-sm text-warm-black/75 leading-relaxed font-sans font-light">
-              Active regional circles organize offline gatherings across the Midwest, Northeast, West Coast, and parts of Canada. Meetups include hiking trips, potlucks, and backyard kirtans.
-            </p>
+            <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
+              <MapPin className="w-4 h-4 text-[#FFA526]" /> 4 Regions & Growing
+            </div>
           </div>
 
-          <div className="bg-linen p-8 rounded-3xl border border-plum/10 flex flex-col space-y-4">
-            <div className="p-3 bg-sunshine/15 rounded-2xl w-fit text-plum">
-              <Globe className="h-6 w-6" />
+          {/* Card 2 */}
+          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#FFA526]/10 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+            <div className="space-y-6">
+              <div className="p-4 bg-[#FFA526]/25 rounded-2xl w-fit text-plum">
+                <Globe className="h-7 w-7" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                  Online Conversations
+                </h3>
+                <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
+                  We host regular online talks and study spaces like the Heartspace program. It&apos;s a low-pressure online check-in to study texts, ask questions, and share inspirations.
+                </p>
+              </div>
             </div>
-            <h3 className="font-display text-xl font-bold text-plum">Online Conversations</h3>
-            <p className="text-sm text-warm-black/75 leading-relaxed font-sans font-light">
-              We host regular online talks and study spaces like the Heartspace program. It&apos;s a low-pressure online check-in to study texts, ask questions, and share inspirations.
-            </p>
+            <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
+              <Sparkles className="w-4 h-4 text-[#FFA526]" /> Online Programs
+            </div>
           </div>
 
-          <div className="bg-linen p-8 rounded-3xl border border-plum/10 flex flex-col space-y-4">
-            <div className="p-3 bg-sky-blue/15 rounded-2xl w-fit text-plum">
-              <Users className="h-6 w-6" />
+          {/* Card 3 */}
+          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#17B2E6]/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+            <div className="space-y-6">
+              <div className="p-4 bg-[#17B2E6]/15 rounded-2xl w-fit text-plum">
+                <Users className="h-7 w-7" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                  Bhakti Friendships
+                </h3>
+                <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
+                  Spiritual growth is easier together. Sanga connects you with peers at different stages of life, helping you navigate studies, careers, and relationships while keeping bhakti at the center.
+                </p>
+              </div>
             </div>
-            <h3 className="font-display text-xl font-bold text-plum">Bhakti Friendships</h3>
-            <p className="text-sm text-warm-black/75 leading-relaxed font-sans font-light">
-              Spiritual growth is easier together. Sanga connects you with peers at different stages of life, helping you navigate studies, careers, and relationships while keeping bhakti at the center.
-            </p>
+            <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
+              <Heart className="w-4 h-4 text-[#FF7DB4] fill-current" /> Relationship-driven
+            </div>
           </div>
         </div>
 
         {/* Future Platform Note */}
-        <div className="max-w-3xl mx-auto text-center py-8 border-t border-plum/5">
-          <p className="text-xs text-warm-black/55 leading-relaxed max-w-md mx-auto">
+        <div className="max-w-3xl mx-auto text-center py-10 border-t border-plum/10 bg-plum/5 rounded-3xl px-6">
+          <p className="text-xs text-warm-black/60 leading-relaxed max-w-md mx-auto">
             We are currently refining a dedicated Sanga community platform to make hosting events and staying in touch even easier. Announcements will be posted in the WhatsApp groups.
           </p>
         </div>
