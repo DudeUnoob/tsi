@@ -65,7 +65,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     <div className="relative w-full bg-[#FFEFBF] text-[#1E1D1B] font-sans">
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
-      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-[#6E0B64] text-[#FFEFBF] overflow-hidden pt-12 pb-24 md:py-32 px-6">
+      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-[#6E0B64] text-[#FFEFBF] overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6">
         {/* Layered Wave Graphics (Absolute overlay blobs) */}
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10 opacity-20">
           <div className="absolute top-[-10%] left-[-20%] w-[80vw] h-[80vw] rounded-full bg-[#FF7DB4] filter blur-[120px] mix-blend-screen" />
