@@ -92,7 +92,6 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--color-plum);
 }
 
 /* Custom Marquee Animations for moving images showcase */
