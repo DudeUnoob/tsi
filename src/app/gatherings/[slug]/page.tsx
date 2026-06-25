@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getEventBySlug } from '@/lib/supabase';
 import { Calendar, MapPin, Users, AlertCircle, HelpCircle, ArrowLeft, ArrowUpRight, Award, ShieldAlert } from 'lucide-react';
+import RegistrationModal from '@/components/RegistrationModal';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -269,7 +270,17 @@ export default async function GatheringDetailPage({ params }: PageProps) {
                 </a>
               )}
 
-              {isOpen && event.payment_url && (
+              {isOpen && !event.external_checkout_url && (
+                <RegistrationModal
+                  eventId={Number(event.id)}
+                  eventTitle={event.title}
+                  eventPrice={event.price}
+                  paymentUrl={event.payment_url}
+                  liabilityFormUrl={event.liability_form_url}
+                />
+              )}
+
+              {isOpen && event.payment_url && event.external_checkout_url && (
                 <a
                   href={event.payment_url}
                   target="_blank"

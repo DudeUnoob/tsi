@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, ShoppingBag, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { updateOrderStatus } from '@/lib/supabase';
 
 interface OrderSummary {
   name: string;
@@ -46,6 +47,11 @@ function SuccessPageContent() {
     if (sessionId) {
       const shortId = sessionId.substring(0, 12) + '...';
       setOrderNumber(sessionId.startsWith('mock_') ? sessionId : shortId);
+      
+      // Update the status in the database/localStorage to paid
+      updateOrderStatus(sessionId, 'paid').catch(err => {
+        console.error('Failed to update order status to paid:', err);
+      });
     } else {
       setOrderNumber(`mock_${Math.floor(100000 + Math.random() * 900000)}`);
     }

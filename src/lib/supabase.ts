@@ -310,9 +310,277 @@ export function getLocalMessages() {
   return localMessages;
 }
 
-export function reviewLocalMessage(id: number) {
+export function     reviewLocalMessage(id: number) {
   const msgIndex = localMessages.findIndex(m => m.id === id);
   if (msgIndex !== -1) {
     localMessages[msgIndex] = { ...localMessages[msgIndex], reviewed: true };
+  }
+}
+
+// ----------------------------------------------------
+// New Models & Data Operations for Orders & Registrations
+// ----------------------------------------------------
+
+export interface Order {
+  id: number;
+  order_ref: string;
+  customer_name: string;
+  customer_email: string;
+  shipping_address: string;
+  total_amount: number;
+  status: 'pending' | 'paid' | 'completed' | 'cancelled';
+  items: Array<{
+    id: number;
+    product_title: string;
+    price: string;
+    quantity: number;
+    size: string;
+  }>;
+  created_at: string;
+}
+
+export interface EventRegistration {
+  id: number;
+  event_id: number;
+  event_title?: string;
+  full_name: string;
+  email: string;
+  age: string;
+  phone: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  dietary_restrictions: string;
+  medical_info: string;
+  status: 'registered' | 'cancelled' | 'attended';
+  created_at: string;
+}
+
+const getLocalStorageItem = (key: string): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(key);
+  }
+  return null;
+};
+
+const setLocalStorageItem = (key: string, value: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(key, value);
+  }
+};
+
+const defaultMockOrders: Order[] = [
+  {
+    id: 1,
+    order_ref: "mock_1718000000001",
+    customer_name: "Gauranga Dasa",
+    customer_email: "gauranga@gmail.com",
+    shipping_address: "108 Bhakti Way, Gita Town, PA 19525",
+    total_amount: 47.50,
+    status: 'paid',
+    items: [
+      { id: 1, product_title: "Sanga Classic Tee", price: "$25.00", quantity: 1, size: "L" },
+      { id: 2, product_title: "Sanga Rebrand Cap", price: "$15.00", quantity: 1, size: "One Size" }
+    ],
+    created_at: new Date(Date.now() - 36 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 2,
+    order_ref: "mock_1718000000002",
+    customer_name: "Radha Devi",
+    customer_email: "radha.devi@gmail.com",
+    shipping_address: "24 Vrindavan Garden, Los Angeles, CA 90034",
+    total_amount: 85.00,
+    status: 'completed',
+    items: [
+      { id: 3, product_title: "Sanga Cozy Hoodie", price: "$50.00", quantity: 1, size: "M" },
+      { id: 1, product_title: "Sanga Classic Tee", price: "$25.00", quantity: 1, size: "S" }
+    ],
+    created_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString()
+  }
+];
+
+const defaultMockRegistrations: EventRegistration[] = [
+  {
+    id: 1,
+    event_id: 1,
+    event_title: "Camp Ignite (11–17)",
+    full_name: "Krishna Dasa",
+    email: "krishna.dasa@outlook.com",
+    age: "15",
+    phone: "215-555-0199",
+    emergency_contact_name: "Balarama Dasa",
+    emergency_contact_phone: "215-555-0108",
+    dietary_restrictions: "Nut allergy, vegetarian (no onions/garlic)",
+    medical_info: "Carries an EpiPen",
+    status: 'registered',
+    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 2,
+    event_id: 2,
+    event_title: "Heartspace",
+    full_name: "Vishnu Sharma",
+    email: "vishnu.sharma@yahoo.com",
+    age: "24",
+    phone: "415-555-0177",
+    emergency_contact_name: "Sarasvati Devi",
+    emergency_contact_phone: "415-555-0122",
+    dietary_restrictions: "None, vegan preferred",
+    medical_info: "None",
+    status: 'registered',
+    created_at: new Date(Date.now() - 18 * 3600 * 1000).toISOString()
+  }
+];
+
+export async function getOrders(): Promise<Order[]> {
+  if (!isSupabaseConfigured) {
+    const stored = getLocalStorageItem('sanga_mock_orders');
+    if (!stored) {
+      setLocalStorageItem('sanga_mock_orders', JSON.stringify(defaultMockOrders));
+      return defaultMockOrders;
+    }
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return defaultMockOrders;
+    }
+  }
+  try {
+    const { data, error } = await supabase!
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.error("Supabase getOrders error:", e);
+    return defaultMockOrders;
+  }
+}
+
+export async function createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<{ success: boolean; order?: Order; message?: string }> {
+  if (!isSupabaseConfigured) {
+    const orders = await getOrders();
+    const newOrder: Order = {
+      ...orderData,
+      id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
+      created_at: new Date().toISOString()
+    };
+    setLocalStorageItem('sanga_mock_orders', JSON.stringify([newOrder, ...orders]));
+    return { success: true, order: newOrder };
+  }
+  try {
+    const { data, error } = await supabase!
+      .from('orders')
+      .insert([orderData])
+      .select()
+      .single();
+    if (error) throw error;
+    return { success: true, order: data };
+  } catch (e) {
+    const err = e as Error;
+    console.error("Supabase createOrder error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+export async function updateOrderStatus(orderRef: string, status: Order['status']): Promise<{ success: boolean; message?: string }> {
+  if (!isSupabaseConfigured) {
+    const orders = await getOrders();
+    const idx = orders.findIndex(o => o.order_ref === orderRef);
+    if (idx !== -1) {
+      orders[idx].status = status;
+      setLocalStorageItem('sanga_mock_orders', JSON.stringify(orders));
+      return { success: true };
+    }
+    return { success: false, message: "Order not found" };
+  }
+  try {
+    const { error } = await supabase!
+      .from('orders')
+      .update({ status })
+      .eq('order_ref', orderRef);
+    if (error) throw error;
+    return { success: true };
+  } catch (e) {
+    const err = e as Error;
+    console.error("Supabase updateOrderStatus error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+export async function getEventRegistrations(eventId?: number): Promise<EventRegistration[]> {
+  if (!isSupabaseConfigured) {
+    const stored = getLocalStorageItem('sanga_mock_registrations');
+    let list: EventRegistration[] = defaultMockRegistrations;
+    if (stored) {
+      try {
+        list = JSON.parse(stored);
+      } catch {
+        list = defaultMockRegistrations;
+      }
+    } else {
+      setLocalStorageItem('sanga_mock_registrations', JSON.stringify(defaultMockRegistrations));
+    }
+    
+    // Inject event_title helper for mock events
+    const listWithTitles = list.map(reg => {
+      const ev = mockEvents.find(e => e.id === reg.event_id);
+      return {
+        ...reg,
+        event_title: ev ? ev.title : `Event #${reg.event_id}`
+      };
+    });
+
+    if (eventId) {
+      return listWithTitles.filter(r => r.event_id === eventId);
+    }
+    return listWithTitles;
+  }
+  try {
+    let query = supabase!
+      .from('registrations')
+      .select('*, event:events(title)');
+    
+    if (eventId) {
+      query = query.eq('event_id', eventId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+    
+    return (data || []).map((item: any) => ({
+      ...item,
+      event_title: item.event?.title || `Event #${item.event_id}`
+    }));
+  } catch (e) {
+    console.error("Supabase getEventRegistrations error:", e);
+    return defaultMockRegistrations;
+  }
+}
+
+export async function createEventRegistration(regData: Omit<EventRegistration, 'id' | 'created_at'>): Promise<{ success: boolean; registration?: EventRegistration; message?: string }> {
+  if (!isSupabaseConfigured) {
+    const registrations = await getEventRegistrations();
+    const newReg: EventRegistration = {
+      ...regData,
+      id: registrations.length > 0 ? Math.max(...registrations.map(r => r.id)) + 1 : 1,
+      created_at: new Date().toISOString()
+    };
+    setLocalStorageItem('sanga_mock_registrations', JSON.stringify([newReg, ...registrations]));
+    return { success: true, registration: newReg };
+  }
+  try {
+    const { data, error } = await supabase!
+      .from('registrations')
+      .insert([regData])
+      .select()
+      .single();
+    if (error) throw error;
+    return { success: true, registration: data };
+  } catch (e) {
+    const err = e as Error;
+    console.error("Supabase createEventRegistration error:", err);
+    return { success: false, message: err.message };
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { isSupabaseConfigured, supabase, getSiteSettings, getEvents, getProducts, getResources, getLocalSubscribers, getLocalMessages } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase, getSiteSettings, getEvents, getProducts, getResources, getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, updateOrderStatus } from '@/lib/supabase';
 import { 
   mockSiteSettings, mockEvents, mockResources, mockStoreProducts, 
   SiteSettings, Event, StoreProduct, Resource 
@@ -10,7 +10,7 @@ import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart, 
   MessageCircle, FileText, Image as ImageIcon, LogOut, 
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
-  Video, Eye, Lock, FileUp, ExternalLink
+  Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X
 } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 import Image from 'next/image';
@@ -55,6 +55,14 @@ export default function AdminDashboard() {
   const [messages, setMessages] = useState<ContactMessage[]>(() => 
     !isSupabaseConfigured ? getLocalMessages() : []
   );
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
+  const [subTab, setSubTab] = useState<'mailing' | 'contact' | 'orders' | 'registrations'>('mailing');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
+  const [selectedRegistration, setSelectedRegistration] = useState<EventRegistration | null>(null);
+  const [regEventFilter, setRegEventFilter] = useState<number | 'all'>('all');
   
   const [toastMessage, setToastMessage] = useState('');
 
@@ -120,6 +128,23 @@ export default function AdminDashboard() {
         // Fetch contact messages
         const { data: msgs } = await supabase!.from('contact_messages').select('*').order('submitted_at', { ascending: false });
         if (msgs) setMessages(msgs);
+
+        // Fetch orders
+        const ords = await getOrders();
+        if (ords) setOrders(ords);
+
+        // Fetch registrations
+        const regs = await getEventRegistrations();
+        if (regs) setRegistrations(regs);
+      } else {
+        setSubscribers(getLocalSubscribers());
+        setMessages(getLocalMessages());
+
+        const ords = await getOrders();
+        if (ords) setOrders(ords);
+
+        const regs = await getEventRegistrations();
+        if (regs) setRegistrations(regs);
       }
     };
 
@@ -440,7 +465,7 @@ export default function AdminDashboard() {
   };
 
   // CSV Exporter
-  const exportToCSV = (type: 'subscribers' | 'messages') => {
+  const exportToCSV = (type: 'subscribers' | 'messages' | 'orders' | 'registrations', eventFilterId?: number) => {
     let headers = '';
     let rows: string[] = [];
     let filename = '';
@@ -449,20 +474,40 @@ export default function AdminDashboard() {
       headers = 'Email,Date Subscribed';
       rows = subscribers.map(s => `"${s.email}","${s.subscribed_at || ''}"`);
       filename = 'newsletter_subscribers.csv';
-    } else {
+    } else if (type === 'messages') {
       headers = 'Name,Email,Message,Submitted At,Reviewed';
       rows = messages.map(m => `"${m.name || ''}","${m.email}","${(m.message || '').replace(/"/g, '""')}","${m.submitted_at || ''}","${m.reviewed ? 'Yes' : 'No'}"`);
       filename = 'contact_submissions.csv';
+    } else if (type === 'orders') {
+      headers = 'Order Ref,Customer Name,Customer Email,Shipping Address,Total Amount,Status,Items,Created At';
+      rows = orders.map(o => {
+        const itemsSummary = o.items.map(i => `${i.product_title} x${i.quantity} (${i.size})`).join('; ');
+        return `"${o.order_ref}","${(o.customer_name || '').replace(/"/g, '""')}","${o.customer_email}","${(o.shipping_address || '').replace(/"/g, '""')}","${o.total_amount.toFixed(2)}","${o.status}","${itemsSummary.replace(/"/g, '""')}","${o.created_at || ''}"`;
+      });
+      filename = 'store_orders.csv';
+    } else if (type === 'registrations') {
+      headers = 'Event Title,Full Name,Email,Age,Phone,Emergency Contact,Emergency Phone,Dietary Restrictions,Medical Info,Status,Created At';
+      const filteredRegs = eventFilterId 
+        ? registrations.filter(r => r.event_id === eventFilterId) 
+        : registrations;
+      rows = filteredRegs.map(r => {
+        return `"${(r.event_title || '').replace(/"/g, '""')}","${(r.full_name || '').replace(/"/g, '""')}","${r.email}","${r.age}","${r.phone}","${(r.emergency_contact_name || '').replace(/"/g, '""')}","${r.emergency_contact_phone}","${(r.dietary_restrictions || '').replace(/"/g, '""')}","${(r.medical_info || '').replace(/"/g, '""')}","${r.status}","${r.created_at || ''}"`;
+      });
+      filename = eventFilterId 
+        ? `registrations_event_${eventFilterId}.csv` 
+        : 'event_registrations.csv';
     }
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers].concat(rows).join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvString = [headers].concat(rows).join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     triggerToast(`Exported ${type} to CSV!`);
   };
 
@@ -2060,88 +2105,353 @@ export default function AdminDashboard() {
 
         {/* Tab 9: Form Submissions */}
         {activeTab === 'submissions' && (
-          <div className="space-y-10">
-            {/* Subsection: Subscribers */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="font-display text-3xl font-bold text-plum">Newsletter Subscribers</h2>
-                  <p className="text-sm text-warm-black/60">Users who signed up to receive mailing letters.</p>
-                </div>
-                <button
-                  onClick={() => exportToCSV('subscribers')}
-                  className="px-5 py-3 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  <Download className="mr-1.5 h-4 w-4" /> Export Subscribers (CSV)
-                </button>
-              </div>
-
-              <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md text-sm font-sans max-h-60 overflow-y-auto">
-                {subscribers.length > 0 ? (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-plum/5 text-plum uppercase text-[10px] font-bold tracking-wider border-b border-plum/10">
-                        <th className="p-5">Email</th>
-                        <th className="p-5">Date Joined</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-plum/5">
-                      {subscribers.map((sub, i) => (
-                        <tr key={i} className="hover:bg-plum/5/20 transition-colors">
-                          <td className="p-5 font-bold text-plum">{sub.email}</td>
-                          <td className="p-5 text-xs text-warm-black/55">{new Date(sub.subscribed_at).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-xs text-warm-black/50 italic py-8 text-center">No mailing list signups found.</p>
-                )}
-              </div>
+          <div className="space-y-6">
+            <div>
+              <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Submissions & Records</h1>
+              <p className="text-sm text-warm-black/60">View mailing lists, contact inquiries, store orders, and gathering signups.</p>
             </div>
 
-            {/* Subsection: Feedback Messages */}
-            <div className="space-y-4 pt-10 border-t border-plum/10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="font-display text-3xl font-bold text-plum">Contact Forms Received</h2>
-                  <p className="text-sm text-warm-black/60">Feedback submissions sent from the Contact page.</p>
-                </div>
-                <button
-                  onClick={() => exportToCSV('messages')}
-                  className="px-5 py-3 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  <Download className="mr-1.5 h-4 w-4" /> Export Forms (CSV)
-                </button>
-              </div>
-
-              <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md text-sm font-sans max-h-80 overflow-y-auto">
-                {messages.length > 0 ? (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-plum/5 text-plum uppercase text-[10px] font-bold tracking-wider border-b border-plum/10">
-                        <th className="p-5">Name</th>
-                        <th className="p-5">Email</th>
-                        <th className="p-5">Message</th>
-                        <th className="p-5">Date Received</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-plum/5">
-                      {messages.map((msg, i) => (
-                        <tr key={i} className="hover:bg-plum/5/20 transition-colors">
-                          <td className="p-5 font-bold text-plum">{msg.name || 'Anonymous'}</td>
-                          <td className="p-5 text-xs text-warm-black/60">{msg.email}</td>
-                          <td className="p-5 text-xs text-warm-black/75 max-w-xs truncate" title={msg.message}>{msg.message}</td>
-                          <td className="p-5 text-xs text-warm-black/55">{new Date(msg.submitted_at).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-xs text-warm-black/50 italic py-8 text-center">No contact submissions received yet.</p>
-                )}
-              </div>
+            {/* Sub Tabs Selection */}
+            <div className="flex flex-wrap gap-2 border-b border-plum/10 pb-4">
+              <button
+                onClick={() => setSubTab('mailing')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  subTab === 'mailing' 
+                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                }`}
+              >
+                Mailing List ({subscribers.length})
+              </button>
+              <button
+                onClick={() => setSubTab('contact')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  subTab === 'contact' 
+                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                }`}
+              >
+                Contact Forms ({messages.length})
+              </button>
+              <button
+                onClick={() => setSubTab('orders')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  subTab === 'orders' 
+                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                }`}
+              >
+                Store Orders ({orders.length})
+              </button>
+              <button
+                onClick={() => setSubTab('registrations')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  subTab === 'registrations' 
+                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                }`}
+              >
+                Event Registrants ({registrations.length})
+              </button>
             </div>
+
+            {/* Subsection 1: Subscribers */}
+            {subTab === 'mailing' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="font-display text-2xl font-bold text-plum">Newsletter Subscribers</h2>
+                    <p className="text-xs text-warm-black/60">Mailing list signups collected from footer forms.</p>
+                  </div>
+                  <button
+                    onClick={() => exportToCSV('subscribers')}
+                    className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                  >
+                    <Download className="mr-1.5 h-3.5 w-3.5" /> Export (CSV)
+                  </button>
+                </div>
+
+                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                  {subscribers.length > 0 ? (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-plum/5 text-plum uppercase text-[9px] font-black tracking-wider border-b border-plum/10">
+                          <th className="p-4">Email</th>
+                          <th className="p-4">Date Joined</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-plum/5">
+                        {subscribers.map((sub, i) => (
+                          <tr key={i} className="hover:bg-plum/5/20 transition-colors">
+                            <td className="p-4 font-bold text-plum">{sub.email}</td>
+                            <td className="p-4 text-warm-black/55">{new Date(sub.subscribed_at).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-xs text-warm-black/50 italic py-8 text-center">No mailing list signups found.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Subsection 2: Contact Forms */}
+            {subTab === 'contact' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="font-display text-2xl font-bold text-plum">Contact Messages</h2>
+                    <p className="text-xs text-warm-black/60">Inquiries submitted from the contact page.</p>
+                  </div>
+                  <button
+                    onClick={() => exportToCSV('messages')}
+                    className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                  >
+                    <Download className="mr-1.5 h-3.5 w-3.5" /> Export (CSV)
+                  </button>
+                </div>
+
+                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                  {messages.length > 0 ? (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-plum/5 text-plum uppercase text-[9px] font-black tracking-wider border-b border-plum/10">
+                          <th className="p-4">Name</th>
+                          <th className="p-4">Email</th>
+                          <th className="p-4">Message</th>
+                          <th className="p-4">Date Received</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-plum/5">
+                        {messages.map((msg, i) => (
+                          <tr key={i} className="hover:bg-plum/5/20 transition-colors">
+                            <td className="p-4 font-bold text-plum">{msg.name || 'Anonymous'}</td>
+                            <td className="p-4 text-warm-black/60">{msg.email}</td>
+                            <td className="p-4 text-warm-black/75 max-w-xs truncate" title={msg.message}>{msg.message}</td>
+                            <td className="p-4 text-warm-black/55">{new Date(msg.submitted_at).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-xs text-warm-black/50 italic py-8 text-center">No contact submissions received yet.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Subsection 3: Store Orders */}
+            {subTab === 'orders' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="font-display text-2xl font-bold text-plum">Store Checkouts</h2>
+                    <p className="text-xs text-warm-black/60">Purchases logged from merchandise shopping cart.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => exportToCSV('orders')}
+                      className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                    >
+                      <Download className="mr-1.5 h-3.5 w-3.5" /> Export All (CSV)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Controls */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-plum/5 p-4 rounded-2xl border border-plum/10 text-plum">
+                  <div className="relative flex items-center">
+                    <Search className="absolute left-3 h-4 w-4 text-plum/40" />
+                    <input
+                      type="text"
+                      placeholder="Search by customer, email, or item..."
+                      value={orderSearch}
+                      onChange={(e) => setOrderSearch(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                    />
+                  </div>
+                  <div>
+                    <select
+                      value={orderStatusFilter}
+                      onChange={(e) => setOrderStatusFilter(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                    >
+                      <option value="all">All Payment Statuses</option>
+                      <option value="paid">Paid</option>
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                  {(() => {
+                    const filtered = orders.filter(o => {
+                      const searchLower = orderSearch.toLowerCase();
+                      const matchQuery = 
+                        o.customer_name.toLowerCase().includes(searchLower) ||
+                        o.customer_email.toLowerCase().includes(searchLower) ||
+                        o.order_ref.toLowerCase().includes(searchLower) ||
+                        o.items.some(i => i.product_title.toLowerCase().includes(searchLower));
+                      
+                      const matchStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
+                      
+                      return matchQuery && matchStatus;
+                    });
+
+                    return filtered.length > 0 ? (
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-plum/5 text-plum uppercase text-[9px] font-black tracking-wider border-b border-plum/10">
+                            <th className="p-4">Ref / Date</th>
+                            <th className="p-4">Customer</th>
+                            <th className="p-4">Items Summary</th>
+                            <th className="p-4">Total</th>
+                            <th className="p-4">Status</th>
+                            <th className="p-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-plum/5">
+                          {filtered.map((ord) => (
+                            <tr key={ord.id} className="hover:bg-plum/5/20 transition-colors">
+                              <td className="p-4">
+                                <span className="font-bold text-plum block">{ord.order_ref}</span>
+                                <span className="text-[10px] text-warm-black/55">{new Date(ord.created_at).toLocaleDateString()}</span>
+                              </td>
+                              <td className="p-4">
+                                <span className="font-bold block text-plum">{ord.customer_name}</span>
+                                <span className="text-[10px] text-warm-black/55">{ord.customer_email}</span>
+                              </td>
+                              <td className="p-4 max-w-xs truncate">
+                                {ord.items.map(i => `${i.product_title} x${i.quantity} (${i.size})`).join(', ')}
+                              </td>
+                              <td className="p-4 font-bold text-[#E65C17]">${ord.total_amount.toFixed(2)}</td>
+                              <td className="p-4">
+                                <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${
+                                  ord.status === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
+                                  ord.status === 'completed' ? 'bg-plum/10 border-plum/20 text-plum' :
+                                  ord.status === 'pending' ? 'bg-[#FFA526]/10 border-[#FFA526]/20 text-[#FFA526]' :
+                                  'bg-red-500/10 border-red-500/20 text-red-500'
+                                }`}>
+                                  {ord.status}
+                                </span>
+                              </td>
+                              <td className="p-4 text-right">
+                                <button
+                                  onClick={() => setSelectedOrder(ord)}
+                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[#FFEFBF] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
+                                >
+                                  View Detail
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-xs text-warm-black/50 italic py-8 text-center">No orders match filter criteria.</p>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Subsection 4: Event Registrations */}
+            {subTab === 'registrations' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="font-display text-2xl font-bold text-plum">Gathering Registrants</h2>
+                    <p className="text-xs text-warm-black/60">Applications submitted for Sanga retreats and trips.</p>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => exportToCSV('registrations', regEventFilter === 'all' ? undefined : regEventFilter)}
+                      className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                    >
+                      <Download className="mr-1.5 h-3.5 w-3.5" /> Export Filtered (CSV)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Selector */}
+                <div className="bg-plum/5 p-4 rounded-2xl border border-plum/10 text-xs text-plum">
+                  <div className="flex flex-col gap-1">
+                    <label className="uppercase tracking-widest font-black text-[9px] text-plum/60">Filter by Event</label>
+                    <select
+                      value={regEventFilter}
+                      onChange={(e) => setRegEventFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                      className="w-full px-3 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                    >
+                      <option value="all">All Events</option>
+                      {events.map(ev => (
+                        <option key={ev.id} value={ev.id}>{ev.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                  {(() => {
+                    const filtered = registrations.filter(r => regEventFilter === 'all' || r.event_id === regEventFilter);
+
+                    return filtered.length > 0 ? (
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-plum/5 text-plum uppercase text-[9px] font-black tracking-wider border-b border-plum/10">
+                            <th className="p-4">Event</th>
+                            <th className="p-4">Participant</th>
+                            <th className="p-4">Age</th>
+                            <th className="p-4">Phone / Contact</th>
+                            <th className="p-4">Dietary restrictions</th>
+                            <th className="p-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-plum/5">
+                          {filtered.map((reg) => (
+                            <tr key={reg.id} className="hover:bg-plum/5/20 transition-colors">
+                              <td className="p-4 font-bold text-plum">{reg.event_title || `Event #${reg.event_id}`}</td>
+                              <td className="p-4">
+                                <span className="font-bold block text-plum">{reg.full_name}</span>
+                                <span className="text-[10px] text-warm-black/55">{reg.email}</span>
+                              </td>
+                              <td className="p-4 font-semibold text-plum">{reg.age}</td>
+                              <td className="p-4">
+                                <span className="block">{reg.phone}</span>
+                                <span className="text-[10px] text-warm-black/55 italic">Emergency: {reg.emergency_contact_name} ({reg.emergency_contact_phone})</span>
+                              </td>
+                              <td className="p-4 max-w-xs truncate">
+                                {reg.dietary_restrictions ? (
+                                  <span className="text-[#E65C17] font-bold text-[10px]" title={reg.dietary_restrictions}>
+                                    ⚠️ {reg.dietary_restrictions}
+                                  </span>
+                                ) : (
+                                  <span className="text-warm-black/40 italic">None logged</span>
+                                )}
+                              </td>
+                              <td className="p-4 text-right">
+                                <button
+                                  onClick={() => setSelectedRegistration(reg)}
+                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[#FFEFBF] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
+                                >
+                                  View Card
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-xs text-warm-black/50 italic py-8 text-center">No registrants found for this event selection.</p>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -2239,6 +2549,153 @@ export default function AdminDashboard() {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Selected Order Details Popup Modal */}
+        {selectedOrder && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div onClick={() => setSelectedOrder(null)} className="fixed inset-0 bg-[#1E1D1B]/60 backdrop-blur-xs" />
+            <div className="relative w-full max-w-lg bg-[#FFEFBF] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
+              <div className="flex justify-between items-center pb-3 border-b border-plum/10 flex-shrink-0">
+                <div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#E65C17]">Order Reference</span>
+                  <h4 className="font-display font-black text-lg text-plum leading-tight">{selectedOrder.order_ref}</h4>
+                </div>
+                <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              <div className="overflow-y-auto flex-grow py-4 space-y-4 pr-1">
+                {/* Shipping info */}
+                <div className="space-y-1 bg-plum/5 p-4 rounded-2xl border border-plum/5">
+                  <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Shipping Destination</h5>
+                  <p className="font-bold text-sm text-plum">{selectedOrder.customer_name}</p>
+                  <p className="text-[11px] font-light">{selectedOrder.shipping_address}</p>
+                  <p className="text-[10px] font-light text-plum/60 mt-1">Email: {selectedOrder.customer_email}</p>
+                </div>
+
+                {/* Status Manager */}
+                <div className="flex justify-between items-center bg-[#FFA526]/5 border border-[#FFA526]/20 p-4 rounded-2xl">
+                  <div>
+                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Payment / Delivery Status</h5>
+                    <span className="text-[11px] font-bold">Manage transaction state</span>
+                  </div>
+                  <select
+                    value={selectedOrder.status}
+                    onChange={async (e) => {
+                      const newStatus = e.target.value as Order['status'];
+                      const res = await updateOrderStatus(selectedOrder.order_ref, newStatus);
+                      if (res.success) {
+                        setOrders(prev => prev.map(o => o.order_ref === selectedOrder.order_ref ? { ...o, status: newStatus } : o));
+                        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
+                        triggerToast('Order status updated!');
+                      } else {
+                        triggerToast('Failed to update status.');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                {/* Purchased items table */}
+                <div className="space-y-2">
+                  <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Cart Items</h5>
+                  <div className="border border-plum/10 rounded-2xl overflow-hidden divide-y divide-plum/5">
+                    {selectedOrder.items.map((it, idx) => (
+                      <div key={idx} className="p-3 flex justify-between items-center">
+                        <div>
+                          <span className="font-bold text-plum">{it.product_title}</span>
+                          <span className="text-[10px] text-warm-black/55 block">Size: {it.size}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-warm-black/55 mr-3">x{it.quantity}</span>
+                          <span className="font-bold text-[#E65C17]">{it.price}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-plum/10 flex justify-between items-center text-xs flex-shrink-0">
+                <span className="font-display font-bold text-plum">Total Paid</span>
+                <span className="font-display font-black text-sm text-[#E65C17]">${selectedOrder.total_amount.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Selected Registration Card Modal */}
+        {selectedRegistration && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div onClick={() => setSelectedRegistration(null)} className="fixed inset-0 bg-[#1E1D1B]/60 backdrop-blur-xs" />
+            <div className="relative w-full max-w-lg bg-[#FFEFBF] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
+              <div className="flex justify-between items-center pb-3 border-b border-plum/10 flex-shrink-0">
+                <div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#E65C17] block">Registrant Card</span>
+                  <h4 className="font-display font-black text-lg text-plum leading-tight">{selectedRegistration.full_name}</h4>
+                </div>
+                <button onClick={() => setSelectedRegistration(null)} className="p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              <div className="overflow-y-auto flex-grow py-4 space-y-4 pr-1">
+                <div className="bg-plum/5 p-4 rounded-2xl border border-plum/5 space-y-2">
+                  <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Applied Event</h5>
+                  <p className="font-bold text-sm text-plum">{selectedRegistration.event_title || `Event #${selectedRegistration.event_id}`}</p>
+                  <div className="flex gap-4 text-[10px] text-plum/60 pt-1">
+                    <span>Age: <strong>{selectedRegistration.age}</strong></span>
+                    <span>Registered: <strong>{new Date(selectedRegistration.created_at).toLocaleDateString()}</strong></span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-plum/5 p-3.5 rounded-xl border border-plum/5">
+                    <span className="text-[9px] uppercase tracking-widest font-black text-plum/60 block mb-0.5">Email</span>
+                    <span className="font-bold text-[11px] truncate block">{selectedRegistration.email}</span>
+                  </div>
+                  <div className="bg-plum/5 p-3.5 rounded-xl border border-plum/5">
+                    <span className="text-[9px] uppercase tracking-widest font-black text-plum/60 block mb-0.5">Phone</span>
+                    <span className="font-bold text-[11px] block">{selectedRegistration.phone}</span>
+                  </div>
+                </div>
+
+                <div className="bg-plum/5 p-4 rounded-2xl border border-plum/5 space-y-1">
+                  <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Emergency Contact</h5>
+                  <p className="font-bold text-[11px]">{selectedRegistration.emergency_contact_name}</p>
+                  <p className="text-[10px] font-light text-plum/70">Phone: {selectedRegistration.emergency_contact_phone}</p>
+                </div>
+
+                {selectedRegistration.dietary_restrictions && (
+                  <div className="bg-[#E65C17]/5 p-4 rounded-2xl border border-[#E65C17]/25 space-y-1">
+                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-[#E65C17]">⚠️ Dietary Needs & Allergies</h5>
+                    <p className="text-[11px] font-medium text-[#E65C17]">{selectedRegistration.dietary_restrictions}</p>
+                  </div>
+                )}
+
+                {selectedRegistration.medical_info && (
+                  <div className="bg-plum/5 p-4 rounded-2xl border border-plum/5 space-y-1">
+                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Medical Information</h5>
+                    <p className="text-[11px] font-light">{selectedRegistration.medical_info}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3 border-t border-plum/10 flex justify-between items-center text-xs flex-shrink-0">
+                <span className="font-display font-bold text-plum">Registration Status</span>
+                <span className="px-2.5 py-0.5 bg-[#66CC6E]/10 border border-[#66CC6E]/20 text-[#66CC6E] rounded-md text-[9px] font-black uppercase tracking-wider">
+                  {selectedRegistration.status}
+                </span>
               </div>
             </div>
           </div>

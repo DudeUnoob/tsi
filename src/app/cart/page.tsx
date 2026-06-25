@@ -5,11 +5,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Lock, Loader2 } from 'lucide-react';
+import { createOrder } from '@/lib/supabase';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  
+  const shippingCost = 5.00;
+  const estimatedTax = cartTotal * 0.08;
+  const grandTotal = cartTotal + shippingCost + estimatedTax;
   
   // Shipping & Mock Payment form fields
   const [formData, setFormData] = useState({
@@ -107,6 +112,28 @@ export default function CartPage() {
 
       if (data.url) {
         setStatusMessage('Redirecting to Stripe secure payment gateway...');
+        
+        // Save pending order record in Supabase / LocalStorage
+        try {
+          await createOrder({
+            order_ref: data.sessionId || `session_${Date.now()}`,
+            customer_name: formData.name,
+            customer_email: formData.email,
+            shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
+            total_amount: grandTotal,
+            status: 'pending',
+            items: cartItems.map(item => ({
+              id: Number(item.id),
+              product_title: item.product_title,
+              price: item.price,
+              quantity: item.quantity,
+              size: item.size
+            }))
+          });
+        } catch (e) {
+          console.error('Failed to create pending order record:', e);
+        }
+
         // Wait briefly for smooth user transition
         setTimeout(() => {
           window.location.href = data.url;
@@ -123,17 +150,40 @@ export default function CartPage() {
           setStatusMessage('Fulfilling mock purchase details...');
         }, 1600);
 
+        const mockSessionId = `mock_${Date.now()}`;
+        
+        // Save paid order record in Supabase / LocalStorage
+        try {
+          await createOrder({
+            order_ref: mockSessionId,
+            customer_name: formData.name,
+            customer_email: formData.email,
+            shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
+            total_amount: grandTotal,
+            status: 'paid',
+            items: cartItems.map(item => ({
+              id: Number(item.id),
+              product_title: item.product_title,
+              price: item.price,
+              quantity: item.quantity,
+              size: item.size
+            }))
+          });
+        } catch (e) {
+          console.error('Failed to create mock order record:', e);
+        }
+
         setTimeout(() => {
           // Serialize cart details in localStorage/sessionStorage for the success page
           sessionStorage.setItem('sanga_last_order', JSON.stringify({
             name: formData.name,
             email: formData.email,
             address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-            total: cartTotal,
+            total: grandTotal,
             items: cartItems
           }));
           clearCart();
-          window.location.href = `/checkout/success?session_id=mock_${Date.now()}`;
+          window.location.href = `/checkout/success?session_id=${mockSessionId}`;
         }, 2400);
       }
     } catch (err) {
@@ -168,9 +218,7 @@ export default function CartPage() {
     );
   }
 
-  const shippingCost = 5.00;
-  const estimatedTax = cartTotal * 0.08;
-  const grandTotal = cartTotal + shippingCost + estimatedTax;
+
 
   return (
     <div className="bg-[#FFEFBF] min-h-screen py-16 font-sans text-[#1E1D1B] relative">
