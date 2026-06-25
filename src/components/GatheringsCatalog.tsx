@@ -203,8 +203,6 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
   };
 
   const getTargetLink = (event: Event) => {
-    if (event.registration_url) return event.registration_url;
-    if (event.external_checkout_url) return event.external_checkout_url;
     if (['mens-sanga', 'ladies-sanga'].includes(event.category)) return '/community';
     return `/gatherings/${event.slug}`;
   };

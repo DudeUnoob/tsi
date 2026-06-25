@@ -259,36 +259,14 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
             {/* CTAs */}
             <div className="flex flex-col gap-3 pt-4 border-t border-[#6E0B64]/10">
-              {isOpen && event.external_checkout_url && (
-                <a
-                  href={event.external_checkout_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-center px-6 py-4 bg-[#6E0B64] text-[#FFEFBF] hover:bg-[#E65C17] rounded-full font-black text-xs tracking-widest uppercase shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-1.5 active:scale-97 cursor-pointer"
-                >
-                  Register Now <ArrowUpRight className="h-4 w-4" />
-                </a>
-              )}
-
-              {isOpen && !event.external_checkout_url && (
+              {isOpen && (
                 <RegistrationModal
                   eventId={Number(event.id)}
                   eventTitle={event.title}
                   eventPrice={event.price}
-                  paymentUrl={event.payment_url}
+                  paymentUrl={event.payment_url || event.external_checkout_url}
                   liabilityFormUrl={event.liability_form_url}
                 />
-              )}
-
-              {isOpen && event.payment_url && event.external_checkout_url && (
-                <a
-                  href={event.payment_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-center px-6 py-4 bg-[#FFEFBF] border-2 border-[#6E0B64] text-[#6E0B64] hover:bg-[#6E0B64]/5 rounded-full font-black text-xs tracking-widest uppercase transition-all inline-flex items-center justify-center active:scale-97 cursor-pointer"
-                >
-                  Make Payment
-                </a>
               )}
 
               {isComingSoon && (

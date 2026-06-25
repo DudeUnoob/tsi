@@ -396,6 +396,45 @@ const defaultMockOrders: Order[] = [
       { id: 1, product_title: "Sanga Classic Tee", price: "$25.00", quantity: 1, size: "S" }
     ],
     created_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 3,
+    order_ref: "mock_1718000000003",
+    customer_name: "Madhava Dasa",
+    customer_email: "madhava.dasa@bhakti.org",
+    shipping_address: "7 Lotus Lane, Alachua, FL 32615",
+    total_amount: 25.00,
+    status: 'paid',
+    items: [
+      { id: 1, product_title: "Sanga Classic Tee", price: "$25.00", quantity: 1, size: "XL" }
+    ],
+    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 4,
+    order_ref: "mock_1718000000004",
+    customer_name: "Janaki Devi",
+    customer_email: "janaki@yahoo.com",
+    shipping_address: "432 Kirtan Avenue, Vancouver, BC V6B 2Z4",
+    total_amount: 55.00,
+    status: 'pending',
+    items: [
+      { id: 3, product_title: "Sanga Cozy Hoodie", price: "$50.00", quantity: 1, size: "S" }
+    ],
+    created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 5,
+    order_ref: "mock_1718000000005",
+    customer_name: "Govinda Sharma",
+    customer_email: "govinda@gmail.com",
+    shipping_address: "55 Chaitanya Lane, Toronto, ON M5V 2H1",
+    total_amount: 15.00,
+    status: 'cancelled',
+    items: [
+      { id: 2, product_title: "Sanga Rebrand Cap", price: "$15.00", quantity: 1, size: "One Size" }
+    ],
+    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString()
   }
 ];
 
@@ -429,6 +468,51 @@ const defaultMockRegistrations: EventRegistration[] = [
     medical_info: "None",
     status: 'registered',
     created_at: new Date(Date.now() - 18 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 3,
+    event_id: 1,
+    event_title: "Camp Ignite (11–17)",
+    full_name: "Tulasi Devi",
+    email: "tulasi.devi@bhaktimail.com",
+    age: "16",
+    phone: "305-555-0188",
+    emergency_contact_name: "Sarasvati Devi",
+    emergency_contact_phone: "305-555-0199",
+    dietary_restrictions: "Severe peanut allergy, gluten-sensitive",
+    medical_info: "Asthma inhaler in backpack",
+    status: 'registered',
+    created_at: new Date(Date.now() - 30 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 4,
+    event_id: 3,
+    event_title: "Vrindavana Yatra (21–30)",
+    full_name: "Caitanya Dasa",
+    email: "caitanya@kirtan.org",
+    age: "26",
+    phone: "646-555-0108",
+    emergency_contact_name: "Nityananda Das",
+    emergency_contact_phone: "646-555-0100",
+    dietary_restrictions: "Strictly vegetarian (no onion/garlic/mushrooms)",
+    medical_info: "Recent ankle sprain, carries compression wrap",
+    status: 'attended',
+    created_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 5,
+    event_id: 3,
+    event_title: "Vrindavana Yatra (21–30)",
+    full_name: "Gopinath Das",
+    email: "gopinath@gmail.com",
+    age: "28",
+    phone: "718-555-0144",
+    emergency_contact_name: "Subhadra Devi",
+    emergency_contact_phone: "718-555-0199",
+    dietary_restrictions: "Vegetarian, lactose intolerant (no dairy)",
+    medical_info: "None",
+    status: 'registered',
+    created_at: new Date(Date.now() - 1 * 3600 * 1000).toISOString()
   }
 ];
 
