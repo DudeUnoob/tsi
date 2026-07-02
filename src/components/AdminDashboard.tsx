@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { isSupabaseConfigured, supabase, getSiteSettings, getEvents, getProducts, getResources, getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, updateOrderStatus } from '@/lib/supabase';
-import { 
-  mockSiteSettings, mockEvents, mockResources, mockStoreProducts, 
-  SiteSettings, Event, StoreProduct, Resource 
+import {
+  mockSiteSettings, mockEvents, mockResources, mockStoreProducts,
+  SiteSettings, Event, StoreProduct, Resource
 } from '@/lib/mockData';
-import { 
-  LayoutDashboard, Home, Calendar, ShoppingBag, Heart, 
-  MessageCircle, FileText, Image as ImageIcon, LogOut, 
+import {
+  LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
+  MessageCircle, FileText, Image as ImageIcon, LogOut,
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
   Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X
 } from 'lucide-react';
@@ -49,10 +49,10 @@ export default function AdminDashboard() {
   const [events, setEvents] = useState<Event[]>(mockEvents);
   const [products, setProducts] = useState<StoreProduct[]>(mockStoreProducts);
   const [resources, setResources] = useState<Resource[]>(mockResources);
-  const [subscribers, setSubscribers] = useState<Subscriber[]>(() => 
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(() =>
     !isSupabaseConfigured ? getLocalSubscribers() : []
   );
-  const [messages, setMessages] = useState<ContactMessage[]>(() => 
+  const [messages, setMessages] = useState<ContactMessage[]>(() =>
     !isSupabaseConfigured ? getLocalMessages() : []
   );
   const [orders, setOrders] = useState<Order[]>([]);
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
   const [selectedRegistration, setSelectedRegistration] = useState<EventRegistration | null>(null);
   const [regEventFilter, setRegEventFilter] = useState<number | 'all'>('all');
-  
+
   const [toastMessage, setToastMessage] = useState('');
 
   // Form edit states (for Gatherings, Store, and Resources edit modals)
@@ -73,14 +73,14 @@ export default function AdminDashboard() {
 
   // New subcomponent editor states
   const [newHighlight, setNewHighlight] = useState('');
-  
+
   const [newSchedTime, setNewSchedTime] = useState('');
   const [newSchedTitle, setNewSchedTitle] = useState('');
   const [newSchedDesc, setNewSchedDesc] = useState('');
-  
+
   const [newFaqQuestion, setNewFaqQuestion] = useState('');
   const [newFaqAnswer, setNewFaqAnswer] = useState('');
-  
+
   const [newPersonName, setNewPersonName] = useState('');
   const [newPersonRole, setNewPersonRole] = useState('');
   const [newPersonBio, setNewPersonBio] = useState('');
@@ -110,13 +110,13 @@ export default function AdminDashboard() {
       const s = await getSiteSettings();
       setSiteSettings(s);
       setSlideshowUrls(s.hero_slideshow_images ?? ['', '', '']);
-      
+
       const e = await getEvents();
       setEvents(e);
-      
+
       const p = await getProducts();
       setProducts(p);
-      
+
       const r = await getResources({ publishedOnly: false });
       setResources(r);
 
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
   // Event Save
   const handleSaveEvent = async () => {
     if (!editingEvent || !editingEvent.title || !editingEvent.slug) return;
-    
+
     const isNew = !editingEvent.id;
     const finalEvent = {
       ...editingEvent,
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
 
     try {
       let savedId = finalEvent.id;
-      
+
       const payload = {
         title: finalEvent.title,
         slug: finalEvent.slug,
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
   // Product Save
   const handleSaveProduct = async () => {
     if (!editingProduct || !editingProduct.product_title || !editingProduct.slug) return;
-    
+
     const isNew = !editingProduct.id;
 
     if (!isSupabaseConfigured) {
@@ -487,14 +487,14 @@ export default function AdminDashboard() {
       filename = 'store_orders.csv';
     } else if (type === 'registrations') {
       headers = 'Event Title,Full Name,Email,Age,Phone,Emergency Contact,Emergency Phone,Dietary Restrictions,Medical Info,Status,Created At';
-      const filteredRegs = eventFilterId 
-        ? registrations.filter(r => r.event_id === eventFilterId) 
+      const filteredRegs = eventFilterId
+        ? registrations.filter(r => r.event_id === eventFilterId)
         : registrations;
       rows = filteredRegs.map(r => {
         return `"${(r.event_title || '').replace(/"/g, '""')}","${(r.full_name || '').replace(/"/g, '""')}","${r.email}","${r.age}","${r.phone}","${(r.emergency_contact_name || '').replace(/"/g, '""')}","${r.emergency_contact_phone}","${(r.dietary_restrictions || '').replace(/"/g, '""')}","${(r.medical_info || '').replace(/"/g, '""')}","${r.status}","${r.created_at || ''}"`;
       });
-      filename = eventFilterId 
-        ? `registrations_event_${eventFilterId}.csv` 
+      filename = eventFilterId
+        ? `registrations_event_${eventFilterId}.csv`
         : 'event_registrations.csv';
     }
 
@@ -528,7 +528,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-[#FFEFBF] flex items-center justify-center font-sans px-6 relative overflow-hidden">
         <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-0 bottom-0 w-80 h-80 bg-[#FF7DB4]/10 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="max-w-md w-full bg-[#FFEFBF] p-10 rounded-[2.5rem] border border-plum/15 shadow-2xl flex flex-col space-y-8 relative z-10">
           <div className="text-center space-y-2">
             <span className="font-display text-4xl font-bold text-plum block tracking-tight">sanga</span>
@@ -623,16 +623,15 @@ export default function AdminDashboard() {
               const Icon = tab.icon;
               const isSelected = activeTab === tab.id;
               return (
-                <button 
+                <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
-                    isSelected 
-                      ? 'bg-[#FFA526] text-plum font-bold shadow-md' 
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isSelected
+                      ? 'bg-[#FFA526] text-plum font-bold shadow-md'
                       : 'text-[#FFEFBF]/75 hover:bg-[#FFEFBF]/5 hover:text-white'
-                  }`}
+                    }`}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" /> 
+                  <Icon className="h-4 w-4 flex-shrink-0" />
                   <span className="text-xs uppercase tracking-wider font-bold">{tab.label}</span>
                 </button>
               );
@@ -640,7 +639,7 @@ export default function AdminDashboard() {
           </nav>
         </div>
 
-        <button 
+        <button
           onClick={handleLogout}
           className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-[#FFEFBF]/60 hover:text-[#FF7DB4] hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider border-t border-[#FFEFBF]/5 pt-4 cursor-pointer"
         >
@@ -684,11 +683,10 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 ${
-                    isSelected
+                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 ${isSelected
                       ? 'bg-[#FFA526] text-plum'
                       : 'text-[#FFEFBF]/60 hover:bg-[#FFEFBF]/10 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span className="text-[9px] font-bold uppercase tracking-wide leading-none">{tab.label}</span>
@@ -701,7 +699,7 @@ export default function AdminDashboard() {
 
       {/* Main Panel Content */}
       <main className="flex-grow p-5 md:p-8 lg:p-12 overflow-y-auto lg:h-full">
-        
+
         {/* Active Tab render checks */}
         {activeTab === 'overview' && (
           <div className="space-y-10">
@@ -779,7 +777,7 @@ export default function AdminDashboard() {
             {/* Hero fold editor */}
             <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Hero Fold Settings</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Hero Headline</label>
@@ -799,7 +797,7 @@ export default function AdminDashboard() {
                     className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] transition-all resize-none"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Primary CTA Label</label>
                   <input
@@ -828,13 +826,11 @@ export default function AdminDashboard() {
                     </div>
                     <button
                       onClick={() => handleSaveSettings('hero', { hero_slideshow_hidden: !siteSettings.hero_slideshow_hidden })}
-                      className={`relative w-12 h-6 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                        siteSettings.hero_slideshow_hidden ? 'bg-plum/20' : 'bg-[#66CC6E]'
-                      }`}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0 ${siteSettings.hero_slideshow_hidden ? 'bg-plum/20' : 'bg-[#66CC6E]'
+                        }`}
                     >
-                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
-                        siteSettings.hero_slideshow_hidden ? 'left-0.5' : 'left-6'
-                      }`} />
+                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${siteSettings.hero_slideshow_hidden ? 'left-0.5' : 'left-6'
+                        }`} />
                     </button>
                   </div>
 
@@ -886,7 +882,7 @@ export default function AdminDashboard() {
             {/* Video fold editor */}
             <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Moments Video Highlights</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Main Promo Video URL (YouTube watch or embed URL)</label>
@@ -999,7 +995,7 @@ export default function AdminDashboard() {
                         <td className="p-5 text-xs text-warm-black/60">{new Date(ev.start_date).toLocaleDateString()}</td>
                         <td className="p-5 text-xs font-bold text-plum">{ev.featured_on_homepage ? 'Yes' : 'No'}</td>
                         <td className="p-5 text-right flex justify-end space-x-3">
-                          <button 
+                          <button
                             onClick={() => {
                               setNewHighlight('');
                               setNewSchedTime('');
@@ -1018,7 +1014,7 @@ export default function AdminDashboard() {
                           >
                             <Edit className="h-4.5 w-4.5" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteEvent(ev.id)}
                             className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
                             title="Delete Event"
@@ -1044,7 +1040,7 @@ export default function AdminDashboard() {
                     </div>
                     <button onClick={() => setEditingEvent(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
-                  
+
                   {/* Modal body scrollable */}
                   <div className="p-8 space-y-8 overflow-y-auto text-sm">
                     {/* Part 1: Primary Details */}
@@ -1234,7 +1230,7 @@ export default function AdminDashboard() {
                         <h4 className="font-display text-lg font-bold text-plum">2. Retreat Highlights</h4>
                         <p className="text-xs text-warm-black/60 font-light">Add key details that make this experience outstanding (e.g. Daily Outdoor Yoga, Interactive Workshops, Dynamic Kirtans).</p>
                       </div>
-                      
+
                       {/* Add new Highlight */}
                       <div className="flex gap-2">
                         <input
@@ -1287,7 +1283,7 @@ export default function AdminDashboard() {
                         <h4 className="font-display text-lg font-bold text-plum">3. Daily Schedule Timeline</h4>
                         <p className="text-xs text-warm-black/60 font-light">Structure a sample daily program so attendees know what to expect.</p>
                       </div>
-                      
+
                       {/* Schedule inputs */}
                       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-plum/5 p-4 rounded-2xl border border-plum/5">
                         <div className="sm:col-span-3">
@@ -1523,13 +1519,13 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="p-6 bg-plum/5 border-t border-plum/10 flex justify-end space-x-3">
-                    <button 
+                    <button
                       onClick={() => setEditingEvent(null)}
                       className="px-6 py-2.5 bg-linen border border-plum/20 hover:bg-plum/5 text-plum rounded-full font-bold text-xs uppercase tracking-wider transition-all"
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={handleSaveEvent}
                       className="px-6 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
                     >
@@ -1587,13 +1583,13 @@ export default function AdminDashboard() {
                         </td>
                         <td className="p-5 text-xs font-bold text-plum">{pr.featured ? 'Yes' : 'No'}</td>
                         <td className="p-5 text-right flex justify-end space-x-3">
-                          <button 
+                          <button
                             onClick={() => setEditingProduct({ ...pr })}
                             className="p-2.5 hover:bg-plum/15 rounded-xl text-plum transition-all border border-plum/5"
                           >
                             <Edit className="h-4.5 w-4.5" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteProduct(pr.id)}
                             className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
                           >
@@ -1615,7 +1611,7 @@ export default function AdminDashboard() {
                     <h3 className="font-display text-xl font-bold text-white">{editingProduct.id ? 'Edit Product Details' : 'New Merchandise Product'}</h3>
                     <button onClick={() => setEditingProduct(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
-                  
+
                   <div className="p-8 space-y-6 text-sm">
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -1628,7 +1624,7 @@ export default function AdminDashboard() {
                           className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] transition-all"
                         />
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">URL Slug</label>
@@ -1714,13 +1710,13 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="p-6 bg-plum/5 border-t border-plum/10 flex justify-end space-x-3">
-                    <button 
+                    <button
                       onClick={() => setEditingProduct(null)}
                       className="px-5 py-2.5 bg-linen border border-plum/20 hover:bg-plum/5 text-plum rounded-full font-bold text-xs uppercase tracking-wider transition-all"
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={handleSaveProduct}
                       className="px-5 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
                     >
@@ -1887,19 +1883,18 @@ export default function AdminDashboard() {
                         </td>
                         <td className="p-5 font-light text-warm-black/70">{res.sort_order}</td>
                         <td className="p-5">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full border ${
-                            res.published 
-                              ? 'bg-plum/5 text-plum border-plum/5' 
+                          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-full border ${res.published
+                              ? 'bg-plum/5 text-plum border-plum/5'
                               : 'bg-warm-black/5 text-warm-black/40 border-warm-black/5'
-                          }`}>
+                            }`}>
                             {res.published ? 'Published' : 'Draft'}
                           </span>
                         </td>
                         <td className="p-5 text-right flex justify-end space-x-3 items-center">
                           {(res.external_url || res.uploaded_file_url) && (
-                            <a 
-                              href={res.external_url || res.uploaded_file_url} 
-                              target="_blank" 
+                            <a
+                              href={res.external_url || res.uploaded_file_url}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="p-2.5 hover:bg-[#FFA526]/10 rounded-xl text-plum transition-all border border-[#FFA526]/5 flex items-center justify-center"
                               title="View Document"
@@ -1907,14 +1902,14 @@ export default function AdminDashboard() {
                               <ExternalLink className="h-4.5 w-4.5" />
                             </a>
                           )}
-                          <button 
+                          <button
                             onClick={() => setEditingResource({ ...res })}
                             className="p-2.5 hover:bg-plum/15 rounded-xl text-plum transition-all border border-plum/5"
                             title="Edit Resource"
                           >
                             <Edit className="h-4.5 w-4.5" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteResource(res.id)}
                             className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
                             title="Delete Resource"
@@ -1937,7 +1932,7 @@ export default function AdminDashboard() {
                     <h3 className="font-display text-xl font-bold text-white">{editingResource.id ? 'Edit Resource Details' : 'New Reading Resource'}</h3>
                     <button onClick={() => setEditingResource(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
-                  
+
                   <div className="p-8 space-y-6 text-sm overflow-y-auto max-h-[70vh] text-left">
                     <div className="space-y-4">
                       {/* Title */}
@@ -1971,11 +1966,10 @@ export default function AdminDashboard() {
                                 key={cat}
                                 type="button"
                                 onClick={() => setEditingResource({ ...editingResource, category: cat })}
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${
-                                  editingResource.category === cat 
-                                    ? 'bg-plum text-[#FFEFBF] border-plum' 
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${editingResource.category === cat
+                                    ? 'bg-plum text-[#FFEFBF] border-plum'
                                     : 'bg-plum/5 text-plum border-plum/10 hover:bg-plum/10'
-                                }`}
+                                  }`}
                               >
                                 {cat}
                               </button>
@@ -2085,16 +2079,16 @@ export default function AdminDashboard() {
                       <Image src={ev.hero_image} alt="" fill className="object-cover" />
                     </div>
                     <span className="font-bold text-plum mt-3 truncate">{ev.title} Cover</span>
-                    <input 
-                      type="text" 
-                      readOnly 
-                      value={ev.hero_image} 
+                    <input
+                      type="text"
+                      readOnly
+                      value={ev.hero_image}
                       onClick={(e) => {
                         (e.target as HTMLInputElement).select();
                         document.execCommand('copy');
                         triggerToast('Copied Image Link to clipboard!');
                       }}
-                      className="text-[10px] bg-[#FFEFBF] border border-plum/10 p-2 rounded-xl mt-2 truncate cursor-pointer focus:outline-none font-mono text-plum/70" 
+                      className="text-[10px] bg-[#FFEFBF] border border-plum/10 p-2 rounded-xl mt-2 truncate cursor-pointer focus:outline-none font-mono text-plum/70"
                     />
                   </div>
                 ))}
@@ -2115,41 +2109,37 @@ export default function AdminDashboard() {
             <div className="flex flex-wrap gap-2 border-b border-plum/10 pb-4">
               <button
                 onClick={() => setSubTab('mailing')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  subTab === 'mailing' 
-                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'mailing'
+                    ? 'bg-plum text-[#FFEFBF] shadow'
                     : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
-                }`}
+                  }`}
               >
                 Mailing List ({subscribers.length})
               </button>
               <button
                 onClick={() => setSubTab('contact')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  subTab === 'contact' 
-                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'contact'
+                    ? 'bg-plum text-[#FFEFBF] shadow'
                     : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
-                }`}
+                  }`}
               >
                 Contact Forms ({messages.length})
               </button>
               <button
                 onClick={() => setSubTab('orders')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  subTab === 'orders' 
-                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'orders'
+                    ? 'bg-plum text-[#FFEFBF] shadow'
                     : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
-                }`}
+                  }`}
               >
                 Store Orders ({orders.length})
               </button>
               <button
                 onClick={() => setSubTab('registrations')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                  subTab === 'registrations' 
-                    ? 'bg-plum text-[#FFEFBF] shadow' 
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'registrations'
+                    ? 'bg-plum text-[#FFEFBF] shadow'
                     : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
-                }`}
+                  }`}
               >
                 Event Registrants ({registrations.length})
               </button>
@@ -2291,14 +2281,14 @@ export default function AdminDashboard() {
                   {(() => {
                     const filtered = orders.filter(o => {
                       const searchLower = orderSearch.toLowerCase();
-                      const matchQuery = 
+                      const matchQuery =
                         o.customer_name.toLowerCase().includes(searchLower) ||
                         o.customer_email.toLowerCase().includes(searchLower) ||
                         o.order_ref.toLowerCase().includes(searchLower) ||
                         o.items.some(i => i.product_title.toLowerCase().includes(searchLower));
-                      
+
                       const matchStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
-                      
+
                       return matchQuery && matchStatus;
                     });
 
@@ -2330,12 +2320,11 @@ export default function AdminDashboard() {
                               </td>
                               <td className="p-4 font-bold text-[#E65C17]">${ord.total_amount.toFixed(2)}</td>
                               <td className="p-4">
-                                <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${
-                                  ord.status === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
-                                  ord.status === 'completed' ? 'bg-plum/10 border-plum/20 text-plum' :
-                                  ord.status === 'pending' ? 'bg-[#FFA526]/10 border-[#FFA526]/20 text-[#FFA526]' :
-                                  'bg-red-500/10 border-red-500/20 text-red-500'
-                                }`}>
+                                <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${ord.status === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
+                                    ord.status === 'completed' ? 'bg-plum/10 border-plum/20 text-plum' :
+                                      ord.status === 'pending' ? 'bg-[#FFA526]/10 border-[#FFA526]/20 text-[#FFA526]' :
+                                        'bg-red-500/10 border-red-500/20 text-red-500'
+                                  }`}>
                                   {ord.status}
                                 </span>
                               </td>
@@ -2467,7 +2456,7 @@ export default function AdminDashboard() {
             <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/15 pb-3">Website Palette Theme</h2>
               <p className="text-xs text-warm-black/60 -mt-3">Choose one of the curated design color schemes for the live website.</p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { id: 'default', name: 'Linen & Plum (Rebrand Default)', bg: '#FFEFBF', text: '#1E1D1B', primary: '#6E0B64', secondary: '#FF7DB4', accent: '#FFA526' },
@@ -2478,14 +2467,13 @@ export default function AdminDashboard() {
                   <button
                     key={pal.id}
                     onClick={() => handleSaveSettings('theme', { color_palette: pal.id })}
-                    className={`flex flex-col text-left border rounded-2xl p-5 transition-all duration-300 hover:shadow-md cursor-pointer ${
-                      (siteSettings.color_palette || 'default') === pal.id 
-                        ? 'border-plum bg-plum/5 ring-2 ring-plum shadow-md' 
+                    className={`flex flex-col text-left border rounded-2xl p-5 transition-all duration-300 hover:shadow-md cursor-pointer ${(siteSettings.color_palette || 'default') === pal.id
+                        ? 'border-plum bg-plum/5 ring-2 ring-plum shadow-md'
                         : 'border-plum/15 bg-[#FFEFBF] hover:border-plum/45'
-                    }`}
+                      }`}
                   >
                     <span className="font-bold text-plum text-sm">{pal.name}</span>
-                    
+
                     {/* Swatch grid */}
                     <div className="flex items-center space-x-2 mt-4">
                       <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.bg }} title="Background" />
@@ -2503,7 +2491,7 @@ export default function AdminDashboard() {
             <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/15 pb-3">Stripe Integration Settings</h2>
               <p className="text-xs text-warm-black/60 -mt-3">Configure secure payment checkouts. (Changes apply automatically when keys are entered).</p>
-              
+
               <div className="space-y-5">
                 <div className="flex items-center justify-between p-5 bg-plum/5 rounded-2xl border border-plum/10">
                   <div className="space-y-1 max-w-lg">
@@ -2534,7 +2522,7 @@ export default function AdminDashboard() {
                       className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs text-plum"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">
                       Stripe Secret Key
@@ -2568,7 +2556,7 @@ export default function AdminDashboard() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              
+
               <div className="overflow-y-auto flex-grow py-4 space-y-4 pr-1">
                 {/* Shipping info */}
                 <div className="space-y-1 bg-plum/5 p-4 rounded-2xl border border-plum/5">
@@ -2648,7 +2636,7 @@ export default function AdminDashboard() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              
+
               <div className="overflow-y-auto flex-grow py-4 space-y-4 pr-1">
                 <div className="bg-plum/5 p-4 rounded-2xl border border-plum/5 space-y-2">
                   <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Applied Event</h5>

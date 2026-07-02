@@ -63,7 +63,8 @@ export default async function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
       <head>
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           :root {
             --background: ${palette.background};
             --foreground: ${palette.foreground};
