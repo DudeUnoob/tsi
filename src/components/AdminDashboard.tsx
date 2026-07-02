@@ -362,6 +362,7 @@ export default function AdminDashboard() {
         status: editingProduct.status,
         external_checkout_url: editingProduct.external_checkout_url,
         external_product_url: editingProduct.external_product_url,
+        shopify_embed_code: editingProduct.shopify_embed_code,
         stripe_price_id: editingProduct.stripe_price_id,
         stripe_product_id: editingProduct.stripe_product_id,
         featured: editingProduct.featured,
@@ -1660,7 +1661,19 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Price Checkout Link / URL</label>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Shopify Buy Button Embed Code (HTML/Script)</label>
+                        <textarea
+                          rows={4}
+                          placeholder="Paste <div id='...'></div> <script>...</script> code here..."
+                          value={editingProduct.shopify_embed_code || ''}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, shopify_embed_code: e.target.value })}
+                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs resize-y leading-relaxed"
+                        />
+                        <p className="text-[10px] text-warm-black/50 italic">Pasting Shopify embed code will render the official button &amp; size picker directly on the product page.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Price Checkout Link / URL (Optional)</label>
                         <input
                           type="text"
                           placeholder="https://..."
