@@ -1,9 +1,8 @@
-'use client';
-
 import React, { useState } from 'react';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, Check, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { ShoppingCart, Check, ShieldCheck, Truck, RotateCcw, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import ShopifyBuyButton from '@/components/ShopifyBuyButton';
 
 interface ProductFormProps {
   product: {
@@ -134,35 +133,46 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
       </div>
 
-      {/* Add To Cart Trigger */}
-      <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          className={`flex-grow px-6 py-3.5 font-black uppercase text-[10px] tracking-widest rounded-xl shadow transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 ${
-            added
-              ? 'bg-[#66CC6E] text-[#FFEFBF]'
-              : 'bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF]'
-          }`}
-        >
-          {added ? (
-            <>
-              <Check className="h-3.5 w-3.5" /> Added to Cart!
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="h-3.5 w-3.5" /> Add To Cart
-            </>
-          )}
-        </button>
+      {/* Add To Cart Trigger or Shopify Buy Button */}
+      {product.slug === 'sanga-hoodie' || product.id === 1 ? (
+        <div className="pt-2 space-y-3">
+          <div className="bg-plum/5 p-4 rounded-2xl border border-plum/10 space-y-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-plum block">
+              Official Shopify Direct Checkout
+            </span>
+            <ShopifyBuyButton />
+          </div>
+        </div>
+      ) : (
+        <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`flex-grow px-6 py-3.5 font-black uppercase text-[10px] tracking-widest rounded-xl shadow transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 ${
+              added
+                ? 'bg-pink text-linen'
+                : 'bg-plum hover:bg-pink text-linen'
+            }`}
+          >
+            {added ? (
+              <>
+                <Check className="h-3.5 w-3.5" /> Added to Cart!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-3.5 w-3.5" /> Add To Cart
+              </>
+            )}
+          </button>
 
-        <Link
-          href="/cart"
-          className="px-5 py-3.5 border border-[#6E0B64]/20 hover:border-[#6E0B64] bg-[#FFEFBF] text-[#6E0B64] font-black uppercase text-[10px] tracking-widest rounded-xl transition-all duration-200 text-center flex items-center justify-center cursor-pointer shadow-sm hover:shadow"
-        >
-          View Cart
-        </Link>
-      </div>
+          <Link
+            href="/cart"
+            className="px-5 py-3.5 border border-plum/20 hover:border-plum bg-linen text-plum font-black uppercase text-[10px] tracking-widest rounded-xl transition-all duration-200 text-center flex items-center justify-center cursor-pointer shadow-sm hover:shadow"
+          >
+            View Cart
+          </Link>
+        </div>
+      )}
 
       {/* Purchase Trust Badges */}
       <div className="pt-4 border-t border-[#6E0B64]/15 space-y-2 text-[10px] text-[#1E1D1B]/70 font-sans font-light">
