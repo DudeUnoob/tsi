@@ -78,6 +78,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   const isDefaultTheme = currentPaletteKey === 'default';
   const isBerryTheme = currentPaletteKey === 'berry';
   const isMintTheme = currentPaletteKey === 'mint';
+  const isSunsetTheme = currentPaletteKey === 'sunset';
   const isLightHeroTheme = isDefaultTheme || isBerryTheme || isMintTheme;
 
   return (
@@ -86,7 +87,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
       <section 
         style={!isLightHeroTheme ? {
-          background: `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
+          background: isSunsetTheme 
+            ? `linear-gradient(180deg, var(--color-plum) 0%, var(--color-pink) 65%, #F78B42 100%)`
+            : `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
         } : undefined}
         className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 ${
           (isBerryTheme || isMintTheme) ? 'bg-linen text-plum' : 'bg-plum text-linen'
@@ -96,19 +99,19 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
           {/* Top-left large blob */}
           <svg className={`absolute -top-16 -left-20 w-[55vw] h-[75vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-15' : 'opacity-90'
+            (isBerryTheme || isMintTheme) ? 'opacity-15' : isSunsetTheme ? 'opacity-30' : 'opacity-90'
           }`} viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="var(--color-pink)" opacity="0.85"/>
           </svg>
           {/* Bottom-left accent blob */}
           <svg className={`absolute -bottom-20 -left-16 w-[40vw] h-[55vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-15' : 'opacity-75'
+            (isBerryTheme || isMintTheme) ? 'opacity-15' : isSunsetTheme ? 'opacity-30' : 'opacity-75'
           }`} viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="var(--color-plum)" opacity="0.9"/>
           </svg>
           {/* Right-side wavy blob */}
           <svg className={`absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-80' : 'opacity-60'
+            (isBerryTheme || isMintTheme) ? 'opacity-80' : isSunsetTheme ? 'opacity-30' : 'opacity-60'
           }`} viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
           </svg>
@@ -126,12 +129,14 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               className={`flex items-center space-x-2 px-4 py-1.5 rounded-full border ${
-                (isBerryTheme || isMintTheme) ? 'bg-plum/10 border-plum/20' : 'bg-linen/10 border-linen/20'
+                (isBerryTheme || isMintTheme) ? 'bg-plum/10 border-plum/20' : 'bg-white/15 border-white/25'
               }`}
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-pink animate-pulse" />
+              <span className={`w-2.5 h-2.5 rounded-full animate-pulse ${
+                isSunsetTheme ? 'bg-white' : 'bg-pink'
+              }`} />
               <span className={`text-xs uppercase tracking-widest font-black font-sans ${
-                (isBerryTheme || isMintTheme) ? 'text-plum' : 'text-linen'
+                (isBerryTheme || isMintTheme) ? 'text-plum' : 'text-white'
               }`}>
                 Welcome to Sanga
               </span>
@@ -142,7 +147,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
               className={`font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] ${
-                (isBerryTheme || isMintTheme) ? 'text-plum' : 'text-sunshine'
+                (isBerryTheme || isMintTheme) ? 'text-plum' : isSunsetTheme ? 'text-white drop-shadow-sm' : 'text-sunshine'
               }`}
             >
               Sanga is a <br className="hidden sm:inline" />
@@ -155,7 +160,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className={`text-lg sm:text-2xl leading-relaxed font-light font-sans max-w-xl ${
-                (isBerryTheme || isMintTheme) ? 'text-plum/80' : 'text-linen/90'
+                (isBerryTheme || isMintTheme) ? 'text-plum/80' : isSunsetTheme ? 'text-white/95' : 'text-linen/90'
               }`}
             >
               For friendship, growth, and shared experience
@@ -170,7 +175,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               <Link
                 href={settings.primary_cta_url}
                 className={`w-full sm:w-auto px-8 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98 ${
-                  (isBerryTheme || isMintTheme) ? 'bg-plum text-linen hover:opacity-90' : 'bg-sunshine text-plum hover:opacity-90'
+                  (isBerryTheme || isMintTheme) ? 'bg-plum text-linen hover:opacity-90' : isSunsetTheme ? 'bg-white text-[#801946] hover:bg-white/90' : 'bg-sunshine text-plum hover:opacity-90'
                 }`}
               >
                 {settings.primary_cta_label}
@@ -178,7 +183,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               <a
                 href={settings.secondary_cta_url}
                 className={`w-full sm:w-auto px-8 py-4 bg-transparent border-2 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98 ${
-                  (isBerryTheme || isMintTheme) ? 'border-plum/30 text-plum hover:bg-plum/10 hover:border-plum' : 'border-linen/30 text-linen hover:bg-linen/10 hover:border-linen'
+                  (isBerryTheme || isMintTheme) ? 'border-plum/30 text-plum hover:bg-plum/10 hover:border-plum' : isSunsetTheme ? 'border-white/40 text-white hover:bg-white/10 hover:border-white' : 'border-linen/30 text-linen hover:bg-linen/10 hover:border-linen'
                 }`}
               >
                 {settings.secondary_cta_label}

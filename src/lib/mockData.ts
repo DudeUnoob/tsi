@@ -118,8 +118,8 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
     name: "Sunset Gradient",
     background: "#FFEFBF",
     foreground: "#1E1D1B",
-    primary: "#E65C17",
-    secondary: "#FF7DB4",
+    primary: "#C83B82",
+    secondary: "#F26E27",
     accent: "#6E0B64"
   },
   mint: {
