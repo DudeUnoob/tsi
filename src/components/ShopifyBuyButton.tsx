@@ -61,24 +61,15 @@ export default function ShopifyBuyButton() {
                   }
                 },
                 "button": {
-                  "font-family": "Inter, sans-serif",
-                  "font-weight": "900",
-                  "font-size": "12px",
-                  "letter-spacing": "0.1em",
-                  "text-transform": "uppercase",
-                  "padding-top": "14px",
-                  "padding-bottom": "14px",
-                  "padding-left": "32px",
-                  "padding-right": "32px",
-                  "color": "#FFEFBF",
-                  "background-color": "#6E0B64",
+                  "font-family": "Arial, sans-serif",
                   ":hover": {
-                    "background-color": "#E65C17"
+                    "background-color": "#da6323"
                   },
-                  "border-radius": "9999px",
+                  "background-color": "#f26e27",
                   ":focus": {
-                    "background-color": "#E65C17"
-                  }
+                    "background-color": "#da6323"
+                  },
+                  "border-radius": "25px"
                 }
               },
               "contents": {
@@ -113,6 +104,17 @@ export default function ShopifyBuyButton() {
                     "margin-left": "0px",
                     "margin-bottom": "0px"
                   }
+                },
+                "button": {
+                  "font-family": "Arial, sans-serif",
+                  ":hover": {
+                    "background-color": "#da6323"
+                  },
+                  "background-color": "#f26e27",
+                  ":focus": {
+                    "background-color": "#da6323"
+                  },
+                  "border-radius": "25px"
                 }
               },
               "text": {
@@ -121,12 +123,38 @@ export default function ShopifyBuyButton() {
             },
             "option": {},
             "cart": {
+              "styles": {
+                "button": {
+                  "font-family": "Arial, sans-serif",
+                  ":hover": {
+                    "background-color": "#da6323"
+                  },
+                  "background-color": "#f26e27",
+                  ":focus": {
+                    "background-color": "#da6323"
+                  },
+                  "border-radius": "25px"
+                }
+              },
               "text": {
                 "total": "Subtotal",
                 "button": "Checkout"
               }
             },
-            "toggle": {}
+            "toggle": {
+              "styles": {
+                "toggle": {
+                  "font-family": "Arial, sans-serif",
+                  "background-color": "#f26e27",
+                  ":hover": {
+                    "background-color": "#da6323"
+                  },
+                  ":focus": {
+                    "background-color": "#da6323"
+                  }
+                }
+              }
+            }
           },
         });
       });
@@ -137,7 +165,7 @@ export default function ShopifyBuyButton() {
 
   return (
     <div className="py-2">
-      <div id="product-component-1783021757059" ref={containerRef} />
+      <div id="product-component-1783021973912" ref={containerRef} />
     </div>
   );
 }
