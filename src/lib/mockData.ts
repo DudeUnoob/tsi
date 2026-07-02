@@ -124,11 +124,11 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
   },
   mint: {
     name: "Minty Fresh",
-    background: "#FFEFBF",
+    background: "#E2F4E9",
     foreground: "#1E1D1B",
-    primary: "#66CC6E",
-    secondary: "#17B2E6",
-    accent: "#FFEFBF"
+    primary: "#286944",
+    secondary: "#66CC6E",
+    accent: "#17B2E6"
   },
   golden: {
     name: "Golden Hour",
