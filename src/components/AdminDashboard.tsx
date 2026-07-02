@@ -2460,9 +2460,10 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { id: 'default', name: 'Linen & Plum (Rebrand Default)', bg: '#FFEFBF', text: '#1E1D1B', primary: '#6E0B64', secondary: '#FF7DB4', accent: '#FFA526' },
-                  { id: 'ocean', name: 'Ocean Breeze', bg: '#E0F2FE', text: '#0F172A', primary: '#0369A1', secondary: '#38BDF8', accent: '#F43F5E' },
-                  { id: 'forest', name: 'Forest Sage', bg: '#E8F5E9', text: '#1B5E20', primary: '#2E7D32', secondary: '#81C784', accent: '#E65C17' },
-                  { id: 'dark', name: 'Midnight Glow (Dark Theme)', bg: '#121214', text: '#F4F4F6', primary: '#BF3078', secondary: '#FFA526', accent: '#8B5CF6' }
+                  { id: 'berry', name: 'Berry Blast', bg: '#FFEFBF', text: '#1E1D1B', primary: '#BF3078', secondary: '#6E0B64', accent: '#17B2E6' },
+                  { id: 'sunset', name: 'Sunset Gradient', bg: '#FFEFBF', text: '#1E1D1B', primary: '#E65C17', secondary: '#FF7DB4', accent: '#6E0B64' },
+                  { id: 'mint', name: 'Minty Fresh', bg: '#FFEFBF', text: '#1E1D1B', primary: '#66CC6E', secondary: '#17B2E6', accent: '#FFEFBF' },
+                  { id: 'golden', name: 'Golden Hour', bg: '#FFEFBF', text: '#1E1D1B', primary: '#A67F08', secondary: '#FFEFBB', accent: '#8C3123' }
                 ].map((pal) => (
                   <button
                     key={pal.id}
@@ -2478,9 +2479,9 @@ export default function AdminDashboard() {
                     <div className="flex items-center space-x-2 mt-4">
                       <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.bg }} title="Background" />
                       <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.text }} title="Text color" />
-                      <div className="w-7 h-7 rounded-full" style={{ backgroundColor: pal.primary }} title="Primary Accent (Plum)" />
-                      <div className="w-7 h-7 rounded-full" style={{ backgroundColor: pal.secondary }} title="Secondary Accent (Pink)" />
-                      <div className="w-7 h-7 rounded-full" style={{ backgroundColor: pal.accent }} title="Accent (Sunshine)" />
+                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.primary }} title="Primary Color" />
+                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.secondary }} title="Secondary Color" />
+                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.accent }} title="Accent Color" />
                     </div>
                   </button>
                 ))}
