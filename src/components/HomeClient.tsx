@@ -94,15 +94,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
         {/* Flat organic blob shapes — graphic background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
           {/* Top-left large blob */}
-          <svg className="absolute -top-16 -left-20 w-[55vw] h-[75vh] opacity-90" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <svg className={`absolute -top-16 -left-20 w-[55vw] h-[75vh] transition-opacity duration-300 ${
+            isBerryTheme ? 'opacity-15' : 'opacity-90'
+          }`} viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="var(--color-pink)" opacity="0.85"/>
           </svg>
           {/* Bottom-left accent blob */}
-          <svg className="absolute -bottom-20 -left-16 w-[40vw] h-[55vh] opacity-75" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <svg className={`absolute -bottom-20 -left-16 w-[40vw] h-[55vh] transition-opacity duration-300 ${
+            isBerryTheme ? 'opacity-15' : 'opacity-75'
+          }`} viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="var(--color-plum)" opacity="0.9"/>
           </svg>
           {/* Right-side wavy blob */}
-          <svg className="absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] opacity-60" viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <svg className={`absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] transition-opacity duration-300 ${
+            isBerryTheme ? 'opacity-80' : 'opacity-60'
+          }`} viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
           </svg>
           {/* Small top-right accent */}
