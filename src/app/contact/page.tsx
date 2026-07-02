@@ -9,27 +9,27 @@ export default async function ContactPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
+    <div className="bg-linen min-h-screen font-sans pb-24 text-warm-black">
       {/* Wave Header Section */}
-      <div className="relative bg-plum text-[#FFEFBF] pt-16 pb-32 overflow-hidden">
-        <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-0 bottom-0 w-80 h-80 bg-[#FF7DB4]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative bg-plum text-linen pt-16 pb-32 overflow-hidden">
+        <div className="absolute -left-12 -top-12 w-64 h-64 bg-sunshine/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-0 bottom-0 w-80 h-80 bg-pink/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFA526]/20 border border-[#FFA526]/40 text-[#FFA526] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sunshine/20 border border-sunshine/40 text-sunshine text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Connect
           </span>
           <h1 className="font-display text-5xl sm:text-7xl font-bold tracking-tight text-white leading-tight">
-            Get in <span className="text-[#FFA526]">Touch</span>
+            Get in <span className="text-sunshine">Touch</span>
           </h1>
-          <p className="text-lg sm:text-xl text-[#FFEFBF]/85 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-lg sm:text-xl text-linen/85 max-w-2xl mx-auto font-light leading-relaxed">
             Have a question about an upcoming retreat? Need help with registrations or bookings? Or simply want to learn more about Sanga offerings? Drop us a line.
           </p>
         </div>
 
         {/* Wave Border */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0]">
-          <svg className="relative block w-full h-12 text-[#FFEFBF] fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg className="relative block w-full h-12 text-linen fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 C300,100 600,20 900,80 L1200,60 L1200,120 L0,120 Z"></path>
           </svg>
         </div>
@@ -39,8 +39,8 @@ export default async function ContactPage() {
       <div className="max-w-6xl mx-auto px-6 -mt-12 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Form Container */}
-          <div className="lg:col-span-7 bg-[#FFEFBF] p-8 md:p-10 rounded-[2.5rem] border border-plum/10 shadow-lg relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-32 h-32 bg-[#FFA526]/5 rounded-full pointer-events-none" />
+          <div className="lg:col-span-7 bg-linen p-8 md:p-10 rounded-[2.5rem] border border-plum/10 shadow-lg relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-32 h-32 bg-sunshine/5 rounded-full pointer-events-none" />
             <h2 className="font-display text-3xl font-bold text-plum mb-8 relative z-10 flex items-center gap-2">
               Send a Message
             </h2>
@@ -52,9 +52,9 @@ export default async function ContactPage() {
           {/* Right Column: Contact Details */}
           <div className="lg:col-span-5 space-y-8">
             {/* Email Card */}
-            <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
+            <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-[#FF7DB4]/15 rounded-2xl text-plum">
+                <div className="p-3 bg-pink/15 rounded-2xl text-plum">
                   <Mail className="h-6 w-6 text-plum" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-plum">Contact Email</h3>
@@ -64,17 +64,17 @@ export default async function ContactPage() {
               </p>
               <a 
                 href={`mailto:${settings.contact_email}`} 
-                className="inline-block text-lg font-bold text-plum hover:text-[#E65C17] border-b border-plum/10 pb-0.5 transition-colors"
+                className="inline-block text-lg font-bold text-plum hover:text-pink border-b border-plum/10 pb-0.5 transition-colors"
               >
                 {settings.contact_email}
               </a>
             </div>
 
             {/* WhatsApp Hub */}
-            <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
+            <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-[#66CC6E]/15 rounded-2xl text-[#008030]">
-                  <MessageCircle className="h-6 w-6 text-[#008030]" />
+                <div className="p-3 bg-sunshine/15 rounded-2xl text-plum">
+                  <MessageCircle className="h-6 w-6 text-plum" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-plum">WhatsApp Hub</h3>
               </div>
@@ -85,16 +85,16 @@ export default async function ContactPage() {
                 href={settings.whatsapp_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3 bg-[#66CC6E] hover:bg-[#008030] text-[#1E1D1B] hover:text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md transition-all duration-300"
+                className="inline-flex items-center px-6 py-3 bg-plum hover:opacity-90 text-linen font-bold text-xs uppercase tracking-wider rounded-full shadow-md transition-all duration-300"
               >
                 Join WhatsApp Group
               </a>
             </div>
 
             {/* Social Accounts */}
-            <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
+            <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 space-y-4 hover:border-plum/30 transition-all duration-300 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-[#FFA526]/15 rounded-2xl text-plum">
+                <div className="p-3 bg-sunshine/15 rounded-2xl text-plum">
                   <Heart className="h-6 w-6 text-plum" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-plum">Follow Our Journey</h3>

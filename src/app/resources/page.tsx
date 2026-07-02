@@ -23,27 +23,27 @@ export default async function ResourcesPage() {
     .sort();
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
+    <div className="bg-linen min-h-screen font-sans pb-24 text-warm-black">
       {/* Wave Header Section */}
-      <div className="relative bg-plum text-[#FFEFBF] pt-16 pb-32 overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute left-10 bottom-10 w-80 h-80 bg-[#FF7DB4]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative bg-plum text-linen pt-16 pb-32 overflow-hidden">
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-sunshine/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-10 bottom-10 w-80 h-80 bg-pink/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFA526]/20 border border-[#FFA526]/40 text-[#FFA526] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sunshine/20 border border-sunshine/40 text-sunshine text-xs font-bold uppercase tracking-wider">
             <BookOpen className="w-3.5 h-3.5" /> Reference & Guides
           </span>
           <h1 className="font-display text-5xl sm:text-7xl font-bold tracking-tight text-white leading-tight">
-            Reading & <span className="text-[#FFA526]">Resources</span>
+            Reading & <span className="text-sunshine">Resources</span>
           </h1>
-          <p className="text-lg sm:text-xl text-[#FFEFBF]/85 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-lg sm:text-xl text-linen/85 max-w-2xl mx-auto font-light leading-relaxed">
             A curated collection of study guides, travel checklists, reading references, and practical handbooks compiled by the Sanga community.
           </p>
         </div>
 
         {/* Wave Border */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0]">
-          <svg className="relative block w-full h-12 text-[#FFEFBF] fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg className="relative block w-full h-12 text-linen fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 C300,100 600,20 900,80 L1200,60 L1200,120 L0,120 Z"></path>
           </svg>
         </div>
@@ -56,7 +56,7 @@ export default async function ResourcesPage() {
             activeCategories.map(category => (
               <section key={category} className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-plum/10 pb-4">
-                  <div className="p-2 bg-[#FFA526]/20 rounded-lg text-plum">
+                  <div className="p-2 bg-sunshine/20 rounded-lg text-plum">
                     <Sparkles className="h-5 w-5 text-plum" />
                   </div>
                   <h2 className="font-display text-2xl sm:text-3xl font-bold text-plum">{category}</h2>
@@ -70,13 +70,13 @@ export default async function ResourcesPage() {
                     return (
                       <div 
                         key={resource.id} 
-                        className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden"
+                        className="bg-linen p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden"
                       >
                         <div className="space-y-4">
-                          <div className="p-3 bg-plum/5 rounded-xl w-fit text-plum group-hover:bg-[#FFA526]/25 transition-colors">
+                          <div className="p-3 bg-plum/5 rounded-xl w-fit text-plum group-hover:bg-sunshine/25 transition-colors">
                             <FileText className="h-6 w-6" />
                           </div>
-                          <h3 className="font-display text-xl font-bold text-plum leading-snug group-hover:text-[#E65C17] transition-colors">
+                          <h3 className="font-display text-xl font-bold text-plum leading-snug group-hover:text-pink transition-colors">
                             {resource.title}
                           </h3>
                           <p className="text-sm text-warm-black/80 leading-relaxed font-sans font-light line-clamp-4">
@@ -89,7 +89,7 @@ export default async function ResourcesPage() {
                             href={linkUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center w-full px-5 py-3 bg-plum text-[#FFEFBF] hover:bg-[#FFA526] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                            className="inline-flex items-center justify-center w-full px-5 py-3 bg-plum text-linen hover:bg-sunshine hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                           >
                             {isUpload ? (
                               <>

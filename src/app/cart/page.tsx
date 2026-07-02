@@ -196,20 +196,20 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="bg-[#FFEFBF] min-h-screen py-24 font-sans text-[#1E1D1B] flex items-center">
+      <div className="bg-linen min-h-screen py-24 font-sans text-warm-black flex items-center">
         <div className="max-w-xl mx-auto px-6 text-center space-y-6">
-          <div className="w-20 h-20 bg-[#6E0B64]/5 border border-[#6E0B64]/10 rounded-full flex items-center justify-center mx-auto shadow-inner">
-            <ShoppingBag className="h-8 w-8 text-[#6E0B64]/40" />
+          <div className="w-20 h-20 bg-plum/5 border border-plum/10 rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <ShoppingBag className="h-8 w-8 text-plum/40" />
           </div>
           <div className="space-y-2">
-            <h1 className="font-display text-3xl font-black text-[#6E0B64]">Your Cart is Empty</h1>
-            <p className="text-sm text-[#1E1D1B]/60 font-light max-w-sm mx-auto leading-relaxed">
+            <h1 className="font-display text-3xl font-black text-plum">Your Cart is Empty</h1>
+            <p className="text-sm text-warm-black/60 font-light max-w-sm mx-auto leading-relaxed">
               Looks like you haven&apos;t added any merchandise or upgrades to your catalog yet. Support Sanga by visiting the store.
             </p>
           </div>
           <Link
             href="/store"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-plum text-linen hover:opacity-90 font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
           >
             Explore Store <ArrowRight className="h-4 w-4" />
           </Link>
@@ -218,25 +218,23 @@ export default function CartPage() {
     );
   }
 
-
-
   return (
-    <div className="bg-[#FFEFBF] min-h-screen py-16 font-sans text-[#1E1D1B] relative">
+    <div className="bg-linen min-h-screen py-16 font-sans text-warm-black relative">
       
       {/* Checkout Processing Overlay */}
       {isSubmitting && (
-        <div className="fixed inset-0 bg-[#6E0B64]/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-[#FFEFBF] px-6 text-center select-none">
+        <div className="fixed inset-0 bg-plum/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-linen px-6 text-center select-none">
           <div className="space-y-6 max-w-sm">
-            <Loader2 className="h-12 w-12 text-[#FFA526] animate-spin mx-auto" />
+            <Loader2 className="h-12 w-12 text-sunshine animate-spin mx-auto" />
             <div className="space-y-2">
-              <h2 className="font-display text-2xl font-black tracking-tight text-[#FFA526]">
+              <h2 className="font-display text-2xl font-black tracking-tight text-sunshine">
                 Securing Transaction
               </h2>
-              <p className="text-sm text-[#FFEFBF]/85 font-light animate-pulse min-h-[40px]">
+              <p className="text-sm text-linen/85 font-light animate-pulse min-h-[40px]">
                 {statusMessage}
               </p>
             </div>
-            <div className="pt-4 border-t border-[#FFEFBF]/15 flex items-center justify-center gap-2 text-xs text-[#FFEFBF]/60">
+            <div className="pt-4 border-t border-linen/15 flex items-center justify-center gap-2 text-xs text-linen/60">
               <Lock className="h-3.5 w-3.5" /> Fully Encrypted Checkout Session
             </div>
           </div>
@@ -245,11 +243,11 @@ export default function CartPage() {
 
       <div className="max-w-7xl mx-auto px-6">
         {/* Page Header */}
-        <div className="border-b border-[#6E0B64]/10 pb-8 mb-12">
-          <h1 className="font-display text-3xl sm:text-5xl font-black text-[#6E0B64]">
+        <div className="border-b border-plum/10 pb-8 mb-12">
+          <h1 className="font-display text-3xl sm:text-5xl font-black text-plum">
             Shopping Cart
           </h1>
-          <p className="text-sm text-[#1E1D1B]/60 font-light mt-2">
+          <p className="text-sm text-warm-black/60 font-light mt-2">
             Review your Sanga merchandise and proceed to secure card payment.
           </p>
         </div>
