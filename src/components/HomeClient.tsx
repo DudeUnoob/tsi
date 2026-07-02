@@ -164,21 +164,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               className="relative w-[480px] h-[310px] sm:w-[600px] sm:h-[385px]"
             >
               {/* Back card — decorative, slightly more rotated */}
-              <div className="absolute inset-0 rounded-3xl bg-[#FFA526]/60 border-4 border-[#FFA526]/40 shadow-xl transform rotate-6 scale-95 translate-y-2" />
+              <div className="absolute inset-0 rounded-3xl bg-sunshine/60 border-4 border-sunshine/40 shadow-xl transform rotate-6 scale-95 translate-y-2" />
 
               {/* Middle card — previous image, less rotation */}
-              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-[#FFEFBF]/30 shadow-xl transform -rotate-3 scale-97">
+              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-linen/30 shadow-xl transform -rotate-3 scale-97">
                 <Image
                   src={heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src}
                   alt="Previous gathering"
                   fill
                   className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-[#6E0B64]/20" />
+                <div className="absolute inset-0 bg-plum/20" />
               </div>
 
               {/* Top card — current image, straight on */}
-              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-[#FFEFBF]/50 shadow-2xl">
+              <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-linen/50 shadow-2xl">
                 <AnimatePresence mode="sync">
                   <motion.div
                     key={slideIndex}
@@ -199,7 +199,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                 </AnimatePresence>
 
                 {/* Caption strip at bottom of top card */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#6E0B64]/80 to-transparent px-4 pb-4 pt-10">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-plum/80 to-transparent px-4 pb-4 pt-10">
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={`caption-${slideIndex}`}
@@ -207,7 +207,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.35 }}
-                      className="text-[#FFEFBF] text-xs font-black uppercase tracking-widest"
+                      className="text-linen text-xs font-black uppercase tracking-widest"
                     >
                       {heroImages[slideIndex].label}
                     </motion.p>
@@ -220,7 +220,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                         key={i}
                         onClick={() => setSlideIndex(i)}
                         className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
-                          i === slideIndex ? 'bg-[#FFA526] w-5' : 'bg-[#FFEFBF]/40 w-1.5'
+                          i === slideIndex ? 'bg-sunshine w-5' : 'bg-linen/40 w-1.5'
                         }`}
                       />
                     ))}
@@ -234,7 +234,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, scale: 0.8, rotate: 8 }}
               animate={{ opacity: 1, scale: 1, rotate: 12 }}
               transition={{ delay: 0.6, duration: 0.5, type: 'spring' }}
-              className="absolute -top-6 -right-2 sm:-right-6 bg-[#FF7DB4] text-[#1E1D1B] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+              className="absolute -top-6 -right-2 sm:-right-6 bg-pink text-warm-black text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
             >
               Since 2014 🌿
             </motion.div>
@@ -244,7 +244,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
               animate={{ opacity: 1, scale: 1, rotate: -6 }}
               transition={{ delay: 0.75, duration: 0.5, type: 'spring' }}
-              className="absolute -bottom-6 -left-2 sm:-left-6 bg-[#FFA526] text-[#6E0B64] text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+              className="absolute -bottom-6 -left-2 sm:-left-6 bg-sunshine text-plum text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
             >
               Friendship &amp; Growth
             </motion.div>
@@ -252,44 +252,44 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           )}
         </div>
 
-        {/* Wavy bottom divider separating Hero from Mission */}
+      {/* Wavy bottom divider separating Hero from Mission */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-16 fill-[#FFEFBF]">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-16 fill-linen">
             <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C26.9,4.75,55.05,16.35,80,25.23,135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44Z" />
           </svg>
         </div>
       </section>
 
       {/* 2. MISSION STATEMENT SECTION */}
-      <section className="relative bg-[#FFEFBF] py-24 md:py-32 px-6 border-b border-[#6E0B64]/5">
+      <section className="relative bg-linen py-24 md:py-32 px-6 border-b border-plum/5">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <p className="font-display text-2xl sm:text-4xl leading-relaxed text-[#6E0B64] font-medium tracking-tight">
-            <span className="font-extrabold text-[#E65C17] uppercase tracking-wider text-xs block mb-4">Our Core Mission</span>
+          <p className="font-display text-2xl sm:text-4xl leading-relaxed text-plum font-medium tracking-tight">
+            <span className="font-extrabold text-pink uppercase tracking-wider text-xs block mb-4">Our Core Mission</span>
             <strong>Sanga</strong> brings together young people exploring Krishna consciousness through friendship, conversation, and shared experience.
           </p>
-          <div className="h-1 w-24 bg-[#FFA526] mx-auto rounded-full" />
-          <p className="font-sans text-lg sm:text-xl text-[#1E1D1B]/80 leading-relaxed max-w-2xl mx-auto font-light">
+          <div className="h-1 w-24 bg-sunshine mx-auto rounded-full" />
+          <p className="font-sans text-lg sm:text-xl text-warm-black/80 leading-relaxed max-w-2xl mx-auto font-light">
             Through retreats, gatherings, and ongoing connection, members build relationships that carry into everyday life.
           </p>
         </div>
       </section>
 
       {/* 3. UPCOMING EXPERIENCES (ARCHED CARDS) */}
-      <section className="bg-[#FFEFBF] py-24 px-6 relative">
+      <section className="bg-linen py-24 px-6 relative">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-wider text-[#E65C17] font-black font-sans">
+              <span className="text-xs uppercase tracking-wider text-pink font-black font-sans">
                 Gatherings
               </span>
-              <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64]">
+              <h2 className="font-display text-4xl sm:text-5xl font-black text-plum">
                 Upcoming Experiences
               </h2>
             </div>
             <Link 
               href="/gatherings"
-              className="inline-flex items-center text-sm font-black uppercase tracking-wider text-[#6E0B64] hover:text-[#E65C17] transition-colors mt-4 md:mt-0 gap-1.5"
+              className="inline-flex items-center text-sm font-black uppercase tracking-wider text-plum hover:text-pink transition-colors mt-4 md:mt-0 gap-1.5"
             >
               View All Gatherings <ArrowRight className="h-4 w-4" />
             </Link>
@@ -307,21 +307,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {retreatsEvent && (
               <motion.div 
                 variants={itemVariants}
-                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
-                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                <div className="relative bg-plum text-linen py-4 text-center select-none overflow-hidden">
                   <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
                     Retreats
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-linen">
                       <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
                     </svg>
                   </div>
                 </div>
 
-                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                <div className="relative h-64 w-full overflow-hidden bg-plum/5">
                   <Image 
                     src={retreatsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png"}
                     alt={retreatsEvent.title}
@@ -332,17 +332,17 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
                 <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
                   <div className="space-y-3">
-                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                    <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors leading-tight">
                       {retreatsEvent.title}
                     </h3>
-                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
-                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                    <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
                       {new Date(retreatsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {retreatsEvent.location}
                     </p>
                   </div>
                   <Link 
                     href={`/gatherings/${retreatsEvent.slug}`}
-                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Retreat Details &rarr;
                   </Link>
@@ -354,21 +354,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {talksEvent && (
               <motion.div 
                 variants={itemVariants}
-                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
-                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                <div className="relative bg-plum text-linen py-4 text-center select-none overflow-hidden">
                   <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
                     Talks
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-linen">
                       <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
                     </svg>
                   </div>
                 </div>
 
-                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                <div className="relative h-64 w-full overflow-hidden bg-plum/5">
                   <Image 
                     src={talksEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"}
                     alt={talksEvent.title}
@@ -379,17 +379,17 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
                 <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
                   <div className="space-y-3">
-                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                    <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors leading-tight">
                       {talksEvent.title}
                     </h3>
-                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
-                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                    <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
                       {new Date(talksEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {talksEvent.location}
                     </p>
                   </div>
                   <Link 
                     href={`/gatherings/${talksEvent.slug}`}
-                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Session Details &rarr;
                   </Link>
@@ -401,21 +401,21 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {tripsEvent && (
               <motion.div 
                 variants={itemVariants}
-                className="flex flex-col bg-[#FFEFBF] rounded-3xl overflow-hidden border border-[#6E0B64]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
-                <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                <div className="relative bg-plum text-linen py-4 text-center select-none overflow-hidden">
                   <span className="font-display text-xl font-bold uppercase tracking-widest relative z-10">
                     Trips
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-linen">
                       <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
                     </svg>
                   </div>
                 </div>
 
-                <div className="relative h-64 w-full overflow-hidden bg-[#6E0B64]/5">
+                <div className="relative h-64 w-full overflow-hidden bg-plum/5">
                   <Image 
                     src={tripsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515990475221-G6PMK88KDKEZBVPTKG5Q/20449208_1382154528538531_900680314886261379_o.jpg"}
                     alt={tripsEvent.title}
@@ -426,17 +426,17 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
                 <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
                   <div className="space-y-3">
-                    <h3 className="font-display text-2xl font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                    <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors leading-tight">
                       {tripsEvent.title}
                     </h3>
-                    <p className="text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider flex items-center">
-                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-[#E65C17]" />
+                    <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
+                      <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
                       {new Date(tripsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {tripsEvent.location}
                     </p>
                   </div>
                   <Link 
                     href={`/gatherings/${tripsEvent.slug}`}
-                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors"
+                    className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Trip Details &rarr;
                   </Link>
@@ -448,23 +448,23 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       </section>
 
       {/* 4. THE CONNECTION CONTINUES (OVERLAPPING CIRCLES GRID) */}
-      <section className="bg-[#FFEFBF] py-24 px-6 relative border-t border-[#6E0B64]/5 overflow-hidden">
+      <section className="bg-linen py-24 px-6 relative border-t border-plum/5 overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
           {/* Left Side: Copy and Button */}
           <div className="md:col-span-6 space-y-8 text-left">
-            <span className="text-xs uppercase tracking-wider text-[#FF7DB4] font-black font-sans bg-[#6E0B64]/5 py-1.5 px-4 rounded-full border border-[#6E0B64]/10">
+            <span className="text-xs uppercase tracking-wider text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
               The Connection Continues
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64] leading-tight">
+            <h2 className="font-display text-4xl sm:text-5xl font-black text-plum leading-tight">
               More than just retreats
             </h2>
-            <p className="text-base sm:text-lg text-[#1E1D1B]/80 leading-relaxed font-sans font-light">
+            <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans font-light">
               Sanga doesn&apos;t begin and end with major events. Smaller gatherings, conversations, online sessions, and ongoing friendships continue throughout the year and across different stages of life.
             </p>
             <div>
               <Link 
                 href="/gatherings"
-                className="inline-flex px-8 py-4 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                className="inline-flex px-8 py-4 bg-plum hover:opacity-90 text-linen rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 See What&apos;s Happening
               </Link>
@@ -474,7 +474,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           {/* Right Side: Overlapping Concentric Circles Displays */}
           <div className="md:col-span-6 relative h-[380px] sm:h-[450px] w-full flex items-center justify-center">
             {/* Center Main Circle */}
-            <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full border-8 border-[#FFA526] overflow-hidden shadow-xl z-20 hover:scale-102 transition-transform duration-300">
+            <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full border-8 border-sunshine overflow-hidden shadow-xl z-20 hover:scale-102 transition-transform duration-300">
               <Image 
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
                 alt="Sanga Friendship"
@@ -484,7 +484,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </div>
 
             {/* Bottom Left Circle */}
-            <div className="absolute bottom-4 left-4 sm:left-12 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-6 border-[#FF7DB4] overflow-hidden shadow-lg z-30 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
+            <div className="absolute bottom-4 left-4 sm:left-12 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-6 border-pink overflow-hidden shadow-lg z-30 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
               <Image 
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg"
                 alt="Sanga Laughs"
@@ -494,7 +494,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             </div>
 
             {/* Top Right Circle */}
-            <div className="absolute top-4 right-4 sm:right-12 w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-[#FFA526] overflow-hidden shadow-lg z-10 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
+            <div className="absolute top-4 right-4 sm:right-12 w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-sunshine overflow-hidden shadow-lg z-10 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
               <Image 
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png"
                 alt="Sanga Association"
@@ -507,25 +507,25 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       </section>
 
       {/* 5. MOMENTS VIDEO SECTION */}
-      <section className="bg-[#6E0B64] text-[#FFEFBF] py-24 relative overflow-hidden">
+      <section className="bg-plum text-linen py-24 relative overflow-hidden">
         {/* Soft background glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1E1D1B]/20 pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-6">
-          <span className="text-xs uppercase tracking-wider text-[#FF7DB4] font-black font-sans bg-[#FFEFBF]/10 py-1 px-3.5 rounded-full border border-[#FFEFBF]/20">
+          <span className="text-xs uppercase tracking-wider text-pink font-black font-sans bg-linen/10 py-1 px-3.5 rounded-full border border-linen/20">
             Retreat Memories
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl font-black text-[#FFEFBF]">
+          <h2 className="font-display text-4xl sm:text-5xl font-black text-linen">
             The moments in between
           </h2>
-          <p className="text-sm sm:text-base text-[#FFEFBF]/70 leading-relaxed max-w-2xl mx-auto font-light">
+          <p className="text-sm sm:text-base text-linen/70 leading-relaxed max-w-2xl mx-auto font-light">
             Take a look at snapshots of conversations, musical kirtans, workshops, and shared memories from our recent summer retreats.
           </p>
           
           {/* Video Trigger Container */}
           <div 
             onClick={() => setIsVideoOpen(true)}
-            className="relative aspect-video w-full max-w-3xl mx-auto bg-[#1E1D1B] rounded-3xl overflow-hidden shadow-2xl border border-[#FFEFBF]/10 group cursor-pointer"
+            className="relative aspect-video w-full max-w-3xl mx-auto bg-warm-black rounded-3xl overflow-hidden shadow-2xl border border-linen/10 group cursor-pointer"
           >
             <Image 
               src={settings.promo_video_cover_url || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg"} 
@@ -536,14 +536,14 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {/* Play Button Overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div 
-                className="p-5 sm:p-6 bg-[#FF7DB4] text-[#1E1D1B] rounded-full shadow-lg group-hover:scale-110 group-active:scale-95 group-hover:bg-[#FFA526] transition-all duration-300"
+                className="p-5 sm:p-6 bg-pink text-warm-black rounded-full shadow-lg group-hover:scale-110 group-active:scale-95 group-hover:bg-sunshine transition-all duration-300"
                 aria-label="Play video"
               >
                 <Play className="h-6 sm:h-8 w-6 sm:w-8 fill-current translate-x-0.5" />
               </div>
             </div>
             {/* Small label */}
-            <div className="absolute bottom-4 left-6 text-xs text-[#FFEFBF]/60 font-sans tracking-wide">
+            <div className="absolute bottom-4 left-6 text-xs text-linen/60 font-sans tracking-wide">
               Sanga Summer Retrospect Video &bull; 3:45
             </div>
           </div>
@@ -552,18 +552,18 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
       {/* 6. SUPPORT SECTION */}
       <section className="max-w-4xl mx-auto px-6 py-24 text-center space-y-8">
-        <span className="text-xs uppercase tracking-wider text-[#E65C17] font-black font-sans">
+        <span className="text-xs uppercase tracking-wider text-pink font-black font-sans">
           Support Sanga
         </span>
-        <h2 className="font-display text-4xl sm:text-5xl font-black text-[#6E0B64]">
+        <h2 className="font-display text-4xl sm:text-5xl font-black text-plum">
           {settings.support_headline}
         </h2>
-        <p className="text-base sm:text-lg text-[#1E1D1B]/80 leading-relaxed font-sans max-w-2xl mx-auto font-light">
+        <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans max-w-2xl mx-auto font-light">
           {settings.support_text}
         </p>
         <Link 
           href="/support"
-          className="inline-flex items-center px-8 py-4 bg-[#6E0B64] text-[#FFEFBF] hover:bg-[#E65C17] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          className="inline-flex items-center px-8 py-4 bg-plum text-linen hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
         >
           Become a Supporter <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
