@@ -81,9 +81,13 @@ export default function ShopifyBuyButton() {
                   }
                 }
               },
-              "buttonDestination": "checkout",
+              "contents": {
+                "img": false,
+                "title": false,
+                "price": false
+              },
               "text": {
-                "button": "Buy Now via Shopify"
+                "button": "Add to cart"
               }
             },
             "productSet": {
@@ -133,7 +137,7 @@ export default function ShopifyBuyButton() {
 
   return (
     <div className="py-2">
-      <div id="product-component-1783021228227" ref={containerRef} />
+      <div id="product-component-1783021757059" ref={containerRef} />
     </div>
   );
 }
