@@ -26,10 +26,10 @@ export default async function GatheringDetailPage({ params }: PageProps) {
   const isComingSoon = event.status === 'coming-soon';
 
   return (
-    <article className="min-h-screen bg-[#FFEFBF] text-[#1E1D1B] pb-24 font-sans">
+    <article className="min-h-screen bg-linen text-warm-black pb-24 font-sans">
       
       {/* 1. Header Banner & Hero Image */}
-      <div className="relative w-full h-[50vh] md:h-[60vh] bg-[#6E0B64] overflow-hidden flex items-end">
+      <div className="relative w-full h-[50vh] md:h-[60vh] bg-plum overflow-hidden flex items-end">
         {event.hero_image ? (
           <Image 
             src={event.hero_image} 
@@ -39,25 +39,25 @@ export default async function GatheringDetailPage({ params }: PageProps) {
             priority
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#6E0B64] via-[#8C3123] to-[#1E1D1B] opacity-90" />
+          <div className="w-full h-full bg-gradient-to-br from-plum via-pink to-warm-black opacity-90" />
         )}
 
         {/* Floating gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#6E0B64] via-transparent to-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-plum via-transparent to-black/30 pointer-events-none" />
         
         {/* Top Breadcrumb Overlay */}
         <div className="absolute top-6 left-6 md:left-12 z-10">
           <Link 
             href="/gatherings"
-            className="inline-flex items-center px-5 py-2.5 bg-[#FFEFBF] hover:bg-[#FFA526] text-[#6E0B64] text-xs font-black uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
+            className="inline-flex items-center px-5 py-2.5 bg-linen hover:bg-sunshine text-plum text-xs font-black uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
           >
             <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to Catalog
           </Link>
         </div>
 
         {/* Text Details Overlay */}
-        <div className="max-w-7xl w-full mx-auto px-6 md:px-12 pb-16 relative z-10 text-[#FFEFBF]">
-          <span className="inline-block px-4 py-1.5 bg-[#FF7DB4] text-[#1E1D1B] text-[10px] font-black uppercase tracking-widest rounded-full mb-4 shadow-sm select-none">
+        <div className="max-w-7xl w-full mx-auto px-6 md:px-12 pb-16 relative z-10 text-linen">
+          <span className="inline-block px-4 py-1.5 bg-pink text-warm-black text-[10px] font-black uppercase tracking-widest rounded-full mb-4 shadow-sm select-none">
             {event.category}
           </span>
           <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[#FFEFBF] leading-tight mb-4 select-none drop-shadow-md">

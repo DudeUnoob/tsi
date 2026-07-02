@@ -8,18 +8,18 @@ export default async function SupportPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen py-16 font-sans text-[#1E1D1B]">
+    <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-widest text-[#E65C17] font-black font-sans bg-[#6E0B64]/5 py-1.5 px-4 rounded-full border border-[#6E0B64]/10">
+          <span className="text-xs uppercase tracking-widest text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
             Giving Back
           </span>
-          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[#6E0B64]">
+          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-plum">
             Support Sanga&apos;s Future
           </h1>
-          <p className="text-base sm:text-lg text-[#1E1D1B]/75 leading-relaxed font-sans font-light">
+          <p className="text-base sm:text-lg text-warm-black/75 leading-relaxed font-sans font-light">
             The Sanga Initiative is youth-led and community-supported. Your generosity keeps retreats accessible, expands programs, and seeds new spaces for devotee association.
           </p>
         </div>

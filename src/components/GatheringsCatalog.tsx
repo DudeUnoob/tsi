@@ -218,26 +218,26 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
       
       {/* Header Folds */}
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-        <span className="text-xs uppercase tracking-widest text-[#E65C17] font-black font-sans bg-[#6E0B64]/5 py-1.5 px-4 rounded-full border border-[#6E0B64]/10">
+        <span className="text-xs uppercase tracking-widest text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
           Our Gatherings
         </span>
-        <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[#6E0B64] leading-tight">
+        <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-plum leading-tight">
           Shared Experiences
         </h1>
-        <p className="text-base sm:text-lg text-[#1E1D1B]/75 leading-relaxed font-sans font-light">
+        <p className="text-base sm:text-lg text-warm-black/75 leading-relaxed font-sans font-light">
           Come for the experience, stay for the people. We host retreats, local regional camps, pilgrimages, and digital discussions throughout the year.
         </p>
       </div>
 
       {/* Main View Switcher */}
       <div className="flex justify-center mb-10">
-        <div className="bg-[#6E0B64]/5 p-1.5 rounded-full border border-[#6E0B64]/10 flex space-x-1 shadow-inner">
+        <div className="bg-plum/5 p-1.5 rounded-full border border-plum/10 flex space-x-1 shadow-inner">
           <button
             onClick={() => setViewMode('cards')}
             className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'cards'
-                ? 'bg-[#6E0B64] text-[#FFEFBF] shadow-md'
-                : 'text-[#6E0B64]/70 hover:text-[#6E0B64] hover:bg-plum/5'
+                ? 'bg-plum text-linen shadow-md'
+                : 'text-plum/70 hover:text-plum hover:bg-plum/5'
             }`}
           >
             <Grid className="h-3.5 w-3.5" /> Card View
@@ -246,8 +246,8 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
             onClick={() => setViewMode('calendar')}
             className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'calendar'
-                ? 'bg-[#6E0B64] text-[#FFEFBF] shadow-md'
-                : 'text-[#6E0B64]/70 hover:text-[#6E0B64] hover:bg-plum/5'
+                ? 'bg-plum text-linen shadow-md'
+                : 'text-plum/70 hover:text-plum hover:bg-plum/5'
             }`}
           >
             <CalendarIcon className="h-3.5 w-3.5" /> Calendar View

@@ -10,18 +10,18 @@ export default async function StorePage() {
   const products = await getProducts();
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen py-16 font-sans text-[#1E1D1B]">
+    <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-widest text-[#E65C17] font-black font-sans bg-[#6E0B64]/5 py-1.5 px-4 rounded-full border border-[#6E0B64]/10">
+          <span className="text-xs uppercase tracking-widest text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
             Sanga Merch
           </span>
-          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[#6E0B64]">
+          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-plum">
             Merchandise & Cabin Upgrades
           </h1>
-          <p className="text-base sm:text-lg text-[#1E1D1B]/75 leading-relaxed font-sans font-light">
+          <p className="text-base sm:text-lg text-warm-black/75 leading-relaxed font-sans font-light">
             Support Sanga and prepare for your gatherings. Book premium cabin accommodations or secure official retreat apparel here.
           </p>
         </div>

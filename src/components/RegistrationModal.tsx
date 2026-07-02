@@ -274,15 +274,15 @@ export default function RegistrationModal({
       )}
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-2xl bg-[#FFEFBF] rounded-[2rem] border border-[#6E0B64]/10 shadow-2xl p-6 sm:p-8 overflow-hidden z-10 max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-2xl bg-linen rounded-[2rem] border border-plum/10 shadow-2xl p-6 sm:p-8 overflow-hidden z-10 max-h-[90vh] flex flex-col">
         
         {/* Header */}
-        <div className="flex justify-between items-center pb-4 border-b border-[#6E0B64]/10 flex-shrink-0">
+        <div className="flex justify-between items-center pb-4 border-b border-plum/10 flex-shrink-0">
           <div>
-            <span className="text-[10px] uppercase font-black tracking-widest text-[#E65C17]">
+            <span className="text-[10px] uppercase font-black tracking-widest text-pink font-bold">
               {step === 'payment' ? 'Payment Checkout' : 'Gathering Registration'}
             </span>
-            <h3 className="font-display text-xl sm:text-2xl font-black text-[#6E0B64] leading-tight mt-0.5">
+            <h3 className="font-display text-xl sm:text-2xl font-black text-plum leading-tight mt-0.5">
               {eventTitle}
             </h3>
           </div>

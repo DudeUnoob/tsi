@@ -8,28 +8,28 @@ export default async function CommunityPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div className="bg-[#FFEFBF] min-h-screen font-sans pb-24">
+    <div className="bg-linen min-h-screen font-sans pb-24 text-warm-black">
       {/* Hero Header Section with Arch Pattern */}
-      <div className="relative bg-plum text-[#FFEFBF] pt-16 pb-32 overflow-hidden">
+      <div className="relative bg-plum text-linen pt-16 pb-32 overflow-hidden">
         {/* Layered Decorative Blob/Circles in Background */}
-        <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-0 top-1/4 w-96 h-96 bg-[#FF7DB4]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-12 -top-12 w-64 h-64 bg-sunshine/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-0 top-1/4 w-96 h-96 bg-pink/15 rounded-full blur-3xl pointer-events-none" />
         
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFA526]/20 border border-[#FFA526]/40 text-[#FFA526] text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sunshine/20 border border-sunshine/40 text-sunshine text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Sanga Circle
           </span>
           <h1 className="font-display text-5xl sm:text-7xl font-bold tracking-tight text-white leading-tight">
-            The connection <span className="text-[#FFA526]">continues</span>
+            The connection <span className="text-sunshine">continues</span>
           </h1>
-          <p className="text-lg sm:text-xl text-[#FFEFBF]/85 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-lg sm:text-xl text-linen/85 max-w-2xl mx-auto font-light leading-relaxed">
             Sanga is built through people, not programmes. It doesn’t begin and end with major retreats—friendships and connections carry on day-to-day throughout the year.
           </p>
         </div>
 
         {/* Decorative Wave Separator */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-[0]">
-          <svg className="relative block w-full h-12 text-[#FFEFBF] fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <svg className="relative block w-full h-12 text-linen fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 C300,100 600,20 900,80 L1200,60 L1200,120 L0,120 Z"></path>
           </svg>
         </div>
