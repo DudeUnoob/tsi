@@ -108,7 +108,7 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
   },
   berry: {
     name: "Berry Blast",
-    background: "#FFEFBF",
+    background: "#F5EBF2",
     foreground: "#1E1D1B",
     primary: "#6E0B64",
     secondary: "#BF3078",

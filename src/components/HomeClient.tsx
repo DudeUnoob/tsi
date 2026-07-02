@@ -76,17 +76,19 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
   const { currentPaletteKey } = useTheme();
   const isDefaultTheme = currentPaletteKey === 'default';
+  const isBerryTheme = currentPaletteKey === 'berry';
+  const isLightHeroTheme = isDefaultTheme || isBerryTheme;
 
   return (
     <div className="relative w-full bg-linen text-warm-black font-sans">
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
       <section 
-        style={!isDefaultTheme ? {
+        style={!isLightHeroTheme ? {
           background: `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
         } : undefined}
-        className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 ${
-          isDefaultTheme ? 'bg-plum' : ''
+        className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 ${
+          isBerryTheme ? 'bg-linen text-plum' : 'bg-plum text-linen'
         }`}
       >
         {/* Flat organic blob shapes — graphic background */}
@@ -116,10 +118,14 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="flex items-center space-x-2 px-4 py-1.5 bg-linen/10 rounded-full border border-linen/20"
+              className={`flex items-center space-x-2 px-4 py-1.5 rounded-full border ${
+                isBerryTheme ? 'bg-plum/10 border-plum/20' : 'bg-linen/10 border-linen/20'
+              }`}
             >
               <span className="w-2.5 h-2.5 rounded-full bg-pink animate-pulse" />
-              <span className="text-xs uppercase tracking-widest text-linen font-black font-sans">
+              <span className={`text-xs uppercase tracking-widest font-black font-sans ${
+                isBerryTheme ? 'text-plum' : 'text-linen'
+              }`}>
                 Welcome to Sanga
               </span>
             </motion.div>
@@ -128,7 +134,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-sunshine leading-[1.05]"
+              className={`font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] ${
+                isBerryTheme ? 'text-plum' : 'text-sunshine'
+              }`}
             >
               Sanga is a <br className="hidden sm:inline" />
               Vaishnava Youth <br className="hidden sm:inline" />
@@ -139,7 +147,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-lg sm:text-2xl text-linen/90 leading-relaxed font-light font-sans max-w-xl"
+              className={`text-lg sm:text-2xl leading-relaxed font-light font-sans max-w-xl ${
+                isBerryTheme ? 'text-plum/80' : 'text-linen/90'
+              }`}
             >
               For friendship, growth, and shared experience
             </motion.p>
@@ -152,13 +162,17 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             >
               <Link
                 href={settings.primary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-sunshine text-plum hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98"
+                className={`w-full sm:w-auto px-8 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98 ${
+                  isBerryTheme ? 'bg-plum text-linen hover:opacity-90' : 'bg-sunshine text-plum hover:opacity-90'
+                }`}
               >
                 {settings.primary_cta_label}
               </Link>
               <a
                 href={settings.secondary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-linen/30 text-linen hover:bg-linen/10 hover:border-linen rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
+                className={`w-full sm:w-auto px-8 py-4 bg-transparent border-2 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98 ${
+                  isBerryTheme ? 'border-plum/30 text-plum hover:bg-plum/10 hover:border-plum' : 'border-linen/30 text-linen hover:bg-linen/10 hover:border-linen'
+                }`}
               >
                 {settings.secondary_cta_label}
               </a>
