@@ -77,7 +77,12 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     <div className="relative w-full bg-linen text-warm-black font-sans">
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
-      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-plum text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6">
+      <section 
+        style={{
+          background: `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
+        }}
+        className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500"
+      >
         {/* Flat organic blob shapes — graphic background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
           {/* Top-left large blob */}
@@ -117,7 +122,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-sunshine leading-[1.05]"
+              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.05]"
             >
               Sanga is a <br className="hidden sm:inline" />
               Vaishnava Youth <br className="hidden sm:inline" />
@@ -128,7 +133,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-lg sm:text-2xl text-linen/90 leading-relaxed font-light font-sans max-w-xl"
+              className="text-lg sm:text-2xl text-white/90 leading-relaxed font-light font-sans max-w-xl"
             >
               For friendship, growth, and shared experience
             </motion.p>
@@ -141,13 +146,13 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             >
               <Link
                 href={settings.primary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-sunshine text-plum hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center hover:shadow-lg active:scale-98"
+                className="w-full sm:w-auto px-8 py-4 bg-white text-plum hover:bg-white/90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98"
               >
                 {settings.primary_cta_label}
               </Link>
               <a
                 href={settings.secondary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-linen/30 text-linen hover:bg-linen/10 hover:border-linen rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-white/30 text-white hover:bg-white/10 hover:border-white rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
               >
                 {settings.secondary_cta_label}
               </a>
