@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -37,8 +38,13 @@ export default function Header() {
     setIsOpen(false);
   }, [pathname]);
 
+  const { currentPaletteKey } = useTheme();
+  const isDefaultTheme = currentPaletteKey === 'default';
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-linen text-plum transition-all duration-300 py-4 shadow-sm border-plum/10 border-b">
+    <header className={`sticky top-0 z-40 w-full transition-all duration-300 py-4 shadow-sm border-plum/10 border-b ${
+      isDefaultTheme ? 'bg-sunshine text-plum' : 'bg-linen text-plum'
+    }`}>
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Desktop Header: Center Stacked Layout */}
@@ -133,7 +139,9 @@ export default function Header() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="absolute top-full left-0 w-full bg-linen border-t border-plum/10 shadow-lg px-6 py-6 md:hidden flex flex-col space-y-4 z-50 overflow-hidden"
+            className={`absolute top-full left-0 w-full border-t border-plum/10 shadow-lg px-6 py-6 md:hidden flex flex-col space-y-4 z-50 overflow-hidden ${
+              isDefaultTheme ? 'bg-sunshine' : 'bg-linen'
+            }`}
           >
             {navLinks.map((link) => {
               const isActive = link.path === '/' 

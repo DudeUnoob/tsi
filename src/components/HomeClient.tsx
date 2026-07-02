@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/mockData';
+import { useTheme } from '@/context/ThemeContext';
 
 interface HomeClientProps {
   settings: SiteSettings;
@@ -73,15 +74,20 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     }
   } as const;
 
+  const { currentPaletteKey } = useTheme();
+  const isDefaultTheme = currentPaletteKey === 'default';
+
   return (
     <div className="relative w-full bg-linen text-warm-black font-sans">
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
       <section 
-        style={{
+        style={!isDefaultTheme ? {
           background: `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
-        }}
-        className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500"
+        } : undefined}
+        className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 ${
+          isDefaultTheme ? 'bg-plum' : ''
+        }`}
       >
         {/* Flat organic blob shapes — graphic background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
