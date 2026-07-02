@@ -132,11 +132,11 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
   },
   golden: {
     name: "Golden Hour",
-    background: "#FFEFBF",
+    background: "#FFEFBB",
     foreground: "#1E1D1B",
-    primary: "#A67F08",
-    secondary: "#FFEFBB",
-    accent: "#8C3123"
+    primary: "#8C3123",
+    secondary: "#A67F08",
+    accent: "#FFEFBB"
   }
 };
 
