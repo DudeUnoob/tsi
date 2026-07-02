@@ -176,11 +176,11 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
     const isLadiesSanga = event.category === 'ladies-sanga';
     const isHeartspace = event.category === 'online' && event.title.toLowerCase().includes('heartspace');
 
-    if (isRetreat) return 'bg-[#6E0B64] text-[#FFEFBF] border-[#6E0B64]/10';
-    if (isMensSanga) return 'bg-[#2E6B8E] text-[#FFEFBF] border-[#2E6B8E]/10';
-    if (isLadiesSanga) return 'bg-[#FF7DB4] text-[#6E0B64] border-[#FF7DB4]/10';
-    if (isHeartspace) return 'bg-[#66CC6E] text-[#6E0B64] border-[#66CC6E]/10';
-    return 'bg-[#FFA526] text-[#6E0B64] border-[#FFA526]/10';
+    if (isRetreat) return 'bg-plum text-linen border-plum/10';
+    if (isMensSanga) return 'bg-plum text-linen border-plum/10';
+    if (isLadiesSanga) return 'bg-pink text-plum border-pink/10';
+    if (isHeartspace) return 'bg-sunshine text-plum border-sunshine/10';
+    return 'bg-sunshine text-plum border-sunshine/10';
   };
 
   // Group events chronologically for List View
@@ -214,7 +214,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 text-[#1E1D1B] font-sans">
+    <div className="max-w-7xl mx-auto px-6 py-12 text-warm-black font-sans">
       
       {/* Header Folds */}
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
@@ -256,8 +256,8 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
             onClick={() => setViewMode('list')}
             className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'list'
-                ? 'bg-[#6E0B64] text-[#FFEFBF] shadow-md'
-                : 'text-[#6E0B64]/70 hover:text-[#6E0B64] hover:bg-plum/5'
+                ? 'bg-plum text-linen shadow-md'
+                : 'text-plum/70 hover:text-plum hover:bg-plum/5'
             }`}
           >
             <List className="h-3.5 w-3.5" /> List View
@@ -269,15 +269,15 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
       {viewMode === 'cards' && (
         <>
           {/* Filter Tabs for Cards */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-12 border-b border-[#6E0B64]/10 pb-8">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-12 border-b border-plum/10 pb-8">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveTab(cat.id)}
                 className={`px-6 py-2.5 rounded-full font-sans text-xs uppercase tracking-widest font-black transition-all duration-200 cursor-pointer shadow-sm active:scale-97 ${
                   activeTab === cat.id
-                    ? 'bg-[#6E0B64] text-[#FFEFBF] shadow-[#6E0B64]/20 shadow-md scale-102'
-                    : 'bg-[#FFEFBF] border border-[#6E0B64]/15 text-[#6E0B64] hover:bg-[#6E0B64]/5'
+                    ? 'bg-plum text-linen shadow-plum/20 shadow-md scale-102'
+                    : 'bg-linen border border-plum/15 text-plum hover:bg-plum/5'
                 }`}
               >
                 {cat.label}
@@ -297,22 +297,22 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.25 }}
-                    className="group flex flex-col bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group flex flex-col bg-linen rounded-3xl border border-plum/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
                     {/* Wavy Header */}
-                    <div className="relative bg-[#6E0B64] text-[#FFEFBF] py-4 text-center select-none overflow-hidden">
+                    <div className="relative bg-plum text-linen py-4 text-center select-none overflow-hidden">
                       <span className="font-display text-lg font-bold uppercase tracking-widest relative z-10">
                         {getCategoryLabel(event.category)}
                       </span>
                       <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                        <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-[#FFEFBF]">
+                        <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-linen">
                           <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
                         </svg>
                       </div>
                     </div>
 
                     {/* Cover image */}
-                    <div className="relative h-56 w-full bg-[#6E0B64]/5 overflow-hidden">
+                    <div className="relative h-56 w-full bg-plum/5 overflow-hidden">
                       {event.hero_image ? (
                         <Image 
                           src={event.hero_image} 
@@ -321,13 +321,13 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                           className="object-cover group-hover:scale-103 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#6E0B64]/5">
-                          <CalendarIcon className="h-10 w-10 text-[#6E0B64]/20" />
+                        <div className="w-full h-full flex items-center justify-center bg-plum/5">
+                          <CalendarIcon className="h-10 w-10 text-plum/20" />
                         </div>
                       )}
                       <div className="absolute top-4 left-4">{getStatusBadge(event.status)}</div>
                       {event.age_range && (
-                        <span className="absolute top-4 right-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-[#FF7DB4] text-[#1E1D1B] rounded-full shadow-sm">
+                        <span className="absolute top-4 right-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-warm-black rounded-full shadow-sm">
                           Ages {event.age_range}
                         </span>
                       )}
@@ -336,31 +336,31 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                     {/* Content details */}
                     <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
                       <div>
-                        <h2 className="font-display text-2xl font-black text-[#6E0B64] group-hover:text-[#E65C17] transition-colors mb-3 leading-tight">
+                        <h2 className="font-display text-2xl font-black text-plum group-hover:text-pink transition-colors mb-3 leading-tight">
                           {event.title}
                         </h2>
                         
-                        <div className="space-y-2 text-xs text-[#1E1D1B]/60 font-sans font-bold uppercase tracking-wider mb-6">
+                        <div className="space-y-2 text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider mb-6">
                           <div className="flex items-center">
-                            <CalendarIcon className="h-4 w-4 mr-2 text-[#E65C17]" />
+                            <CalendarIcon className="h-4 w-4 mr-2 text-pink" />
                             {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
                           <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2 text-[#E65C17]" />
+                            <MapPin className="h-4 w-4 mr-2 text-pink" />
                             {event.location}
                           </div>
                         </div>
 
-                        <p className="text-sm text-[#1E1D1B]/85 leading-relaxed font-sans font-light line-clamp-3 mb-6">
+                        <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light line-clamp-3 mb-6">
                           {event.short_description}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-[#6E0B64]/5 mt-auto">
-                        <span className="text-sm font-black text-[#6E0B64] font-sans">{event.price}</span>
+                      <div className="flex items-center justify-between pt-4 border-t border-plum/5 mt-auto">
+                        <span className="text-sm font-black text-plum font-sans">{event.price}</span>
                         <Link 
                           href={`/gatherings/${event.slug}`}
-                          className="inline-flex items-center text-xs font-black uppercase tracking-widest text-[#6E0B64] group-hover:text-[#E65C17] transition-colors gap-1 font-sans"
+                          className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors gap-1 font-sans"
                         >
                           View Details <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
@@ -369,10 +369,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   </motion.div>
                 ))
               ) : (
-                <div className="col-span-1 md:col-span-3 text-center py-24 bg-[#6E0B64]/5 rounded-3xl border border-dashed border-[#6E0B64]/15">
-                  <Users className="mx-auto h-12 w-12 text-[#6E0B64]/25 mb-4" />
-                  <h3 className="font-display text-2xl font-bold text-[#6E0B64] mb-2">No Gatherings Found</h3>
-                  <p className="text-sm text-[#1E1D1B]/60 max-w-sm mx-auto font-sans font-light">
+                <div className="col-span-1 md:col-span-3 text-center py-24 bg-plum/5 rounded-3xl border border-dashed border-plum/15">
+                  <Users className="mx-auto h-12 w-12 text-plum/25 mb-4" />
+                  <h3 className="font-display text-2xl font-bold text-plum mb-2">No Gatherings Found</h3>
+                  <p className="text-sm text-warm-black/60 max-w-sm mx-auto font-sans font-light">
                     We are currently planning more events. Check back soon or join our WhatsApp community to hear announcements first!
                   </p>
                 </div>
@@ -383,11 +383,11 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
       )}
 
       {(viewMode === 'calendar' || viewMode === 'list') && (
-        <div className="space-y-8 animate-fadeIn text-[#1E1D1B]">
+        <div className="space-y-8 animate-fadeIn text-warm-black">
           
           {/* Calendar/List filters */}
-          <div className="bg-[#6E0B64]/5 border border-[#6E0B64]/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs uppercase tracking-widest text-[#E65C17] font-black">
+          <div className="bg-plum/5 border border-plum/10 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs uppercase tracking-widest text-pink font-black">
               Filter Events By Type
             </span>
             <div className="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider text-plum">
@@ -397,10 +397,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   type="checkbox"
                   checked={calendarFilters.retreats}
                   onChange={(e) => setCalendarFilters({ ...calendarFilters, retreats: e.target.checked })}
-                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-[#FFA526]"
+                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#6E0B64]"></span> Retreats & Camps
+                  <span className="w-2.5 h-2.5 rounded-full bg-plum"></span> Retreats & Camps
                 </span>
               </label>
 
@@ -410,10 +410,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   type="checkbox"
                   checked={calendarFilters.mensSanga}
                   onChange={(e) => setCalendarFilters({ ...calendarFilters, mensSanga: e.target.checked })}
-                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-[#FFA526]"
+                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#2E6B8E]"></span> Men's Sanga
+                  <span className="w-2.5 h-2.5 rounded-full bg-plum/80"></span> Men's Sanga
                 </span>
               </label>
 
@@ -423,10 +423,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   type="checkbox"
                   checked={calendarFilters.ladiesSanga}
                   onChange={(e) => setCalendarFilters({ ...calendarFilters, ladiesSanga: e.target.checked })}
-                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-[#FFA526]"
+                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF7DB4]"></span> Ladies' Sanga
+                  <span className="w-2.5 h-2.5 rounded-full bg-pink"></span> Ladies' Sanga
                 </span>
               </label>
 
@@ -436,10 +436,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   type="checkbox"
                   checked={calendarFilters.heartspace}
                   onChange={(e) => setCalendarFilters({ ...calendarFilters, heartspace: e.target.checked })}
-                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-[#FFA526]"
+                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#66CC6E]"></span> Heartspace
+                  <span className="w-2.5 h-2.5 rounded-full bg-sunshine"></span> Heartspace
                 </span>
               </label>
 
@@ -449,10 +449,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   type="checkbox"
                   checked={calendarFilters.tsiEvents}
                   onChange={(e) => setCalendarFilters({ ...calendarFilters, tsiEvents: e.target.checked })}
-                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-[#FFA526]"
+                  className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FFA526]"></span> Other TSI Events
+                  <span className="w-2.5 h-2.5 rounded-full bg-sunshine"></span> Other TSI Events
                 </span>
               </label>
             </div>
@@ -460,13 +460,13 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
 
           {/* VIEW: Calendar Monthly Grid */}
           {viewMode === 'calendar' && (
-            <div className="bg-[#FFEFBF] border border-[#6E0B64]/10 rounded-[2rem] p-6 shadow-sm space-y-6">
+            <div className="bg-linen border border-plum/10 rounded-[2rem] p-6 shadow-sm space-y-6">
               
               {/* Calendar Monthly Navigation Header */}
-              <div className="flex items-center justify-between border-b border-[#6E0B64]/5 pb-4">
+              <div className="flex items-center justify-between border-b border-plum/5 pb-4">
                 <button
                   onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-[#6E0B64]/5 border border-[#6E0B64]/15 rounded-xl text-plum transition-all cursor-pointer"
+                  className="p-2 hover:bg-plum/5 border border-plum/15 rounded-xl text-plum transition-all cursor-pointer"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -475,14 +475,14 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                 </h3>
                 <button
                   onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-[#6E0B64]/5 border border-[#6E0B64]/15 rounded-xl text-plum transition-all cursor-pointer"
+                  className="p-2 hover:bg-plum/5 border border-plum/15 rounded-xl text-plum transition-all cursor-pointer"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Calendar Grid wrapper */}
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-plum/60 border-b border-[#6E0B64]/5 pb-2">
+              <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-plum/60 border-b border-plum/5 pb-2">
                 <div>Sun</div>
                 <div>Mon</div>
                 <div>Tue</div>
@@ -502,11 +502,11 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   return (
                     <div
                       key={idx}
-                      className={`min-h-[75px] border border-[#6E0B64]/5 rounded-2xl p-2 flex flex-col justify-between transition-colors relative overflow-hidden bg-transparent ${
-                        isCurrentMonth ? '' : 'opacity-40 bg-[#1E1D1B]/2'
-                      } ${isToday ? 'border-[#E65C17] border-2 shadow-sm' : ''}`}
+                      className={`min-h-[75px] border border-plum/5 rounded-2xl p-2 flex flex-col justify-between transition-colors relative overflow-hidden bg-transparent ${
+                        isCurrentMonth ? '' : 'opacity-40 bg-warm-black/2'
+                      } ${isToday ? 'border-pink border-2 shadow-sm' : ''}`}
                     >
-                      <span className={`text-[10px] font-sans font-black ${isToday ? 'text-[#E65C17] bg-[#E65C17]/10 w-5 h-5 rounded-full flex items-center justify-center self-end' : 'self-end text-plum/60'}`}>
+                      <span className={`text-[10px] font-sans font-black ${isToday ? 'text-pink bg-pink/10 w-5 h-5 rounded-full flex items-center justify-center self-end' : 'self-end text-plum/60'}`}>
                         {dateDay.getDate()}
                       </span>
 
@@ -536,18 +536,18 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
               {Object.keys(groupedListEvents).length > 0 ? (
                 Object.keys(groupedListEvents).map(monthYear => (
                   <div key={monthYear} className="space-y-4 text-left">
-                    <h3 className="font-display text-2xl font-black text-[#6E0B64] border-b border-[#6E0B64]/10 pb-2">
+                    <h3 className="font-display text-2xl font-black text-plum border-b border-plum/10 pb-2">
                       {monthYear}
                     </h3>
                     <div className="space-y-4">
                       {groupedListEvents[monthYear].map(event => (
                         <div
                           key={event.id}
-                          className="bg-[#FFEFBF] border border-[#6E0B64]/10 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow font-sans"
+                          className="bg-linen border border-plum/10 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow font-sans"
                         >
                           <div className="flex items-start space-x-5 flex-grow">
                             {/* Date Block */}
-                            <div className="bg-[#6E0B64] text-[#FFEFBF] p-3 rounded-2xl text-center min-w-[70px] shadow-sm flex-shrink-0">
+                            <div className="bg-plum text-linen p-3 rounded-2xl text-center min-w-[70px] shadow-sm flex-shrink-0">
                               <span className="block text-[10px] uppercase font-bold tracking-wider leading-none">
                                 {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short' })}
                               </span>
@@ -563,26 +563,26 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                                   {getCategoryLabel(event.category)}
                                 </span>
                                 {event.age_range && (
-                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-[#FF7DB4]/10 text-plum border border-[#FF7DB4]/20 uppercase">
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black bg-pink/10 text-plum border border-pink/20 uppercase">
                                     Ages {event.age_range}
                                   </span>
                                 )}
                               </div>
                               <h4 className="text-lg font-black text-plum leading-snug">{event.title}</h4>
                               <div className="flex flex-wrap gap-4 text-xs font-bold text-plum/60 uppercase tracking-wide">
-                                <span className="flex items-center"><CalendarIcon className="h-3.5 w-3.5 mr-1 text-[#E65C17]" /> {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                <span className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-1 text-[#E65C17]" /> {event.location}</span>
+                                <span className="flex items-center"><CalendarIcon className="h-3.5 w-3.5 mr-1 text-pink" /> {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                <span className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-1 text-pink" /> {event.location}</span>
                               </div>
                               <p className="text-sm text-warm-black/85 font-light leading-relaxed pt-1">{event.short_description}</p>
                             </div>
                           </div>
 
                           {/* CTA Row */}
-                          <div className="flex items-center justify-between w-full md:w-auto md:flex-col md:items-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-[#6E0B64]/5 min-w-[150px]">
-                            <span className="text-base font-black text-[#6E0B64]">{event.price}</span>
+                          <div className="flex items-center justify-between w-full md:w-auto md:flex-col md:items-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-plum/5 min-w-[150px]">
+                            <span className="text-base font-black text-plum">{event.price}</span>
                             <a
                               href={`/gatherings/${event.slug}`}
-                              className="px-5 py-3 border border-[#6E0B64] hover:bg-[#6E0B64]/10 text-[#6E0B64] font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer text-center text-nowrap"
+                              className="px-5 py-3 border border-plum hover:bg-plum/10 text-plum font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer text-center text-nowrap"
                             >
                               View Full Details →
                             </a>
@@ -590,7 +590,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                               href={getTargetLink(event)}
                               target={getTargetLink(event).startsWith('http') ? '_blank' : '_self'}
                               rel="noopener noreferrer"
-                              className="px-5 py-3 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow active:scale-97 cursor-pointer text-center text-nowrap"
+                              className="px-5 py-3 bg-plum hover:opacity-90 text-linen font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow active:scale-97 cursor-pointer text-center text-nowrap"
                             >
                               {getLinkText(event)}
                             </a>
