@@ -7,6 +7,7 @@ import { getSiteSettings } from "@/lib/supabase";
 import { THEME_PALETTES } from "@/lib/mockData";
 import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const displayFont = Fredoka({
   variable: "--font-display",
@@ -55,37 +56,20 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get('sanga_palette')?.value;
   const paletteKey = themeCookie || settings.color_palette || 'default';
-  const palette = THEME_PALETTES[paletteKey] || THEME_PALETTES.default;
 
   return (
     <html
       lang="en"
       className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
     >
-      <head>
-        <style dangerouslySetInnerHTML={{
-          __html: `
-          :root {
-            --background: ${palette.background};
-            --foreground: ${palette.foreground};
-            --color-linen: ${palette.background};
-            --color-warm-black: ${palette.foreground};
-            --color-plum: ${palette.primary};
-            --color-pink: ${palette.secondary};
-            --color-sunshine: ${palette.accent};
-          }
-          body {
-            background-color: var(--background) !important;
-            color: var(--foreground) !important;
-          }
-        `}} />
-      </head>
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
-        <CartProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </CartProvider>
+        <ThemeProvider initialPaletteKey={paletteKey}>
+          <CartProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

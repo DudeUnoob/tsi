@@ -38,20 +38,20 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#6E0B64] text-[#FFEFBF] pt-16 pb-8 border-t border-[#FFEFBF]/10 font-sans">
+    <footer className="bg-plum text-linen pt-16 pb-8 border-t border-linen/10 font-sans">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
         
         {/* Brand Column */}
         <div className="col-span-1 md:col-span-4 flex flex-col space-y-4">
           <Link href="/" className="flex flex-col group w-fit">
-            <span className="font-display text-4xl font-black tracking-tight text-[#FFEFBF] lowercase leading-none select-none">
+            <span className="font-display text-4xl font-black tracking-tight text-linen lowercase leading-none select-none">
               sanga
             </span>
-            <span className="text-[10px] tracking-widest uppercase text-[#FFEFBF]/60 font-black mt-1">
+            <span className="text-[10px] tracking-widest uppercase text-linen/60 font-black mt-1">
               A Vaishnava Youth Collective
             </span>
           </Link>
-          <p className="text-sm text-[#FFEFBF]/70 leading-relaxed max-w-sm font-light">
+          <p className="text-sm text-linen/70 leading-relaxed max-w-sm font-light">
             Creating spaces for friendship, growth, and shared experience in Krishna consciousness. Built through people, not programmes.
           </p>
           <div className="flex items-center space-x-4 pt-2">

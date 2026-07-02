@@ -106,29 +106,37 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
     secondary: "#FF7DB4",
     accent: "#FFA526"
   },
-  ocean: {
-    name: "Ocean Breeze",
-    background: "#E0F2FE", // sky-100
-    foreground: "#0F172A", // slate-900
-    primary: "#0369A1",    // sky-700
-    secondary: "#38BDF8",  // sky-400
-    accent: "#F43F5E"      // rose-500
+  berry: {
+    name: "Berry Blast",
+    background: "#FFEFBF",
+    foreground: "#1E1D1B",
+    primary: "#BF3078",
+    secondary: "#6E0B64",
+    accent: "#17B2E6"
   },
-  forest: {
-    name: "Forest Sage",
-    background: "#E8F5E9", // green-50
-    foreground: "#1B5E20", // green-900
-    primary: "#2E7D32",    // green-800
-    secondary: "#81C784",  // green-300
-    accent: "#E65C17"      // tangerine
+  sunset: {
+    name: "Sunset Gradient",
+    background: "#FFEFBF",
+    foreground: "#1E1D1B",
+    primary: "#E65C17",
+    secondary: "#FF7DB4",
+    accent: "#6E0B64"
   },
-  dark: {
-    name: "Midnight Glow",
-    background: "#121214",
-    foreground: "#F4F4F6",
-    primary: "#BF3078",    // fuchsia
-    secondary: "#FFA526",  // sunshine
-    accent: "#8B5CF6"      // violet-500
+  mint: {
+    name: "Minty Fresh",
+    background: "#FFEFBF",
+    foreground: "#1E1D1B",
+    primary: "#66CC6E",
+    secondary: "#17B2E6",
+    accent: "#FFEFBF"
+  },
+  golden: {
+    name: "Golden Hour",
+    background: "#FFEFBF",
+    foreground: "#1E1D1B",
+    primary: "#A67F08",
+    secondary: "#FFEFBB",
+    accent: "#8C3123"
   }
 };
 

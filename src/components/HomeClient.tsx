@@ -74,27 +74,27 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   } as const;
 
   return (
-    <div className="relative w-full bg-[#FFEFBF] text-[#1E1D1B] font-sans">
+    <div className="relative w-full bg-linen text-warm-black font-sans">
       
       {/* 1. HERO SECTION WITH LAYERED WAVES */}
-      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-[#6E0B64] text-[#FFEFBF] overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6">
+      <section className="relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center bg-plum text-linen overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6">
         {/* Flat organic blob shapes — graphic background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
           {/* Top-left large blob */}
           <svg className="absolute -top-16 -left-20 w-[55vw] h-[75vh] opacity-90" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="#BF3078" opacity="0.85"/>
+            <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="var(--color-pink)" opacity="0.85"/>
           </svg>
           {/* Bottom-left accent blob */}
           <svg className="absolute -bottom-20 -left-16 w-[40vw] h-[55vh] opacity-75" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="#8B0A7A" opacity="0.9"/>
+            <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="var(--color-plum)" opacity="0.9"/>
           </svg>
           {/* Right-side wavy blob */}
           <svg className="absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] opacity-60" viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="#BF3078" opacity="0.7"/>
+            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
           </svg>
           {/* Small top-right accent */}
           <svg className="absolute top-0 right-0 w-[20vw] h-[35vh] opacity-50" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M160,0 C220,60 220,200 140,260 C60,320 -20,220 10,120 C40,20 100,-60 160,0 Z" fill="#FF7DB4" opacity="0.6"/>
+            <path d="M160,0 C220,60 220,200 140,260 C60,320 -20,220 10,120 C40,20 100,-60 160,0 Z" fill="var(--color-sunshine)" opacity="0.6"/>
           </svg>
         </div>
 
@@ -105,10 +105,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="flex items-center space-x-2 px-4 py-1.5 bg-[#FFEFBF]/10 rounded-full border border-[#FFEFBF]/20"
+              className="flex items-center space-x-2 px-4 py-1.5 bg-linen/10 rounded-full border border-linen/20"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF7DB4] animate-pulse" />
-              <span className="text-xs uppercase tracking-widest text-[#FFEFBF] font-black font-sans">
+              <span className="w-2.5 h-2.5 rounded-full bg-pink animate-pulse" />
+              <span className="text-xs uppercase tracking-widest text-linen font-black font-sans">
                 Welcome to Sanga
               </span>
             </motion.div>
@@ -117,7 +117,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#FFA526] leading-[1.05]"
+              className="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-sunshine leading-[1.05]"
             >
               Sanga is a <br className="hidden sm:inline" />
               Vaishnava Youth <br className="hidden sm:inline" />
@@ -128,7 +128,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-lg sm:text-2xl text-[#FFEFBF]/90 leading-relaxed font-light font-sans max-w-xl"
+              className="text-lg sm:text-2xl text-linen/90 leading-relaxed font-light font-sans max-w-xl"
             >
               For friendship, growth, and shared experience
             </motion.p>
@@ -141,13 +141,13 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             >
               <Link
                 href={settings.primary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-[#FFA526] text-[#6E0B64] hover:bg-[#E65C17] hover:text-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center hover:shadow-lg active:scale-98"
+                className="w-full sm:w-auto px-8 py-4 bg-sunshine text-plum hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center hover:shadow-lg active:scale-98"
               >
                 {settings.primary_cta_label}
               </Link>
               <a
                 href={settings.secondary_cta_url}
-                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-[#FFEFBF]/30 text-[#FFEFBF] hover:bg-[#FFEFBF]/10 hover:border-[#FFEFBF] rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-linen/30 text-linen hover:bg-linen/10 hover:border-linen rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center active:scale-98"
               >
                 {settings.secondary_cta_label}
               </a>
