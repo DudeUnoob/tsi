@@ -286,90 +286,169 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
           </div>
 
           {/* Cards Grid */}
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Cards Grid */}
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-12 gap-8">
             <AnimatePresence mode="popLayout">
               {filteredEventsForCards.length > 0 ? (
-                filteredEventsForCards.map((event) => (
-                  <motion.div
-                    layout
-                    key={event.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.25 }}
-                    className="group flex flex-col bg-linen rounded-3xl border border-plum/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                  >
-                    {/* Wavy Header */}
-                    <div className="relative bg-plum text-linen py-4 text-center select-none overflow-hidden">
-                      <span className="font-display text-lg font-bold uppercase tracking-widest relative z-10">
-                        {getCategoryLabel(event.category)}
-                      </span>
-                      <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                        <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-4 fill-linen">
-                          <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
-                        </svg>
-                      </div>
-                    </div>
+                filteredEventsForCards.map((event, idx) => {
+                  const isFeatured = idx === 0 && activeTab === 'all'; // Feature the first one on 'All' tab
 
-                    {/* Cover image */}
-                    <div className="relative h-56 w-full bg-plum/5 overflow-hidden">
-                      {event.hero_image ? (
-                        <Image 
-                          src={event.hero_image} 
-                          alt={event.title}
-                          fill
-                          className="object-cover group-hover:scale-103 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-plum/5">
-                          <CalendarIcon className="h-10 w-10 text-plum/20" />
+                  if (isFeatured) {
+                    return (
+                      <motion.div
+                        layout
+                        key={event.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.25 }}
+                        className="col-span-12 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative"
+                      >
+                        {/* Cover image */}
+                        <div className="relative h-72 md:h-auto md:w-1/2 bg-plum/5 overflow-hidden block min-h-[320px]">
+                          {event.hero_image ? (
+                            <Image 
+                              src={event.hero_image} 
+                              alt={event.title}
+                              fill
+                              className="object-cover group-hover:scale-103 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-plum/5">
+                              <CalendarIcon className="h-16 w-16 text-plum/20" />
+                            </div>
+                          )}
+                          
+                          {/* Badges */}
+                          <div className="absolute top-4 left-4 flex flex-col gap-2">
+                            <span className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest bg-plum text-linen rounded-full shadow-md">
+                              {getCategoryLabel(event.category)}
+                            </span>
+                            {getStatusBadge(event.status)}
+                          </div>
+                          
+                          {event.age_range && (
+                            <span className="absolute top-4 right-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-warm-black rounded-full shadow-sm">
+                              Ages {event.age_range}
+                            </span>
+                          )}
                         </div>
-                      )}
-                      <div className="absolute top-4 left-4">{getStatusBadge(event.status)}</div>
-                      {event.age_range && (
-                        <span className="absolute top-4 right-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-warm-black rounded-full shadow-sm">
-                          Ages {event.age_range}
-                        </span>
-                      )}
-                    </div>
 
-                    {/* Content details */}
-                    <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
-                      <div>
-                        <h2 className="font-display text-2xl font-black text-plum group-hover:text-pink transition-colors mb-3 leading-tight">
-                          {event.title}
-                        </h2>
+                        {/* Content details */}
+                        <div className="flex-grow p-8 flex flex-col justify-between md:w-1/2 space-y-6">
+                          <div className="space-y-4">
+                            <h2 className="font-display text-3xl font-black text-plum group-hover:text-pink transition-colors leading-tight">
+                              {event.title}
+                            </h2>
+                            
+                            <div className="space-y-2 text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider">
+                              <div className="flex items-center">
+                                <CalendarIcon className="h-4 w-4 mr-2 text-pink" />
+                                {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </div>
+                              <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-2 text-pink" />
+                                {event.location}
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
+                              {event.short_description}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-6 border-t border-plum/10 mt-auto">
+                            <span className="text-base font-black text-plum font-sans">{event.price}</span>
+                            <Link 
+                              href={`/gatherings/${event.slug}`}
+                              className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors gap-1.5 font-sans"
+                            >
+                              View Details <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      layout
+                      key={event.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25 }}
+                      className="col-span-12 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    >
+                      {/* Cover image */}
+                      <div className="relative h-56 w-full bg-plum/5 overflow-hidden">
+                        {event.hero_image ? (
+                          <Image 
+                            src={event.hero_image} 
+                            alt={event.title}
+                            fill
+                            className="object-cover group-hover:scale-103 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-plum/5">
+                            <CalendarIcon className="h-10 w-10 text-plum/20" />
+                          </div>
+                        )}
                         
-                        <div className="space-y-2 text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider mb-6">
-                          <div className="flex items-center">
-                            <CalendarIcon className="h-4 w-4 mr-2 text-pink" />
-                            {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2 text-pink" />
-                            {event.location}
-                          </div>
+                        {/* Badges */}
+                        <div className="absolute top-4 left-4 flex flex-col gap-2">
+                          <span className="px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-plum text-linen rounded-full shadow-md">
+                            {getCategoryLabel(event.category)}
+                          </span>
+                          {getStatusBadge(event.status)}
                         </div>
 
-                        <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light line-clamp-3 mb-6">
-                          {event.short_description}
-                        </p>
+                        {event.age_range && (
+                          <span className="absolute top-4 right-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-warm-black rounded-full shadow-sm">
+                            Ages {event.age_range}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-plum/5 mt-auto">
-                        <span className="text-sm font-black text-plum font-sans">{event.price}</span>
-                        <Link 
-                          href={`/gatherings/${event.slug}`}
-                          className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors gap-1 font-sans"
-                        >
-                          View Details <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                        </Link>
+                      {/* Content details */}
+                      <div className="flex-grow p-6 flex flex-col justify-between space-y-6">
+                        <div>
+                          <h2 className="font-display text-2xl font-black text-plum group-hover:text-pink transition-colors mb-3 leading-tight">
+                            {event.title}
+                          </h2>
+                          
+                          <div className="space-y-2 text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider mb-6">
+                            <div className="flex items-center">
+                              <CalendarIcon className="h-4 w-4 mr-2 text-pink" />
+                              {new Date(event.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date((event.end_date || event.start_date) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                            <div className="flex items-center">
+                              <MapPin className="h-4 w-4 mr-2 text-pink" />
+                              {event.location}
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light line-clamp-3 mb-6">
+                            {event.short_description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-plum/10 mt-auto">
+                          <span className="text-sm font-black text-plum font-sans">{event.price}</span>
+                          <Link 
+                            href={`/gatherings/${event.slug}`}
+                            className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors gap-1 font-sans"
+                          >
+                            View Details <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               ) : (
-                <div className="col-span-1 md:col-span-3 text-center py-24 bg-plum/5 rounded-3xl border border-dashed border-plum/15">
+                <div className="col-span-12 text-center py-24 bg-plum/5 rounded-[2.5rem] border border-dashed border-plum/15">
                   <Users className="mx-auto h-12 w-12 text-plum/25 mb-4" />
                   <h3 className="font-display text-2xl font-bold text-plum mb-2">No Gatherings Found</h3>
                   <p className="text-sm text-warm-black/60 max-w-sm mx-auto font-sans font-light">

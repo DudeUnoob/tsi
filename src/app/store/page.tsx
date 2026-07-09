@@ -28,15 +28,102 @@ export default async function StorePage() {
 
         {/* Products Grid */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {products.map(product => {
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
+            {products.map((product, idx) => {
               const isAvailable = product.status === 'available';
               const isSoldOut = product.status === 'sold-out';
               
+              // Feature the hoodie, or the first product as fallback
+              const isFeatured = product.slug === 'sanga-rebrand-hoodie' || (idx === 0 && !products.some(p => p.slug === 'sanga-rebrand-hoodie'));
+
+              if (isFeatured) {
+                return (
+                  <div 
+                    key={product.id}
+                    className="col-span-12 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative"
+                  >
+                    {/* Featured label tag */}
+                    <span className="absolute top-4 right-4 z-20 px-3.5 py-1 text-[8px] font-black uppercase tracking-widest bg-plum text-linen rounded-full shadow-sm select-none">
+                      Featured Item
+                    </span>
+
+                    {/* Image wrapper */}
+                    <Link 
+                      href={`/store/${product.slug}`}
+                      className="relative h-72 md:h-auto md:w-1/2 bg-plum/5 overflow-hidden block min-h-[300px]"
+                    >
+                      {product.image ? (
+                        <Image 
+                          src={product.image} 
+                          alt={product.product_title}
+                          fill
+                          className="object-cover group-hover:scale-103 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-plum/20">
+                          <ShoppingBag className="h-16 w-16" />
+                        </div>
+                      )}
+                      
+                      {/* Status Badge */}
+                      {isSoldOut && (
+                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-linen rounded-full shadow-sm select-none">
+                          Sold Out
+                        </span>
+                      )}
+                      {!isAvailable && !isSoldOut && (
+                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-warm-black/25 text-linen rounded-full shadow-sm select-none">
+                          Unavailable
+                        </span>
+                      )}
+                    </Link>
+
+                    {/* Description Box */}
+                    <div className="p-8 flex-grow flex flex-col justify-between md:w-1/2 space-y-6">
+                      <div className="space-y-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-pink">
+                          Official Apparel
+                        </span>
+                        <h2 className="font-display text-3xl font-black text-plum group-hover:text-pink transition-colors leading-tight">
+                          <Link href={`/store/${product.slug}`}>
+                            {product.product_title}
+                          </Link>
+                        </h2>
+                        <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
+                          {product.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-6 border-t border-plum/10 flex items-center justify-between mt-auto">
+                        <span className="text-2xl font-display font-black text-plum">
+                          {product.price}
+                        </span>
+                        
+                        {isAvailable ? (
+                          <Link
+                            href={`/store/${product.slug}`}
+                            className="px-6 py-3.5 bg-plum text-linen hover:bg-pink hover:text-linen font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all duration-200 inline-flex items-center gap-1.5 active:scale-97 cursor-pointer"
+                          >
+                            View Details <ArrowUpRight className="h-4 w-4" />
+                          </Link>
+                        ) : (
+                          <button
+                            disabled
+                            className="px-6 py-3.5 bg-warm-black/5 border border-warm-black/10 text-warm-black/40 font-black text-xs uppercase tracking-widest rounded-full cursor-not-allowed select-none"
+                          >
+                            {isSoldOut ? 'Sold Out' : 'Unavailable'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <div 
                   key={product.id}
-                  className="group flex flex-col bg-linen rounded-3xl border border-plum/10 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="col-span-12 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Image wrapper */}
                   <Link 
@@ -77,7 +164,7 @@ export default async function StorePage() {
                           {product.product_title}
                         </Link>
                       </h2>
-                      <p className="text-sm text-warm-black/80 leading-relaxed font-sans font-light line-clamp-3">
+                      <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light line-clamp-3">
                         {product.description}
                       </p>
                     </div>
