@@ -88,12 +88,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       <section 
         style={!isLightHeroTheme ? {
           background: isSunsetTheme 
-            ? `linear-gradient(180deg, var(--color-plum) 0%, var(--color-pink) 65%, #F78B42 100%)`
+            ? `linear-gradient(180deg, var(--color-plum) 0%, var(--color-pink) 65%, var(--color-sunshine) 100%)`
             : `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
         } : undefined}
-        className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 ${
-          (isBerryTheme || isMintTheme) ? 'bg-linen text-plum' : 'bg-plum text-linen'
-        }`}
+        className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 bg-plum text-linen`}
       >
         {/* Flat organic blob shapes — graphic background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
@@ -174,9 +172,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             >
               <Link
                 href={settings.primary_cta_url}
-                className={`w-full sm:w-auto px-8 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98 ${
-                  (isBerryTheme || isMintTheme) ? 'bg-plum text-linen hover:opacity-90' : isSunsetTheme ? 'bg-white text-[#801946] hover:bg-white/90' : 'bg-sunshine text-plum hover:opacity-90'
-                }`}
+                className={`w-full sm:w-auto px-8 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98 bg-white text-plum hover:bg-white/90`}
               >
                 {settings.primary_cta_label}
               </Link>
@@ -610,10 +606,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       {isVideoOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#1E1D1B]/90 backdrop-blur-md transition-opacity duration-300">
           <div className="absolute inset-0" onClick={() => setIsVideoOpen(false)} />
-          <div className="relative w-full max-w-4xl bg-[#1E1D1B] rounded-3xl overflow-hidden shadow-2xl border border-[#FFEFBF]/10 aspect-video z-10 scale-95 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-4xl bg-[#1E1D1B] rounded-3xl overflow-hidden shadow-2xl border border-linen/10 aspect-video z-10 scale-95 animate-in fade-in zoom-in-95 duration-200">
             <button 
               onClick={() => setIsVideoOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 bg-[#1E1D1B]/50 hover:bg-[#1E1D1B]/80 text-[#FFEFBF] hover:text-[#FF7DB4] rounded-full transition-all cursor-pointer"
+              className="absolute top-4 right-4 z-20 p-2 bg-[#1E1D1B]/50 hover:bg-[#1E1D1B]/80 text-linen hover:text-pink rounded-full transition-all cursor-pointer"
               aria-label="Close video"
             >
               <X className="h-6 w-6" />

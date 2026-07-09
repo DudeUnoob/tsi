@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFEFBF; /* Linen */
+  --background: #FFFBEB; /* Warm amber cream background */
   --foreground: #1E1D1B; /* Warm Black */
   
-  --color-sunshine: #6E0B64; /* deep plum */
-  --color-pink: #F26E27; /* warm sunset orange */
+  --color-sunshine: #FF8A65; /* soft peach / coral */
+  --color-pink: #F59E0B; /* warm amber */
   --color-mint-green: #66CC6E;
   --color-sky-blue: #17B2E6;
-  --color-linen: #FFEFBF;
+  --color-linen: #FFFBEB; /* warm amber cream background */
   --color-tangerine: #E65C17;
   --color-fuchsia: #BF3078;
   --color-grass-green: #008030;
   --color-vivid-blue: #2660FF;
   --color-gold: #A67F08;
   --color-sienna: #8C3123;
-  --color-plum: #C83B82; /* sunset magenta */
+  --color-plum: #D9480F; /* deep warm sunset orange / primary */
   --color-forest-green: #003329;
   --color-ultramarine: #171C73;
   --color-warm-black: #1E1D1B;
@@ -54,23 +54,23 @@ body {
 }
 
 ::selection {
-  background-color: #FFA526;
-  color: #6E0B64;
+  background-color: var(--color-pink);
+  color: var(--color-warm-black);
 }
 
 /* Glassmorphism panel cards */
 .glass {
-  background: rgba(255, 239, 191, 0.4);
+  background: rgba(255, 251, 235, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(110, 11, 100, 0.08); /* subtle Plum border */
+  border: 1px solid rgba(217, 72, 15, 0.1); /* subtle orange border */
 }
 
 .glass-dark {
   background: rgba(30, 29, 27, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 239, 191, 0.06);
+  border: 1px solid rgba(255, 251, 235, 0.06);
 }
 
 /* Custom scrollbars matching Sanga Linen & Plum */
@@ -81,11 +81,11 @@ body {
   background: var(--color-linen);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(110, 11, 100, 0.2); /* 20% Plum */
+  background: rgba(217, 72, 15, 0.25); /* 25% Sunset Orange */
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(110, 11, 100, 0.4);
+  background: rgba(217, 72, 15, 0.45);
 }
 
 /* Base Headings styling */

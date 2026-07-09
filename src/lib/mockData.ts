@@ -101,43 +101,43 @@ export interface ThemePalette {
 export const THEME_PALETTES: Record<string, ThemePalette> = {
   default: {
     name: "Sunset Gradient",
-    background: "#FFEFBF",
+    background: "#FFFBEB",
     foreground: "#1E1D1B",
-    primary: "#C83B82",
-    secondary: "#F26E27",
-    accent: "#6E0B64"
+    primary: "#D9480F",
+    secondary: "#F59E0B",
+    accent: "#FF8A65"
   },
   berry: {
     name: "Sunset Gradient",
-    background: "#FFEFBF",
+    background: "#FFFBEB",
     foreground: "#1E1D1B",
-    primary: "#C83B82",
-    secondary: "#F26E27",
-    accent: "#6E0B64"
+    primary: "#D9480F",
+    secondary: "#F59E0B",
+    accent: "#FF8A65"
   },
   sunset: {
     name: "Sunset Gradient",
-    background: "#FFEFBF",
+    background: "#FFFBEB",
     foreground: "#1E1D1B",
-    primary: "#C83B82",
-    secondary: "#F26E27",
-    accent: "#6E0B64"
+    primary: "#D9480F",
+    secondary: "#F59E0B",
+    accent: "#FF8A65"
   },
   mint: {
     name: "Sunset Gradient",
-    background: "#FFEFBF",
+    background: "#FFFBEB",
     foreground: "#1E1D1B",
-    primary: "#C83B82",
-    secondary: "#F26E27",
-    accent: "#6E0B64"
+    primary: "#D9480F",
+    secondary: "#F59E0B",
+    accent: "#FF8A65"
   },
   golden: {
     name: "Sunset Gradient",
-    background: "#FFEFBF",
+    background: "#FFFBEB",
     foreground: "#1E1D1B",
-    primary: "#C83B82",
-    secondary: "#F26E27",
-    accent: "#6E0B64"
+    primary: "#D9480F",
+    secondary: "#F59E0B",
+    accent: "#FF8A65"
   }
 };
 

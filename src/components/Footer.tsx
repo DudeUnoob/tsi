@@ -81,7 +81,7 @@ export default function Footer() {
             </a>
             <a 
               href="mailto:info@sangainitiative.org"
-              className="p-2.5 bg-[var(--color-linen)]/5 hover:bg-[#17B2E6] hover:text-[var(--color-warm-black)] rounded-full transition-all duration-200"
+              className="p-2.5 bg-[var(--color-linen)]/5 hover:bg-[var(--color-sunshine)] hover:text-[var(--color-warm-black)] rounded-full transition-all duration-200"
               aria-label="Email Us"
             >
               <Mail className="h-5 w-5" />
