@@ -42,7 +42,7 @@ export default function Header() {
   const isDefaultTheme = currentPaletteKey === 'default';
 
   return (
-    <header className={`sticky top-0 z-40 w-full transition-all duration-300 py-4 shadow-sm border-plum/10 border-b ${
+    <header className={`sticky top-0 z-40 w-full transition-all duration-300 py-4 relative ${
       isDefaultTheme ? 'bg-sunshine text-plum' : 'bg-linen text-plum'
     }`}>
       <div className="max-w-7xl mx-auto px-6">
@@ -162,6 +162,28 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Organic Curved Bottom Divider */}
+      <div 
+        className="absolute top-full left-0 right-0 w-full overflow-hidden leading-none pointer-events-none z-30"
+        style={{ filter: 'drop-shadow(0 5px 4px rgba(0,0,0,0.03))' }}
+      >
+        <svg 
+          className="relative block w-full h-3 text-linen fill-current" 
+          viewBox="0 0 1200 24" 
+          preserveAspectRatio="none"
+        >
+          <path d="M0,0 L1200,0 Q600,24 0,0 Z" />
+        </svg>
+        <svg 
+          className="absolute top-0 left-0 w-full h-3 text-plum/10 stroke-current fill-none" 
+          viewBox="0 0 1200 24" 
+          preserveAspectRatio="none" 
+          strokeWidth="1.5"
+        >
+          <path d="M0,0 Q600,24 1200,0" />
+        </svg>
+      </div>
     </header>
   );
 }
