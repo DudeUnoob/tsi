@@ -11,6 +11,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+import { usePathname } from 'next/navigation';
+
 export function ThemeProvider({
   children,
   initialPaletteKey = 'sunset',
@@ -18,6 +20,7 @@ export function ThemeProvider({
   children: React.ReactNode;
   initialPaletteKey?: string;
 }) {
+  const pathname = usePathname();
   const currentPaletteKey = 'sunset';
 
   useEffect(() => {
@@ -33,7 +36,27 @@ export function ThemeProvider({
     // No-op to lock the theme exclusively to sunset
   };
 
-  const palette = THEME_PALETTES.sunset;
+  // Home Page gets original magenta/orange palette
+  const homePalette = {
+    name: "Sunset Gradient",
+    background: "#FFEFBF", // Linen
+    foreground: "#1E1D1B", // Warm Black
+    primary: "#C83B82",    // Magenta
+    secondary: "#F26E27",  // Orange
+    accent: "#6E0B64"      // Deep purple/plum
+  };
+
+  // Other pages get the warm sunset orange/amber palette
+  const innerPalette = {
+    name: "Sunset Gradient",
+    background: "#FFEFBF", // Linen
+    foreground: "#1E1D1B", // Warm Black
+    primary: "#D9480F",    // Sunset Orange
+    secondary: "#F59E0B",  // Warm Amber
+    accent: "#FF8A65"      // Peach/coral
+  };
+
+  const palette = pathname === '/' ? homePalette : innerPalette;
 
   return (
     <ThemeContext.Provider value={{ currentPaletteKey, palette, setTheme }}>

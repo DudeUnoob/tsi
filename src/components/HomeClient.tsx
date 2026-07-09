@@ -88,7 +88,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       <section 
         style={!isLightHeroTheme ? {
           background: isSunsetTheme 
-            ? `linear-gradient(180deg, var(--color-plum) 0%, var(--color-pink) 65%, var(--color-sunshine) 100%)`
+            ? `linear-gradient(180deg, var(--color-plum) 0%, var(--color-pink) 65%, #F78B42 100%)`
             : `linear-gradient(135deg, var(--color-plum) 0%, var(--color-pink) 50%, var(--color-sunshine) 100%)`
         } : undefined}
         className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 bg-plum text-linen`}

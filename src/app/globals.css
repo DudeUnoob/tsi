@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFFBEB; /* Warm amber cream background */
+  --background: #FFEFBF; /* Linen */
   --foreground: #1E1D1B; /* Warm Black */
   
   --color-sunshine: #FF8A65; /* soft peach / coral */
   --color-pink: #F59E0B; /* warm amber */
   --color-mint-green: #66CC6E;
   --color-sky-blue: #17B2E6;
-  --color-linen: #FFFBEB; /* warm amber cream background */
+  --color-linen: #FFEFBF; /* Linen */
   --color-tangerine: #E65C17;
   --color-fuchsia: #BF3078;
   --color-grass-green: #008030;
