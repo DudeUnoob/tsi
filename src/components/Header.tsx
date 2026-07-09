@@ -169,19 +169,19 @@ export default function Header() {
         style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.04))' }}
       >
         <svg 
-          className="relative block w-full h-8 md:h-12 text-linen fill-current scale-y-[-1] transform" 
+          className="relative block w-full h-16 text-linen fill-current" 
           viewBox="0 0 1200 120" 
           preserveAspectRatio="none"
         >
-          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C26.9,4.75,55.05,16.35,80,25.23,135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44Z" />
+          <path d="M0,0 C26.9,4.75,55.05,16.35,80,25.23C135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3 L1200,0 L0,0 Z" />
         </svg>
         <svg 
-          className="absolute top-0 left-0 w-full h-8 md:h-12 text-plum/10 stroke-current fill-none scale-y-[-1] transform" 
+          className="absolute top-0 left-0 w-full h-16 text-plum/10 stroke-current fill-none" 
           viewBox="0 0 1200 120" 
           preserveAspectRatio="none" 
           strokeWidth="1.5"
         >
-          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3" />
+          <path d="M0,0 C26.9,4.75,55.05,16.35,80,25.23C135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3" />
         </svg>
       </div>
     </header>
