@@ -166,22 +166,22 @@ export default function Header() {
       {/* Organic Curved Bottom Divider */}
       <div 
         className="absolute top-full left-0 right-0 w-full overflow-hidden leading-none pointer-events-none z-30"
-        style={{ filter: 'drop-shadow(0 5px 4px rgba(0,0,0,0.03))' }}
+        style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.04))' }}
       >
         <svg 
-          className="relative block w-full h-3 text-linen fill-current" 
-          viewBox="0 0 1200 24" 
+          className="relative block w-full h-6 md:h-10 text-linen fill-current" 
+          viewBox="0 0 1200 60" 
           preserveAspectRatio="none"
         >
-          <path d="M0,0 L1200,0 Q600,24 0,0 Z" />
+          <path d="M0,0 L1200,0 L1200,0 Q600,60 0,0 Z" />
         </svg>
         <svg 
-          className="absolute top-0 left-0 w-full h-3 text-plum/10 stroke-current fill-none" 
-          viewBox="0 0 1200 24" 
+          className="absolute top-0 left-0 w-full h-6 md:h-10 text-plum/10 stroke-current fill-none" 
+          viewBox="0 0 1200 60" 
           preserveAspectRatio="none" 
           strokeWidth="1.5"
         >
-          <path d="M0,0 Q600,24 1200,0" />
+          <path d="M0,0 Q600,60 1200,0" />
         </svg>
       </div>
     </header>
