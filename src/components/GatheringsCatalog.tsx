@@ -69,31 +69,31 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
     switch (status) {
       case 'open':
         return (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#66CC6E] text-[#1E1D1B] rounded-full border border-[#008030]/10 shadow-sm">
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#66CC6E] text-[var(--color-warm-black)] rounded-full border border-[#008030]/10 shadow-sm">
             Open
           </span>
         );
       case 'coming-soon':
         return (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#FFA526] text-[#6E0B64] rounded-full border border-[#E65C17]/10 shadow-sm">
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[var(--color-sunshine)] text-[var(--color-plum)] rounded-full border border-[var(--color-pink)]/10 shadow-sm">
             Coming Soon
           </span>
         );
       case 'closed':
         return (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#1E1D1B]/20 text-[#1E1D1B]/60 rounded-full border border-[#1E1D1B]/10">
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[var(--color-warm-black)]/20 text-[var(--color-warm-black)]/60 rounded-full border border-[var(--color-warm-black)]/10">
             Closed
           </span>
         );
       case 'sold-out':
         return (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#E65C17] text-[#FFEFBF] rounded-full shadow-sm">
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[var(--color-pink)] text-[var(--color-linen)] rounded-full shadow-sm">
             Sold Out
           </span>
         );
       case 'past':
         return (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[#1E1D1B]/10 text-[#1E1D1B]/50 rounded-full">
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-[var(--color-warm-black)]/10 text-[var(--color-warm-black)]/50 rounded-full">
             Past
           </span>
         );
@@ -601,10 +601,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-24 bg-[#6E0B64]/5 rounded-3xl border border-dashed border-[#6E0B64]/15 max-w-xl mx-auto px-6">
-                  <Users className="mx-auto h-12 w-12 text-[#6E0B64]/25 mb-4" />
-                  <h3 className="font-display text-2xl font-bold text-[#6E0B64] mb-2">No Matching Events</h3>
-                  <p className="text-sm text-[#1E1D1B]/60 max-w-sm mx-auto font-sans font-light">
+                <div className="text-center py-24 bg-[var(--color-plum)]/5 rounded-3xl border border-dashed border-[var(--color-plum)]/15 max-w-xl mx-auto px-6">
+                  <Users className="mx-auto h-12 w-12 text-[var(--color-plum)]/25 mb-4" />
+                  <h3 className="font-display text-2xl font-bold text-[var(--color-plum)] mb-2">No Matching Events</h3>
+                  <p className="text-sm text-[var(--color-warm-black)]/60 max-w-sm mx-auto font-sans font-light">
                     Adjust your checkboxes at the top to filter retreats, Sanga circles, or monthly Heartspaces.
                   </p>
                 </div>
@@ -616,10 +616,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
 
       {/* EVENT POPUP DETAILS MODAL OVERLAY */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 bg-[#1E1D1B]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 text-[#1E1D1B] font-sans">
-          <div className="max-w-md w-full bg-[#FFEFBF] border border-[#6E0B64]/15 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 text-[var(--color-warm-black)] font-sans">
+          <div className="max-w-md w-full bg-[var(--color-linen)] border border-[var(--color-plum)]/15 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
             {/* Modal Header banner */}
-            <div className="p-6 bg-[#6E0B64] text-[#FFEFBF] flex items-center justify-between relative overflow-hidden select-none border-b border-[#6E0B64]/10">
+            <div className="p-6 bg-[var(--color-plum)] text-[var(--color-linen)] flex items-center justify-between relative overflow-hidden select-none border-b border-[var(--color-plum)]/10">
               <div className="relative z-10 space-y-1 text-left">
                 <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${getEventBadgeClass(selectedEvent)}`}>
                   {getCategoryLabel(selectedEvent.category)}
@@ -628,12 +628,12 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
               </div>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer relative z-10"
+                className="text-3xl text-[var(--color-linen)]/75 hover:text-white cursor-pointer relative z-10"
               >
                 &times;
               </button>
               <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
-                <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-3 fill-[#FFEFBF]">
+                <svg viewBox="0 0 500 150" preserveAspectRatio="none" className="relative block w-full h-3 fill-[var(--color-linen)]">
                   <path d="M0,80 C150,150 350,0 500,80 L500,150 L0,150 Z" />
                 </svg>
               </div>
@@ -643,7 +643,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
             <div className="p-6 space-y-5 overflow-y-auto text-sm text-left">
               <div className="space-y-2 text-xs font-bold text-plum/60 uppercase tracking-wide">
                 <div className="flex items-center">
-                  <CalendarIcon className="h-4 w-4 mr-2 text-[#E65C17] flex-shrink-0" />
+                  <CalendarIcon className="h-4 w-4 mr-2 text-[var(--color-pink)] flex-shrink-0" />
                   <span>
                     {new Date(selectedEvent.start_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     {selectedEvent.end_date && selectedEvent.end_date !== selectedEvent.start_date && (
@@ -655,12 +655,12 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-2 text-[#E65C17] flex-shrink-0" />
+                  <MapPin className="h-4 w-4 mr-2 text-[var(--color-pink)] flex-shrink-0" />
                   <span>{selectedEvent.location}</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="font-black text-[#6E0B64] mr-2">Pricing:</span>
-                  <span className="text-[#E65C17] font-black">{selectedEvent.price}</span>
+                  <span className="font-black text-[var(--color-plum)] mr-2">Pricing:</span>
+                  <span className="text-[var(--color-pink)] font-black">{selectedEvent.price}</span>
                 </div>
               </div>
 
@@ -684,10 +684,10 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="p-5 bg-[#6E0B64]/5 border-t border-[#6E0B64]/10 flex flex-wrap justify-end gap-2">
+            <div className="p-5 bg-[var(--color-plum)]/5 border-t border-[var(--color-plum)]/10 flex flex-wrap justify-end gap-2">
               <a
                 href={`/gatherings/${selectedEvent.slug}`}
-                className="px-6 py-2.5 border border-[#6E0B64] hover:bg-[#6E0B64]/10 text-[#6E0B64] font-black rounded-xl text-[10px] uppercase tracking-widest transition-all cursor-pointer text-center"
+                className="px-6 py-2.5 border border-[var(--color-plum)] hover:bg-[var(--color-plum)]/10 text-[var(--color-plum)] font-black rounded-xl text-[10px] uppercase tracking-widest transition-all cursor-pointer text-center"
               >
                 View Full Details →
               </a>
@@ -695,7 +695,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                 href={getTargetLink(selectedEvent)}
                 target={getTargetLink(selectedEvent).startsWith('http') ? '_blank' : '_self'}
                 rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black rounded-xl text-[10px] uppercase tracking-widest transition-all shadow cursor-pointer text-center"
+                className="px-6 py-2.5 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black rounded-xl text-[10px] uppercase tracking-widest transition-all shadow cursor-pointer text-center"
               >
                 {getLinkText(selectedEvent)}
               </a>

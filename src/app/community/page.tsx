@@ -37,13 +37,13 @@ export default async function CommunityPage() {
 
       <div className="max-w-6xl mx-auto px-6 -mt-16 relative z-20">
         {/* Quote Card (Brand Identity System Statement) */}
-        <div className="bg-[#FFA526] text-plum rounded-3xl p-8 md:p-12 mb-16 shadow-xl border border-plum/10 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="absolute right-0 top-0 w-64 h-64 bg-[#FF7DB4]/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="bg-pink text-plum rounded-3xl p-8 md:p-12 mb-16 shadow-xl border border-plum/10 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="absolute right-0 top-0 w-64 h-64 bg-pink/10 rounded-full blur-2xl pointer-events-none" />
           <div className="space-y-3 max-w-xl">
             <p className="font-display text-3xl sm:text-4xl font-bold leading-tight">
               &ldquo;Come for the experience. Stay for the people.&rdquo;
             </p>
-            <p className="text-[#6E0B64]/80 text-sm font-sans tracking-wide uppercase font-semibold">
+            <p className="text-plum/80 text-sm font-sans tracking-wide uppercase font-semibold">
               The foundational heart of the Vaishnava Youth Collective
             </p>
           </div>
@@ -52,7 +52,7 @@ export default async function CommunityPage() {
               href={settings.whatsapp_url || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full md:w-auto inline-flex items-center justify-center px-8 py-4 bg-plum hover:bg-plum/90 text-[#FFEFBF] hover:text-[#FFA526] font-bold text-sm tracking-wide uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full md:w-auto inline-flex items-center justify-center px-8 py-4 bg-plum hover:bg-plum/90 text-linen hover:text-pink font-bold text-sm tracking-wide uppercase rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
             >
               <MessageCircle className="mr-2 h-5 w-5 fill-current" /> Join Sanga WhatsApp
             </a>
@@ -62,20 +62,20 @@ export default async function CommunityPage() {
         {/* Section Heading */}
         <div className="text-center mb-12 space-y-2">
           <h2 className="font-display text-3xl sm:text-4xl text-plum">How We Stay Connected</h2>
-          <div className="w-12 h-1 bg-[#FFA526] mx-auto rounded-full" />
+          <div className="w-12 h-1 bg-pink mx-auto rounded-full" />
         </div>
 
         {/* Community Pillars Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {/* Card 1 */}
-          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#FF7DB4]/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+          <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-pink/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
             <div className="space-y-6">
-              <div className="p-4 bg-[#FF7DB4]/15 rounded-2xl w-fit text-plum">
+              <div className="p-4 bg-pink/15 rounded-2xl w-fit text-plum">
                 <Compass className="h-7 w-7" />
               </div>
               <div className="space-y-3">
-                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors">
                   Regional Circles
                 </h3>
                 <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
@@ -84,19 +84,19 @@ export default async function CommunityPage() {
               </div>
             </div>
             <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
-              <MapPin className="w-4 h-4 text-[#FFA526]" /> 4 Regions & Growing
+              <MapPin className="w-4 h-4 text-pink" /> 4 Regions & Growing
             </div>
           </div>
 
           {/* Card 2 */}
-          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#FFA526]/10 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+          <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-pink/10 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
             <div className="space-y-6">
-              <div className="p-4 bg-[#FFA526]/25 rounded-2xl w-fit text-plum">
+              <div className="p-4 bg-pink/25 rounded-2xl w-fit text-plum">
                 <Globe className="h-7 w-7" />
               </div>
               <div className="space-y-3">
-                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors">
                   Online Conversations
                 </h3>
                 <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
@@ -105,19 +105,19 @@ export default async function CommunityPage() {
               </div>
             </div>
             <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
-              <Sparkles className="w-4 h-4 text-[#FFA526]" /> Online Programs
+              <Sparkles className="w-4 h-4 text-pink" /> Online Programs
             </div>
           </div>
 
           {/* Card 3 */}
-          <div className="bg-[#FFEFBF] p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 w-24 h-24 bg-[#17B2E6]/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
+          <div className="bg-linen p-8 rounded-[2rem] border border-plum/10 flex flex-col justify-between hover:border-plum/30 transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-pink/5 rounded-full pointer-events-none transition-all duration-300 group-hover:scale-150" />
             <div className="space-y-6">
-              <div className="p-4 bg-[#17B2E6]/15 rounded-2xl w-fit text-plum">
+              <div className="p-4 bg-pink/15 rounded-2xl w-fit text-plum">
                 <Users className="h-7 w-7" />
               </div>
               <div className="space-y-3">
-                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-[#E65C17] transition-colors">
+                <h3 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors">
                   Bhakti Friendships
                 </h3>
                 <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
@@ -126,7 +126,7 @@ export default async function CommunityPage() {
               </div>
             </div>
             <div className="pt-6 flex items-center text-xs font-bold uppercase tracking-wider text-plum/60 gap-1.5 mt-8 border-t border-plum/5">
-              <Heart className="w-4 h-4 text-[#FF7DB4] fill-current" /> Relationship-driven
+              <Heart className="w-4 h-4 text-pink fill-current" /> Relationship-driven
             </div>
           </div>
         </div>
@@ -137,7 +137,6 @@ export default async function CommunityPage() {
             We are currently refining a dedicated Sanga community platform to make hosting events and staying in touch even easier. Announcements will be posted in the WhatsApp groups.
           </p>
         </div>
-
       </div>
     </div>
   );

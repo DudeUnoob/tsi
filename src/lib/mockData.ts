@@ -100,20 +100,20 @@ export interface ThemePalette {
 
 export const THEME_PALETTES: Record<string, ThemePalette> = {
   default: {
-    name: "Linen & Plum (Rebrand Default)",
+    name: "Sunset Gradient",
     background: "#FFEFBF",
     foreground: "#1E1D1B",
-    primary: "#6E0B64",
-    secondary: "#FF7DB4",
-    accent: "#FFA526"
+    primary: "#C83B82",
+    secondary: "#F26E27",
+    accent: "#6E0B64"
   },
   berry: {
-    name: "Berry Blast",
-    background: "#F5EBF2",
+    name: "Sunset Gradient",
+    background: "#FFEFBF",
     foreground: "#1E1D1B",
-    primary: "#6E0B64",
-    secondary: "#BF3078",
-    accent: "#17B2E6"
+    primary: "#C83B82",
+    secondary: "#F26E27",
+    accent: "#6E0B64"
   },
   sunset: {
     name: "Sunset Gradient",
@@ -124,20 +124,20 @@ export const THEME_PALETTES: Record<string, ThemePalette> = {
     accent: "#6E0B64"
   },
   mint: {
-    name: "Minty Fresh",
-    background: "#E2F4E9",
+    name: "Sunset Gradient",
+    background: "#FFEFBF",
     foreground: "#1E1D1B",
-    primary: "#286944",
-    secondary: "#66CC6E",
-    accent: "#17B2E6"
+    primary: "#C83B82",
+    secondary: "#F26E27",
+    accent: "#6E0B64"
   },
   golden: {
-    name: "Golden Hour",
-    background: "#FFEFBB",
+    name: "Sunset Gradient",
+    background: "#FFEFBF",
     foreground: "#1E1D1B",
-    primary: "#8C3123",
-    secondary: "#A67F08",
-    accent: "#FFEFBB"
+    primary: "#C83B82",
+    secondary: "#F26E27",
+    accent: "#6E0B64"
   }
 };
 

@@ -13,38 +13,27 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({
   children,
-  initialPaletteKey = 'default',
+  initialPaletteKey = 'sunset',
 }: {
   children: React.ReactNode;
   initialPaletteKey?: string;
 }) {
-  const [currentPaletteKey, setCurrentPaletteKey] = useState<string>(initialPaletteKey);
+  const currentPaletteKey = 'sunset';
 
-  // Synchronize with localStorage and cookies on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('sanga_theme_palette');
-      if (stored && THEME_PALETTES[stored]) {
-        setCurrentPaletteKey(stored);
-        document.cookie = `sanga_palette=${stored}; path=/; max-age=31536000; SameSite=Lax`;
-      }
+      localStorage.setItem('sanga_theme_palette', 'sunset');
+      document.cookie = `sanga_palette=sunset; path=/; max-age=31536000; SameSite=Lax`;
     } catch (e) {
-      console.error('Failed to read theme from localStorage', e);
+      console.error('Failed to sync theme in localStorage/cookie', e);
     }
   }, []);
 
   const setTheme = (key: string) => {
-    const validKey = THEME_PALETTES[key] ? key : 'default';
-    setCurrentPaletteKey(validKey);
-    try {
-      localStorage.setItem('sanga_theme_palette', validKey);
-      document.cookie = `sanga_palette=${validKey}; path=/; max-age=31536000; SameSite=Lax`;
-    } catch (e) {
-      console.error('Failed to set theme in localStorage/cookie', e);
-    }
+    // No-op to lock the theme exclusively to sunset
   };
 
-  const palette = THEME_PALETTES[currentPaletteKey] || THEME_PALETTES.default;
+  const palette = THEME_PALETTES.sunset;
 
   return (
     <ThemeContext.Provider value={{ currentPaletteKey, palette, setTheme }}>

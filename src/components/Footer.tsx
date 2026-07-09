@@ -59,7 +59,7 @@ export default function Footer() {
               href="https://www.instagram.com/thesangainitiative/?hl=en" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="p-2.5 bg-[#FFEFBF]/5 hover:bg-[#FF7DB4] hover:text-[#1E1D1B] rounded-full transition-all duration-200"
+              className="p-2.5 bg-[var(--color-linen)]/5 hover:bg-[var(--color-pink)] hover:text-[var(--color-warm-black)] rounded-full transition-all duration-200"
               aria-label="Instagram"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -72,7 +72,7 @@ export default function Footer() {
               href="http://www.facebook.com/sangainitiative" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="p-2.5 bg-[#FFEFBF]/5 hover:bg-[#FFA526] hover:text-[#1E1D1B] rounded-full transition-all duration-200"
+              className="p-2.5 bg-[var(--color-linen)]/5 hover:bg-[var(--color-sunshine)] hover:text-[var(--color-warm-black)] rounded-full transition-all duration-200"
               aria-label="Facebook"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -81,7 +81,7 @@ export default function Footer() {
             </a>
             <a 
               href="mailto:info@sangainitiative.org"
-              className="p-2.5 bg-[#FFEFBF]/5 hover:bg-[#17B2E6] hover:text-[#1E1D1B] rounded-full transition-all duration-200"
+              className="p-2.5 bg-[var(--color-linen)]/5 hover:bg-[#17B2E6] hover:text-[var(--color-warm-black)] rounded-full transition-all duration-200"
               aria-label="Email Us"
             >
               <Mail className="h-5 w-5" />
@@ -91,30 +91,30 @@ export default function Footer() {
 
         {/* Links Column */}
         <div className="col-span-1 md:col-span-3">
-          <h3 className="font-display text-lg font-bold text-[#FFEFBF] mb-4 uppercase tracking-widest text-xs">Quick Links</h3>
+          <h3 className="font-display text-lg font-bold text-[var(--color-linen)] mb-4 uppercase tracking-widest text-xs">Quick Links</h3>
           <ul className="space-y-3 text-sm">
             <li>
-              <Link href="/gatherings" className="text-[#FFEFBF]/75 hover:text-[#FF7DB4] transition-colors font-medium">
+              <Link href="/gatherings" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Gatherings & Retreats
               </Link>
             </li>
             <li>
-              <Link href="/store" className="text-[#FFEFBF]/75 hover:text-[#FF7DB4] transition-colors font-medium">
+              <Link href="/store" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Merch Store
               </Link>
             </li>
             <li>
-              <Link href="/resources" className="text-[#FFEFBF]/75 hover:text-[#FF7DB4] transition-colors font-medium">
+              <Link href="/resources" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Reading Resources
               </Link>
             </li>
             <li>
-              <Link href="/support" className="text-[#FFEFBF]/75 hover:text-[#FF7DB4] transition-colors font-medium">
+              <Link href="/support" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Support / Donate
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="text-[#FFEFBF]/75 hover:text-[#FF7DB4] transition-colors font-medium">
+              <Link href="/contact" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Get in Touch
               </Link>
             </li>
@@ -123,8 +123,8 @@ export default function Footer() {
 
         {/* Newsletter Column */}
         <div className="col-span-1 md:col-span-5 flex flex-col space-y-4">
-          <h3 className="font-display text-lg font-bold text-[#FFEFBF] uppercase tracking-widest text-xs">Join our newsletter</h3>
-          <p className="text-sm text-[#FFEFBF]/70 leading-relaxed font-light">
+          <h3 className="font-display text-lg font-bold text-[var(--color-linen)] uppercase tracking-widest text-xs">Join our newsletter</h3>
+          <p className="text-sm text-[var(--color-linen)]/70 leading-relaxed font-light">
             Stay updated on upcoming retreats, local regionals, and digital gatherings.
           </p>
           
@@ -136,12 +136,12 @@ export default function Footer() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={status === 'loading'}
               required
-              className="w-full px-5 py-3.5 bg-[#FFEFBF]/5 border border-[#FFEFBF]/15 rounded-full text-sm text-[#FFEFBF] placeholder-[#FFEFBF]/40 focus:outline-none focus:border-[#FF7DB4] focus:ring-1 focus:ring-[#FF7DB4] transition-colors"
+              className="w-full px-5 py-3.5 bg-[var(--color-linen)]/5 border border-[var(--color-linen)]/15 rounded-full text-sm text-[var(--color-linen)] placeholder-[var(--color-linen)]/40 focus:outline-none focus:border-[var(--color-pink)] focus:ring-1 focus:ring-[var(--color-pink)] transition-colors"
             />
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="absolute right-1.5 p-2.5 bg-[#FF7DB4] hover:bg-[#FFA526] text-[#1E1D1B] rounded-full hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+              className="absolute right-1.5 p-2.5 bg-[var(--color-pink)] hover:bg-[var(--color-sunshine)] text-[var(--color-warm-black)] rounded-full hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
               aria-label="Subscribe"
             >
               {status === 'loading' ? (
@@ -156,23 +156,23 @@ export default function Footer() {
             <p className="text-xs text-[#66CC6E] font-medium animate-fadeIn">{message}</p>
           )}
           {status === 'error' && (
-            <p className="text-xs text-[#FFA526] font-medium animate-fadeIn">{message}</p>
+            <p className="text-xs text-[var(--color-sunshine)] font-medium animate-fadeIn">{message}</p>
           )}
         </div>
 
       </div>
 
       {/* Footer Bottom */}
-      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-[#FFEFBF]/10 flex flex-col md:flex-row items-center justify-between text-xs text-[#FFEFBF]/50 gap-4">
+      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-[var(--color-linen)]/10 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--color-linen)]/50 gap-4">
         <div className="flex flex-col items-center md:items-start space-y-1">
           <p>&copy; {new Date().getFullYear()} The Sanga Initiative. All rights reserved.</p>
-          <p className="text-[10px] text-[#FFEFBF]/40 leading-relaxed">
+          <p className="text-[10px] text-[var(--color-linen)]/40 leading-relaxed">
             The Sanga Initiative (TSI) is a registered 501(c)(3) non-profit organization. Donations are tax-deductible to the extent allowed by law.
           </p>
         </div>
         
         <div className="flex items-center space-x-6">
-          <Link href="/admin" className="hover:text-[#FF7DB4] transition-colors font-medium">
+          <Link href="/admin" className="hover:text-[var(--color-pink)] transition-colors font-medium">
             Staff Portal
           </Link>
         </div>

@@ -107,7 +107,7 @@ export default async function ContactPage() {
                   href={settings.instagram_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center text-plum hover:text-[#FF7DB4] font-semibold border-b border-plum/10 transition-colors"
+                  className="flex items-center text-plum hover:text-[var(--color-pink)] font-semibold border-b border-plum/10 transition-colors"
                 >
                   <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>

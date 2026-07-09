@@ -75,11 +75,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   } as const;
 
   const { currentPaletteKey } = useTheme();
-  const isDefaultTheme = currentPaletteKey === 'default';
-  const isBerryTheme = currentPaletteKey === 'berry';
-  const isMintTheme = currentPaletteKey === 'mint';
-  const isSunsetTheme = currentPaletteKey === 'sunset';
-  const isLightHeroTheme = isDefaultTheme || isBerryTheme || isMintTheme;
+  const isDefaultTheme = false;
+  const isBerryTheme = false;
+  const isMintTheme = false;
+  const isSunsetTheme = true;
+  const isLightHeroTheme = false;
 
   return (
     <div className="relative w-full bg-linen text-warm-black font-sans">

@@ -74,7 +74,7 @@ export default function ContactForm() {
 
   if (formState === 'success') {
     return (
-      <div className="bg-[#FFEFBF] p-8 md:p-12 rounded-[2rem] border border-plum/15 text-center flex flex-col items-center space-y-6 animate-fadeIn">
+      <div className="bg-[var(--color-linen)] p-8 md:p-12 rounded-[2rem] border border-plum/15 text-center flex flex-col items-center space-y-6 animate-fadeIn">
         <div className="p-4 bg-[#66CC6E]/15 rounded-full text-[#008030]">
           <CheckCircle2 className="h-16 w-16" />
         </div>
@@ -84,7 +84,7 @@ export default function ContactForm() {
         </p>
         <button
           onClick={() => setFormState('idle')}
-          className="px-8 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+          className="px-8 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
         >
           Send Another Message
         </button>
@@ -117,7 +117,7 @@ export default function ContactForm() {
           placeholder="e.g. Radhanatha dasa"
           {...register('name')}
           disabled={formState === 'loading'}
-          className="w-full px-5 py-4 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
+          className="w-full px-5 py-4 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
         />
       </div>
 
@@ -132,12 +132,12 @@ export default function ContactForm() {
           placeholder="your.email@example.com"
           {...register('email')}
           disabled={formState === 'loading'}
-          className={`w-full px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 ${
-            errors.email ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
+          className={`w-full px-5 py-4 bg-[var(--color-linen)] border focus:border-[var(--color-sunshine)] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 ${
+            errors.email ? 'border-[var(--color-pink)] focus:border-[var(--color-pink)]' : 'border-plum/15'
           }`}
         />
         {errors.email && (
-          <p className="text-xs text-[#E65C17] mt-2 font-semibold flex items-center gap-1.5">
+          <p className="text-xs text-[var(--color-pink)] mt-2 font-semibold flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5" /> {errors.email.message}
           </p>
         )}
@@ -154,12 +154,12 @@ export default function ContactForm() {
           placeholder="How can Sanga support your journey? Share details about registration issues, event queries, or suggestions..."
           {...register('message')}
           disabled={formState === 'loading'}
-          className={`w-full px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 resize-none ${
-            errors.message ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
+          className={`w-full px-5 py-4 bg-[var(--color-linen)] border focus:border-[var(--color-sunshine)] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none transition-all duration-200 resize-none ${
+            errors.message ? 'border-[var(--color-pink)] focus:border-[var(--color-pink)]' : 'border-plum/15'
           }`}
         />
         {errors.message && (
-          <p className="text-xs text-[#E65C17] mt-2 font-semibold flex items-center gap-1.5">
+          <p className="text-xs text-[var(--color-pink)] mt-2 font-semibold flex items-center gap-1.5">
             <AlertTriangle className="h-3.5 w-3.5" /> {errors.message.message}
           </p>
         )}
@@ -177,13 +177,13 @@ export default function ContactForm() {
             placeholder="Answer"
             {...register('captchaAnswer')}
             disabled={formState === 'loading'}
-            className={`w-full sm:w-32 px-5 py-4 bg-[#FFEFBF] border focus:border-[#FFA526] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none text-center transition-all duration-200 ${
-              errors.captchaAnswer ? 'border-[#E65C17] focus:border-[#E65C17]' : 'border-plum/15'
+            className={`w-full sm:w-32 px-5 py-4 bg-[var(--color-linen)] border focus:border-[var(--color-sunshine)] rounded-2xl text-sm text-plum placeholder-plum/30 focus:outline-none text-center transition-all duration-200 ${
+              errors.captchaAnswer ? 'border-[var(--color-pink)] focus:border-[var(--color-pink)]' : 'border-plum/15'
             }`}
           />
         </div>
         {errors.captchaAnswer && (
-          <p className="text-xs text-[#E65C17] font-semibold flex items-center gap-1.5 self-end sm:mb-4">
+          <p className="text-xs text-[var(--color-pink)] font-semibold flex items-center gap-1.5 self-end sm:mb-4">
             <AlertTriangle className="h-3.5 w-3.5" /> {errors.captchaAnswer.message}
           </p>
         )}
@@ -191,7 +191,7 @@ export default function ContactForm() {
 
       {/* Error Message Box */}
       {formState === 'error' && (
-        <div className="text-xs text-[#E65C17] font-semibold flex items-center gap-2.5 bg-[#E65C17]/5 p-4 rounded-xl border border-[#E65C17]/10">
+        <div className="text-xs text-[var(--color-pink)] font-semibold flex items-center gap-2.5 bg-[var(--color-pink)]/5 p-4 rounded-xl border border-[var(--color-pink)]/10">
           <AlertTriangle className="h-5 w-5 flex-shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -202,7 +202,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={formState === 'loading'}
-          className="w-full sm:w-auto px-8 py-4 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all duration-300 inline-flex items-center justify-center cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-8 py-4 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:shadow-lg transition-all duration-300 inline-flex items-center justify-center cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {formState === 'loading' ? (
             <>

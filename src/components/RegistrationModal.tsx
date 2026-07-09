@@ -257,17 +257,17 @@ export default function RegistrationModal({
       {/* Blur Background */}
       <div 
         onClick={handleClose}
-        className="fixed inset-0 bg-[#1E1D1B]/75 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-[var(--color-warm-black)]/75 backdrop-blur-sm transition-opacity"
       />
 
       {/* Secure processing overlay */}
       {isSubmitting && (
-        <div className="absolute inset-0 bg-[#6E0B64]/95 backdrop-blur-sm z-50 rounded-[2rem] flex flex-col items-center justify-center text-[#FFEFBF] p-6 text-center select-none">
+        <div className="absolute inset-0 bg-[var(--color-plum)]/95 backdrop-blur-sm z-50 rounded-[2rem] flex flex-col items-center justify-center text-[var(--color-linen)] p-6 text-center select-none">
           <div className="space-y-4 max-w-xs">
-            <div className="w-10 h-10 border-4 border-[#FFA526] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="w-10 h-10 border-4 border-[var(--color-sunshine)] border-t-transparent rounded-full animate-spin mx-auto"></div>
             <div className="space-y-1">
-              <h4 className="font-display text-lg font-black text-[#FFA526]">Securing Booking</h4>
-              <p className="text-xs text-[#FFEFBF]/85 font-light animate-pulse">{statusMessage}</p>
+              <h4 className="font-display text-lg font-black text-[var(--color-sunshine)]">Securing Booking</h4>
+              <p className="text-xs text-[var(--color-linen)]/85 font-light animate-pulse">{statusMessage}</p>
             </div>
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function RegistrationModal({
           </div>
           <button 
             onClick={handleClose}
-            className="p-2 hover:bg-[#6E0B64]/5 rounded-full text-[#1E1D1B]/50 hover:text-[#6E0B64] transition-colors cursor-pointer"
+            className="p-2 hover:bg-[var(--color-plum)]/5 rounded-full text-[var(--color-warm-black)]/50 hover:text-[var(--color-plum)] transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -299,76 +299,76 @@ export default function RegistrationModal({
           
           {/* STEP 1: Participant Info */}
           {step === 'info' && (
-            <form onSubmit={handleContinueToPayment} className="space-y-5 text-xs text-[#1E1D1B]">
+            <form onSubmit={handleContinueToPayment} className="space-y-5 text-xs text-[var(--color-warm-black)]">
               {errorMsg && (
-                <div className="bg-[#E65C17]/10 border border-[#E65C17]/25 p-3 rounded-xl flex items-center gap-2 text-[#E65C17]">
+                <div className="bg-[var(--color-pink)]/10 border border-[var(--color-pink)]/25 p-3 rounded-xl flex items-center gap-2 text-[var(--color-pink)]">
                   <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                   <span className="font-bold">{errorMsg}</span>
                 </div>
               )}
 
               {/* Price Summary */}
-              <div className="bg-[#6E0B64]/5 border border-[#6E0B64]/10 p-4 rounded-2xl flex justify-between items-center text-[#6E0B64]">
+              <div className="bg-[var(--color-plum)]/5 border border-[var(--color-plum)]/10 p-4 rounded-2xl flex justify-between items-center text-[var(--color-plum)]">
                 <span className="font-display font-bold text-sm">Event Admission Fee</span>
-                <span className="font-display font-black text-lg text-[#E65C17] bg-[#FFEFBF] px-3 py-1.5 rounded-xl border border-[#6E0B64]/10">
+                <span className="font-display font-black text-lg text-[var(--color-pink)] bg-[var(--color-linen)] px-3 py-1.5 rounded-xl border border-[var(--color-plum)]/10">
                   {eventPrice}
                 </span>
               </div>
 
               {/* Section: Basic Details */}
               <div className="space-y-4">
-                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#6E0B64] border-b border-[#6E0B64]/5 pb-1">
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[var(--color-plum)] border-b border-[var(--color-plum)]/5 pb-1">
                   1. Contact Information
                 </h4>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Full Name</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Full Name</label>
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Participant's name"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.fullName ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.fullName ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.fullName && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.fullName}</p>}
+                    {formErrors.fullName && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.fullName}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Email Address</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Email Address</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="name@example.com"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.email ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.email ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.email && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.email}</p>}
+                    {formErrors.email && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.email}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Phone Number</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Phone Number</label>
                     <input
                       type="text"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="e.g. 555-0199"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.phone ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.phone ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.phone && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.phone}</p>}
+                    {formErrors.phone && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.phone}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Your Age</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Your Age</label>
                     <input
                       type="text"
                       name="age"
@@ -376,87 +376,87 @@ export default function RegistrationModal({
                       onChange={handleInputChange}
                       placeholder="e.g. 21"
                       maxLength={3}
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.age ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.age ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.age && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.age}</p>}
+                    {formErrors.age && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.age}</p>}
                   </div>
                 </div>
               </div>
 
               {/* Section: Emergency */}
               <div className="space-y-4 pt-2">
-                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#6E0B64] border-b border-[#6E0B64]/5 pb-1">
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[var(--color-plum)] border-b border-[var(--color-plum)]/5 pb-1">
                   2. Emergency Contact
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Contact Name</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Contact Name</label>
                     <input
                       type="text"
                       name="emergencyName"
                       value={formData.emergencyName}
                       onChange={handleInputChange}
                       placeholder="Emergency contact name"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.emergencyName ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.emergencyName ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.emergencyName && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.emergencyName}</p>}
+                    {formErrors.emergencyName && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.emergencyName}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Contact Phone</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Contact Phone</label>
                     <input
                       type="text"
                       name="emergencyPhone"
                       value={formData.emergencyPhone}
                       onChange={handleInputChange}
                       placeholder="Contact phone number"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        formErrors.emergencyPhone ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        formErrors.emergencyPhone ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {formErrors.emergencyPhone && <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.emergencyPhone}</p>}
+                    {formErrors.emergencyPhone && <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.emergencyPhone}</p>}
                   </div>
                 </div>
               </div>
 
               {/* Section: Dietary */}
               <div className="space-y-4 pt-2">
-                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#6E0B64] border-b border-[#6E0B64]/5 pb-1">
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[var(--color-plum)] border-b border-[var(--color-plum)]/5 pb-1">
                   3. Health & Accommodations
                 </h4>
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Dietary Needs & Food Allergies</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Dietary Needs & Food Allergies</label>
                     <textarea
                       name="dietary"
                       value={formData.dietary}
                       onChange={handleInputChange}
                       rows={2}
                       placeholder="e.g. Vegetarian, Nut allergy, no onion/garlic, gluten sensitive..."
-                      className="w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border border-[#6E0B64]/20 focus:outline-none focus:border-[#6E0B64] font-sans text-xs resize-none"
+                      className="w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border border-[var(--color-plum)]/20 focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs resize-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Medical Details (Optional)</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Medical Details (Optional)</label>
                     <textarea
                       name="medical"
                       value={formData.medical}
                       onChange={handleInputChange}
                       rows={2}
                       placeholder="Injuries, asthma, prescription medications, etc."
-                      className="w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border border-[#6E0B64]/20 focus:outline-none focus:border-[#6E0B64] font-sans text-xs resize-none"
+                      className="w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border border-[var(--color-plum)]/20 focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs resize-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Section: Waiver */}
-              <div className="space-y-3 pt-3 border-t border-[#6E0B64]/10">
+              <div className="space-y-3 pt-3 border-t border-[var(--color-plum)]/10">
                 <div className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
@@ -464,9 +464,9 @@ export default function RegistrationModal({
                     name="acceptWaiver"
                     checked={formData.acceptWaiver}
                     onChange={handleCheckboxChange}
-                    className="mt-0.5 border-[#6E0B64]/20 text-[#6E0B64] rounded focus:ring-[#6E0B64]"
+                    className="mt-0.5 border-[var(--color-plum)]/20 text-[var(--color-plum)] rounded focus:ring-[var(--color-plum)]"
                   />
-                  <label htmlFor="acceptWaiver" className="text-[10px] text-[#1E1D1B]/80 leading-relaxed font-sans font-light">
+                  <label htmlFor="acceptWaiver" className="text-[10px] text-[var(--color-warm-black)]/80 leading-relaxed font-sans font-light">
                     I confirm that all details provided are correct. I agree to Sanga&apos;s code of conduct and safety regulations.
                     {liabilityFormUrl && (
                       <span>
@@ -475,7 +475,7 @@ export default function RegistrationModal({
                           href={liabilityFormUrl} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="underline text-[#6E0B64] font-bold hover:text-[#E65C17]"
+                          className="underline text-[var(--color-plum)] font-bold hover:text-[var(--color-pink)]"
                         >
                           Liability Waiver Terms
                         </a>.
@@ -484,7 +484,7 @@ export default function RegistrationModal({
                   </label>
                 </div>
                 {formErrors.acceptWaiver && (
-                  <p className="text-[9px] text-[#E65C17] font-bold">{formErrors.acceptWaiver}</p>
+                  <p className="text-[9px] text-[var(--color-pink)] font-bold">{formErrors.acceptWaiver}</p>
                 )}
               </div>
 
@@ -492,7 +492,7 @@ export default function RegistrationModal({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black uppercase tracking-widest rounded-2xl shadow-lg transition-all transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 text-xs font-sans"
+                  className="w-full py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase tracking-widest rounded-2xl shadow-lg transition-all transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 text-xs font-sans"
                 >
                   {isPaidEvent ? 'Continue to Secure Payment' : 'Complete Registration'}
                   <ArrowRight className="h-4 w-4" />
@@ -503,49 +503,49 @@ export default function RegistrationModal({
 
           {/* STEP 2: Secure Payment */}
           {step === 'payment' && (
-            <form onSubmit={handleSubmitRegistration} className="space-y-5 text-xs text-[#1E1D1B]">
+            <form onSubmit={handleSubmitRegistration} className="space-y-5 text-xs text-[var(--color-warm-black)]">
               
               {/* Event summary details */}
-              <div className="bg-[#6E0B64]/5 border border-[#6E0B64]/10 p-5 rounded-2xl space-y-3">
+              <div className="bg-[var(--color-plum)]/5 border border-[var(--color-plum)]/10 p-5 rounded-2xl space-y-3">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-bold text-plum/60">Ticket Item:</span>
                   <span className="font-bold text-plum">{eventTitle}</span>
                 </div>
-                <div className="flex justify-between items-center text-xs border-t border-[#6E0B64]/5 pt-2">
+                <div className="flex justify-between items-center text-xs border-t border-[var(--color-plum)]/5 pt-2">
                   <span className="font-bold text-plum/60">Registrant:</span>
                   <span className="font-bold text-plum">{formData.fullName} ({formData.email})</span>
                 </div>
-                <div className="flex justify-between items-center text-sm border-t border-[#6E0B64]/10 pt-2 font-display text-plum font-black">
+                <div className="flex justify-between items-center text-sm border-t border-[var(--color-plum)]/10 pt-2 font-display text-plum font-black">
                   <span>Total Amount Due</span>
-                  <span className="text-[#E65C17] text-lg bg-[#FFEFBF] px-3 py-1 border border-[#6E0B64]/10 rounded-xl">{eventPrice}</span>
+                  <span className="text-[var(--color-pink)] text-lg bg-[var(--color-linen)] px-3 py-1 border border-[var(--color-plum)]/10 rounded-xl">{eventPrice}</span>
                 </div>
               </div>
 
               {/* Mock Payment form */}
               <div className="space-y-4">
-                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#6E0B64] border-b border-[#6E0B64]/5 pb-1">
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[var(--color-plum)] border-b border-[var(--color-plum)]/5 pb-1">
                   Billing Information
                 </h4>
 
                 {/* Cardholder name */}
                 <div className="space-y-1">
-                  <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Cardholder Name</label>
+                  <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Cardholder Name</label>
                   <input
                     type="text"
                     name="cardName"
                     value={paymentData.cardName}
                     onChange={handlePaymentInputChange}
                     placeholder="Name on card"
-                    className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                      paymentErrors.cardName ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                      paymentErrors.cardName ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {paymentErrors.cardName && <p className="text-[9px] text-[#E65C17] font-bold">{paymentErrors.cardName}</p>}
+                  {paymentErrors.cardName && <p className="text-[9px] text-[var(--color-pink)] font-bold">{paymentErrors.cardName}</p>}
                 </div>
 
                 {/* Card number */}
                 <div className="space-y-1">
-                  <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Card Number</label>
+                  <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Card Number</label>
                   <input
                     type="text"
                     name="cardNumber"
@@ -557,17 +557,17 @@ export default function RegistrationModal({
                       if (paymentErrors.cardNumber) setPaymentErrors(prev => ({ ...prev, cardNumber: '' }));
                     }}
                     placeholder="4111 2222 3333 4444"
-                    className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                      paymentErrors.cardNumber ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                      paymentErrors.cardNumber ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {paymentErrors.cardNumber && <p className="text-[9px] text-[#E65C17] font-bold">{paymentErrors.cardNumber}</p>}
+                  {paymentErrors.cardNumber && <p className="text-[9px] text-[var(--color-pink)] font-bold">{paymentErrors.cardNumber}</p>}
                 </div>
 
                 {/* Expiry & CVV */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">Expiration MM/YY</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">Expiration MM/YY</label>
                     <input
                       type="text"
                       name="cardExpiry"
@@ -581,15 +581,15 @@ export default function RegistrationModal({
                         if (paymentErrors.cardExpiry) setPaymentErrors(prev => ({ ...prev, cardExpiry: '' }));
                       }}
                       placeholder="MM/YY"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        paymentErrors.cardExpiry ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        paymentErrors.cardExpiry ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {paymentErrors.cardExpiry && <p className="text-[9px] text-[#E65C17] font-bold">{paymentErrors.cardExpiry}</p>}
+                    {paymentErrors.cardExpiry && <p className="text-[9px] text-[var(--color-pink)] font-bold">{paymentErrors.cardExpiry}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="uppercase tracking-widest font-black text-[9px] text-[#6E0B64]/70">CVC / CVV</label>
+                    <label className="uppercase tracking-widest font-black text-[9px] text-[var(--color-plum)]/70">CVC / CVV</label>
                     <input
                       type="text"
                       name="cardCvv"
@@ -600,17 +600,17 @@ export default function RegistrationModal({
                         if (paymentErrors.cardCvv) setPaymentErrors(prev => ({ ...prev, cardCvv: '' }));
                       }}
                       placeholder="123"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border focus:outline-none focus:border-[#6E0B64] font-sans text-xs ${
-                        paymentErrors.cardCvv ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border focus:outline-none focus:border-[var(--color-plum)] font-sans text-xs ${
+                        paymentErrors.cardCvv ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {paymentErrors.cardCvv && <p className="text-[9px] text-[#E65C17] font-bold">{paymentErrors.cardCvv}</p>}
+                    {paymentErrors.cardCvv && <p className="text-[9px] text-[var(--color-pink)] font-bold">{paymentErrors.cardCvv}</p>}
                   </div>
                 </div>
               </div>
 
               {/* Trust indicator */}
-              <div className="flex items-center justify-center gap-1.5 text-[9px] text-[#1E1D1B]/50 font-light pt-2 font-sans">
+              <div className="flex items-center justify-center gap-1.5 text-[9px] text-[var(--color-warm-black)]/50 font-light pt-2 font-sans">
                 <Lock className="h-3 w-3 text-[#66CC6E]" /> Secure SSL Encrypted checkout simulated.
               </div>
 
@@ -619,14 +619,14 @@ export default function RegistrationModal({
                 <button
                   type="button"
                   onClick={() => setStep('info')}
-                  className="flex-1 py-3.5 border border-[#6E0B64]/20 hover:border-[#6E0B64] text-[#6E0B64] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer bg-[#FFEFBF] flex items-center justify-center gap-2 text-[10px] font-sans"
+                  className="flex-1 py-3.5 border border-[var(--color-plum)]/20 hover:border-[var(--color-plum)] text-[var(--color-plum)] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer bg-[var(--color-linen)] flex items-center justify-center gap-2 text-[10px] font-sans"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Back to Profile
                 </button>
                 
                 <button
                   type="submit"
-                  className="flex-2 py-3.5 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 text-[10px] font-sans"
+                  className="flex-2 py-3.5 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 text-[10px] font-sans"
                 >
                   <CreditCard className="h-3.5 w-3.5" /> Pay & Complete Registration
                 </button>
@@ -636,29 +636,29 @@ export default function RegistrationModal({
 
           {/* STEP 3: Success Screen */}
           {step === 'success' && (
-            <div className="text-center py-6 px-4 space-y-6 text-[#1E1D1B]">
+            <div className="text-center py-6 px-4 space-y-6 text-[var(--color-warm-black)]">
               <div className="w-14 h-14 bg-[#66CC6E]/10 border border-[#66CC6E]/20 rounded-full flex items-center justify-center mx-auto shadow-sm">
                 <CheckCircle2 className="h-8 w-8 text-[#66CC6E]" />
               </div>
 
               <div className="space-y-1 font-sans">
-                <span className="text-[10px] uppercase tracking-widest text-[#E65C17] font-black">
+                <span className="text-[10px] uppercase tracking-widest text-[var(--color-pink)] font-black">
                   Booking Confirmed
                 </span>
-                <h4 className="font-display text-2xl font-black text-[#6E0B64]">
+                <h4 className="font-display text-2xl font-black text-[var(--color-plum)]">
                   You&apos;re Registered!
                 </h4>
-                <p className="text-xs text-[#1E1D1B]/70 font-light max-w-md mx-auto leading-relaxed pt-1">
-                  Thanks, <span className="font-bold text-[#6E0B64]">{formData.fullName}</span>! Your registration and secure payment for <span className="font-bold text-[#6E0B64]">{eventTitle}</span> has been processed successfully.
+                <p className="text-xs text-[var(--color-warm-black)]/70 font-light max-w-md mx-auto leading-relaxed pt-1">
+                  Thanks, <span className="font-bold text-[var(--color-plum)]">{formData.fullName}</span>! Your registration and secure payment for <span className="font-bold text-[var(--color-plum)]">{eventTitle}</span> has been processed successfully.
                 </p>
               </div>
 
               {/* Summary details card */}
-              <div className="bg-[#6E0B64]/5 border border-[#6E0B64]/10 rounded-2xl p-5 max-w-md mx-auto text-left space-y-3">
-                <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-[#6E0B64]">
+              <div className="bg-[var(--color-plum)]/5 border border-[var(--color-plum)]/10 rounded-2xl p-5 max-w-md mx-auto text-left space-y-3">
+                <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-[var(--color-plum)]">
                   Receipt & details
                 </h5>
-                <ul className="space-y-2.5 text-[11px] font-sans font-light text-[#1E1D1B]/85">
+                <ul className="space-y-2.5 text-[11px] font-sans font-light text-[var(--color-warm-black)]/85">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-[#66CC6E] flex-shrink-0 mt-0.5" />
                     <span>Registration ticket saved under your profile.</span>
@@ -680,7 +680,7 @@ export default function RegistrationModal({
               <div className="pt-2 max-w-xs mx-auto font-sans">
                 <button
                   onClick={handleClose}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3.5 border border-[#6E0B64]/20 hover:border-[#6E0B64] text-[#6E0B64] font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer bg-[#FFEFBF] text-center"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3.5 border border-[var(--color-plum)]/20 hover:border-[var(--color-plum)] text-[var(--color-plum)] font-black text-[10px] uppercase tracking-widest rounded-xl transition-all cursor-pointer bg-[var(--color-linen)] text-center"
                 >
                   Close Window
                 </button>
@@ -697,7 +697,7 @@ export default function RegistrationModal({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full text-center px-6 py-4 bg-[#6E0B64] text-[#FFEFBF] hover:bg-[#E65C17] rounded-full font-black text-xs tracking-widest uppercase shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-1.5 active:scale-97 cursor-pointer"
+        className="w-full text-center px-6 py-4 bg-[var(--color-plum)] text-[var(--color-linen)] hover:bg-[var(--color-pink)] rounded-full font-black text-xs tracking-widest uppercase shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-1.5 active:scale-97 cursor-pointer"
       >
         Register for Event
       </button>

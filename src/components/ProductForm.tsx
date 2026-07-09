@@ -54,10 +54,10 @@ export default function ProductForm({ product }: ProductFormProps) {
     <div className="space-y-4">
       {/* Price Tag */}
       <div className="flex items-baseline space-x-2">
-        <span className="text-2xl font-display font-black text-[#6E0B64]">
+        <span className="text-2xl font-display font-black text-[var(--color-plum)]">
           {product.price}
         </span>
-        <span className="text-[10px] text-[#1E1D1B]/50 uppercase tracking-widest font-black">
+        <span className="text-[10px] text-[var(--color-warm-black)]/50 uppercase tracking-widest font-black">
           + Shipping & Taxes
         </span>
       </div>
@@ -87,7 +87,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                   Select Size
                 </label>
                 {errorMsg && (
-                  <span className="text-xs text-[#E65C17] font-bold animate-pulse">
+                  <span className="text-xs text-[var(--color-pink)] font-bold animate-pulse">
                     {errorMsg}
                   </span>
                 )}

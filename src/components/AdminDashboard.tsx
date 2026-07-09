@@ -515,7 +515,7 @@ export default function AdminDashboard() {
   // Render Login state if unauthenticated and Supabase is configured
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#FFEFBF] flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-[var(--color-linen)] flex items-center justify-center font-sans">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-plum border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-plum tracking-wide uppercase">Loading Sanga Portal...</p>
@@ -526,18 +526,18 @@ export default function AdminDashboard() {
 
   if (isSupabaseConfigured && !session) {
     return (
-      <div className="min-h-screen bg-[#FFEFBF] flex items-center justify-center font-sans px-6 relative overflow-hidden">
-        <div className="absolute -left-12 -top-12 w-64 h-64 bg-[#FFA526]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-0 bottom-0 w-80 h-80 bg-[#FF7DB4]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-[var(--color-linen)] flex items-center justify-center font-sans px-6 relative overflow-hidden">
+        <div className="absolute -left-12 -top-12 w-64 h-64 bg-[var(--color-sunshine)]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-0 bottom-0 w-80 h-80 bg-[var(--color-pink)]/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-md w-full bg-[#FFEFBF] p-10 rounded-[2.5rem] border border-plum/15 shadow-2xl flex flex-col space-y-8 relative z-10">
+        <div className="max-w-md w-full bg-[var(--color-linen)] p-10 rounded-[2.5rem] border border-plum/15 shadow-2xl flex flex-col space-y-8 relative z-10">
           <div className="text-center space-y-2">
             <span className="font-display text-4xl font-bold text-plum block tracking-tight">sanga</span>
             <span className="text-[10px] tracking-wider uppercase text-plum/60 font-bold block">Staff & Volunteer Login</span>
           </div>
 
           {authError && (
-            <div className="bg-[#E65C17]/5 border border-[#E65C17]/10 text-[#E65C17] text-xs p-4 rounded-xl flex items-center gap-2">
+            <div className="bg-[var(--color-pink)]/5 border border-[var(--color-pink)]/10 text-[var(--color-pink)] text-xs p-4 rounded-xl flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 flex-shrink-0" /> {authError}
             </div>
           )}
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
+                  className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
                   placeholder="name@example.com"
                 />
               </div>
@@ -564,14 +564,14 @@ export default function AdminDashboard() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
+                  className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
                   placeholder="••••••••"
                 />
               </div>
             </div>
             <button
               type="submit"
-              className="w-full py-4 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold uppercase tracking-wider rounded-full text-xs shadow-md transform hover:-translate-y-0.5 transition-all duration-300"
+              className="w-full py-4 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum font-bold uppercase tracking-wider rounded-full text-xs shadow-md transform hover:-translate-y-0.5 transition-all duration-300"
             >
               Sign In
             </button>
@@ -582,24 +582,24 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFEFBF] flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden font-sans">
+    <div className="min-h-screen bg-[var(--color-linen)] flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden font-sans">
       {/* Toast Alert popup */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-plum text-[#FFEFBF] px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xl flex items-center animate-fadeIn border border-[#FFEFBF]/10">
+        <div className="fixed top-6 right-6 z-50 bg-plum text-[var(--color-linen)] px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xl flex items-center animate-fadeIn border border-[var(--color-linen)]/10">
           <Check className="mr-2 h-4 w-4 text-[#66CC6E]" /> {toastMessage}
         </div>
       )}
 
       {/* Sidebar navigation — desktop only */}
-      <aside className="w-64 bg-plum text-[#FFEFBF] p-8 flex-col justify-between hidden lg:flex border-r border-[#FFEFBF]/5 h-full overflow-y-auto flex-shrink-0">
+      <aside className="w-64 bg-plum text-[var(--color-linen)] p-8 flex-col justify-between hidden lg:flex border-r border-[var(--color-linen)]/5 h-full overflow-y-auto flex-shrink-0">
         <div className="space-y-10">
           <Link href="/" className="space-y-1 block hover:opacity-90 transition-opacity">
             <span className="font-display text-3xl font-bold text-white tracking-tight block">sanga</span>
-            <span className="text-[10px] tracking-wider uppercase text-[#FFA526] block font-bold">Volunteer Admin Portal</span>
+            <span className="text-[10px] tracking-wider uppercase text-[var(--color-sunshine)] block font-bold">Volunteer Admin Portal</span>
           </Link>
 
           {!isSupabaseConfigured && (
-            <div className="bg-[#FFA526]/10 border border-[#FFA526]/20 rounded-2xl p-4 text-[10px] text-[#FFA526] leading-relaxed flex items-start">
+            <div className="bg-[var(--color-sunshine)]/10 border border-[var(--color-sunshine)]/20 rounded-2xl p-4 text-[10px] text-[var(--color-sunshine)] leading-relaxed flex items-start">
               <AlertTriangle className="mr-2 h-4 w-4 flex-shrink-0 mt-0.5" />
               <div>
                 <strong>Local Fallback Mode</strong><br />
@@ -628,8 +628,8 @@ export default function AdminDashboard() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isSelected
-                      ? 'bg-[#FFA526] text-plum font-bold shadow-md'
-                      : 'text-[#FFEFBF]/75 hover:bg-[#FFEFBF]/5 hover:text-white'
+                      ? 'bg-[var(--color-sunshine)] text-plum font-bold shadow-md'
+                      : 'text-[var(--color-linen)]/75 hover:bg-[var(--color-linen)]/5 hover:text-white'
                     }`}
                 >
                   <Icon className="h-4 w-4 flex-shrink-0" />
@@ -642,23 +642,23 @@ export default function AdminDashboard() {
 
         <button
           onClick={handleLogout}
-          className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-[#FFEFBF]/60 hover:text-[#FF7DB4] hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider border-t border-[#FFEFBF]/5 pt-4 cursor-pointer"
+          className="flex items-center space-x-3 px-4 py-3.5 rounded-xl text-[var(--color-linen)]/60 hover:text-[var(--color-pink)] hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider border-t border-[var(--color-linen)]/5 pt-4 cursor-pointer"
         >
           <LogOut className="h-4 w-4" /> <span>Log Out</span>
         </button>
       </aside>
 
       {/* Mobile top bar — visible below lg */}
-      <div className="lg:hidden flex-shrink-0 bg-plum text-[#FFEFBF]">
+      <div className="lg:hidden flex-shrink-0 bg-plum text-[var(--color-linen)]">
         {/* Mobile header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <Link href="/" className="font-display text-2xl font-bold text-white tracking-tight">
             sanga
-            <span className="block text-[9px] tracking-wider uppercase text-[#FFA526] font-bold leading-none">Admin Portal</span>
+            <span className="block text-[9px] tracking-wider uppercase text-[var(--color-sunshine)] font-bold leading-none">Admin Portal</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-[#FFEFBF]/60 hover:text-[#FF7DB4] text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+            className="flex items-center gap-1.5 text-[var(--color-linen)]/60 hover:text-[var(--color-pink)] text-[10px] font-bold uppercase tracking-wider cursor-pointer"
           >
             <LogOut className="h-4 w-4" /> Log Out
           </button>
@@ -685,8 +685,8 @@ export default function AdminDashboard() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all cursor-pointer flex-shrink-0 ${isSelected
-                      ? 'bg-[#FFA526] text-plum'
-                      : 'text-[#FFEFBF]/60 hover:bg-[#FFEFBF]/10 hover:text-white'
+                      ? 'bg-[var(--color-sunshine)] text-plum'
+                      : 'text-[var(--color-linen)]/60 hover:bg-[var(--color-linen)]/10 hover:text-white'
                     }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -717,7 +717,7 @@ export default function AdminDashboard() {
                 { name: 'Feedback Received', count: messages.length, color: 'border-plum/10' },
                 { name: 'Catalog items', count: products.length, color: 'border-plum/10' }
               ].map((metric, i) => (
-                <div key={i} className={`bg-[#FFEFBF] border ${metric.color} rounded-3xl p-6 shadow-md transition-all duration-300 hover:shadow-lg`}>
+                <div key={i} className={`bg-[var(--color-linen)] border ${metric.color} rounded-3xl p-6 shadow-md transition-all duration-300 hover:shadow-lg`}>
                   <span className="text-[10px] font-bold text-plum/60 uppercase tracking-wider block">{metric.name}</span>
                   <span className="text-4xl font-display font-bold text-plum block mt-2">{metric.count}</span>
                 </div>
@@ -727,7 +727,7 @@ export default function AdminDashboard() {
             {/* Quick Actions / Recent elements */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Recent Messages */}
-              <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 shadow-md">
+              <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 shadow-md">
                 <h3 className="font-display text-xl font-bold text-plum mb-6 border-b border-plum/5 pb-3">Recent Feedback</h3>
                 {messages.length > 0 ? (
                   <div className="space-y-4">
@@ -747,7 +747,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Page Settings guide */}
-              <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 shadow-md flex flex-col justify-between">
+              <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 shadow-md flex flex-col justify-between">
                 <div className="space-y-4">
                   <h3 className="font-display text-xl font-bold text-plum border-b border-plum/5 pb-3">Welcome Sanga Coordinator</h3>
                   <p className="text-sm text-warm-black/80 leading-relaxed font-sans font-light">
@@ -755,10 +755,10 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div className="pt-8 flex gap-3 mt-6">
-                  <button onClick={() => setActiveTab('homepage')} className="px-5 py-3 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md transition-all duration-300">
+                  <button onClick={() => setActiveTab('homepage')} className="px-5 py-3 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md transition-all duration-300">
                     Edit Home Folds
                   </button>
-                  <button onClick={() => setActiveTab('gatherings')} className="px-5 py-3 bg-[#FFEFBF] border border-plum text-plum hover:bg-plum/5 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300">
+                  <button onClick={() => setActiveTab('gatherings')} className="px-5 py-3 bg-[var(--color-linen)] border border-plum text-plum hover:bg-plum/5 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300">
                     Manage Retreats
                   </button>
                 </div>
@@ -776,7 +776,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Hero fold editor */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Hero Fold Settings</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -786,7 +786,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.hero_headline}
                     onBlur={(e) => handleSaveSettings('hero', { hero_headline: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] transition-all"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] transition-all"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
@@ -795,7 +795,7 @@ export default function AdminDashboard() {
                     rows={2}
                     defaultValue={siteSettings.hero_subheadline}
                     onBlur={(e) => handleSaveSettings('hero', { hero_subheadline: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] transition-all resize-none"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] transition-all resize-none"
                   />
                 </div>
 
@@ -805,7 +805,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.primary_cta_label}
                     onBlur={(e) => handleSaveSettings('hero', { primary_cta_label: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -814,7 +814,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.primary_cta_url}
                     onBlur={(e) => handleSaveSettings('hero', { primary_cta_url: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
 
@@ -850,7 +850,7 @@ export default function AdminDashboard() {
                               setSlideshowUrls(updated);
                             }}
                             onBlur={() => handleSaveSettings('hero', { hero_slideshow_images: slideshowUrls.filter(Boolean) })}
-                            className="flex-1 px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[#FFA526] transition-all"
+                            className="flex-1 px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[var(--color-sunshine)] transition-all"
                             placeholder="https://images.squarespace-cdn.com/..."
                           />
                           <button
@@ -859,7 +859,7 @@ export default function AdminDashboard() {
                               setSlideshowUrls(updated);
                               handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
                             }}
-                            className="p-2 rounded-xl text-[#E65C17] hover:bg-[#E65C17]/10 transition-all cursor-pointer flex-shrink-0"
+                            className="p-2 rounded-xl text-[var(--color-pink)] hover:bg-[var(--color-pink)]/10 transition-all cursor-pointer flex-shrink-0"
                             title="Remove image"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -881,7 +881,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Video fold editor */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Moments Video Highlights</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -891,7 +891,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.promo_video_url}
                     onBlur={(e) => handleSaveSettings('video', { promo_video_url: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                     placeholder="e.g. https://www.youtube.com/watch?v=bEBlO9HGTvQ"
                   />
                 </div>
@@ -901,7 +901,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.promo_video_cover_url}
                     onBlur={(e) => handleSaveSettings('video', { promo_video_cover_url: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                     placeholder="https://images.squarespace-cdn.com/..."
                   />
                 </div>
@@ -909,7 +909,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Intro fold editor */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">About & Mission Copy</h2>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -918,7 +918,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.intro_headline}
                     onBlur={(e) => handleSaveSettings('intro', { intro_headline: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -927,7 +927,7 @@ export default function AdminDashboard() {
                     rows={5}
                     defaultValue={siteSettings.intro_text}
                     onBlur={(e) => handleSaveSettings('intro', { intro_text: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] resize-none leading-relaxed"
+                    className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] resize-none leading-relaxed"
                   />
                 </div>
               </div>
@@ -963,14 +963,14 @@ export default function AdminDashboard() {
                     featured_on_homepage: false, published: false
                   });
                 }}
-                className="px-6 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+                className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <Plus className="mr-2 h-4.5 w-4.5" /> Add Gathering
               </button>
             </div>
 
             {/* List catalog of events */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
               <div className="overflow-x-auto text-sm">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -987,7 +987,7 @@ export default function AdminDashboard() {
                     {events.map(ev => (
                       <tr key={ev.id} className="hover:bg-plum/5/20 transition-colors">
                         <td className="p-5 font-bold text-plum">{ev.title}</td>
-                        <td className="p-5 text-xs font-semibold uppercase tracking-wider text-[#E65C17]">{ev.category}</td>
+                        <td className="p-5 text-xs font-semibold uppercase tracking-wider text-[var(--color-pink)]">{ev.category}</td>
                         <td className="p-5">
                           <span className="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full bg-plum/5 border border-plum/10 text-plum">
                             {ev.status}
@@ -1017,7 +1017,7 @@ export default function AdminDashboard() {
                           </button>
                           <button
                             onClick={() => handleDeleteEvent(ev.id)}
-                            className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
+                            className="p-2.5 hover:bg-[var(--color-pink)]/10 rounded-xl text-[var(--color-pink)] transition-all border border-[var(--color-pink)]/5"
                             title="Delete Event"
                           >
                             <Trash2 className="h-4.5 w-4.5" />
@@ -1032,14 +1032,14 @@ export default function AdminDashboard() {
 
             {/* Event Form modal overlay */}
             {editingEvent && (
-              <div className="fixed inset-0 z-50 bg-[#1E1D1B]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-                <div className="max-w-4xl w-full bg-[#FFEFBF] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                  <div className="p-6 md:p-8 bg-plum text-[#FFEFBF] flex items-center justify-between border-b border-plum/10">
+              <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+                <div className="max-w-4xl w-full bg-[var(--color-linen)] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                  <div className="p-6 md:p-8 bg-plum text-[var(--color-linen)] flex items-center justify-between border-b border-plum/10">
                     <div className="space-y-1">
                       <h3 className="font-display text-2xl font-bold text-white">{editingEvent.id ? 'Edit Gathering Details' : 'Create New Gathering'}</h3>
-                      <p className="text-xs text-[#FFEFBF]/70 font-light">Set highlights, schedules, FAQs, and organizer bios.</p>
+                      <p className="text-xs text-[var(--color-linen)]/70 font-light">Set highlights, schedules, FAQs, and organizer bios.</p>
                     </div>
-                    <button onClick={() => setEditingEvent(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
+                    <button onClick={() => setEditingEvent(null)} className="text-3xl text-[var(--color-linen)]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
 
                   {/* Modal body scrollable */}
@@ -1055,7 +1055,7 @@ export default function AdminDashboard() {
                             required
                             value={editingEvent.title || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl focus:outline-none"
                             placeholder="e.g. Sanga Summer Summit 2026"
                           />
                         </div>
@@ -1067,7 +1067,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. summer-summit-2026"
                             value={editingEvent.slug || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, slug: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl focus:outline-none font-mono text-xs"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl focus:outline-none font-mono text-xs"
                           />
                         </div>
 
@@ -1076,7 +1076,7 @@ export default function AdminDashboard() {
                           <select
                             value={editingEvent.category || 'retreat'}
                             onChange={(e) => setEditingEvent({ ...editingEvent, category: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           >
                             <option value="retreat">Retreat</option>
                             <option value="camp">Camp</option>
@@ -1092,7 +1092,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. 18-35 or 15+"
                             value={editingEvent.age_range || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, age_range: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           />
                         </div>
                         <div className="space-y-2">
@@ -1100,7 +1100,7 @@ export default function AdminDashboard() {
                           <select
                             value={editingEvent.status || 'draft'}
                             onChange={(e) => setEditingEvent({ ...editingEvent, status: e.target.value as Event['status'] })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           >
                             <option value="draft">Draft</option>
                             <option value="open">Registration Open</option>
@@ -1117,7 +1117,7 @@ export default function AdminDashboard() {
                             type="date"
                             value={editingEvent.start_date || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, start_date: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           />
                         </div>
                         <div className="space-y-2">
@@ -1126,7 +1126,7 @@ export default function AdminDashboard() {
                             type="date"
                             value={editingEvent.end_date || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, end_date: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           />
                         </div>
                         <div className="space-y-2">
@@ -1136,7 +1136,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. $250 or Free"
                             value={editingEvent.price || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, price: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           />
                         </div>
 
@@ -1146,7 +1146,7 @@ export default function AdminDashboard() {
                             type="text"
                             value={editingEvent.location || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                             placeholder="e.g. Shenandoah Meadows, VA"
                           />
                         </div>
@@ -1156,7 +1156,7 @@ export default function AdminDashboard() {
                             type="text"
                             value={editingEvent.short_description || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, short_description: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                             placeholder="A concise, one-sentence description shown in lists and catalogs."
                           />
                         </div>
@@ -1166,7 +1166,7 @@ export default function AdminDashboard() {
                             rows={4}
                             value={editingEvent.long_description || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, long_description: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none resize-none leading-relaxed"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none resize-none leading-relaxed"
                             placeholder="Detailed introductory paragraphs about what makes this retreat special..."
                           />
                         </div>
@@ -1178,7 +1178,7 @@ export default function AdminDashboard() {
                             placeholder="https://..."
                             value={editingEvent.external_checkout_url || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, external_checkout_url: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
                           />
                         </div>
                         <div className="md:col-span-3 space-y-2">
@@ -1187,7 +1187,7 @@ export default function AdminDashboard() {
                             type="text"
                             value={editingEvent.hero_image || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, hero_image: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
                             placeholder="https://images.squarespace-cdn.com/..."
                           />
                         </div>
@@ -1199,7 +1199,7 @@ export default function AdminDashboard() {
                             placeholder="price_..."
                             value={editingEvent.stripe_price_id || ''}
                             onChange={(e) => setEditingEvent({ ...editingEvent, stripe_price_id: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
                           />
                         </div>
                         <div className="flex items-center space-x-6 md:col-span-2 pt-6">
@@ -1239,7 +1239,7 @@ export default function AdminDashboard() {
                           value={newHighlight}
                           onChange={(e) => setNewHighlight(e.target.value)}
                           placeholder="Type a highlight..."
-                          className="flex-grow px-4 py-3 bg-[#FFEFBF] border border-plum/15 focus:border-[#FFA526] rounded-2xl focus:outline-none"
+                          className="flex-grow px-4 py-3 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl focus:outline-none"
                         />
                         <button
                           type="button"
@@ -1249,7 +1249,7 @@ export default function AdminDashboard() {
                             setEditingEvent({ ...editingEvent, highlights: [...cur, newHighlight.trim()] });
                             setNewHighlight('');
                           }}
-                          className="px-5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase rounded-2xl shadow-sm transition-all"
+                          className="px-5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase rounded-2xl shadow-sm transition-all"
                         >
                           Add
                         </button>
@@ -1258,7 +1258,7 @@ export default function AdminDashboard() {
                       {/* Display highlights list */}
                       <div className="flex flex-wrap gap-2 pt-2">
                         {editingEvent.highlights && editingEvent.highlights.map((hl, idx) => (
-                          <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFA526]/25 text-plum rounded-full text-xs font-semibold">
+                          <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-sunshine)]/25 text-plum rounded-full text-xs font-semibold">
                             <span>{hl}</span>
                             <button
                               type="button"
@@ -1266,7 +1266,7 @@ export default function AdminDashboard() {
                                 const cur = editingEvent.highlights || [];
                                 setEditingEvent({ ...editingEvent, highlights: cur.filter((_, i) => i !== idx) });
                               }}
-                              className="text-plum hover:text-[#E65C17] font-black text-sm cursor-pointer ml-1"
+                              className="text-plum hover:text-[var(--color-pink)] font-black text-sm cursor-pointer ml-1"
                             >
                               &times;
                             </button>
@@ -1293,7 +1293,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. 7:30 AM"
                             value={newSchedTime}
                             onChange={(e) => setNewSchedTime(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                            className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                           />
                         </div>
                         <div className="sm:col-span-9">
@@ -1302,7 +1302,7 @@ export default function AdminDashboard() {
                             placeholder="Schedule Event Title (e.g. Morning Kirtan & Reflection)"
                             value={newSchedTitle}
                             onChange={(e) => setNewSchedTitle(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                            className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                           />
                         </div>
                         <div className="sm:col-span-10">
@@ -1311,7 +1311,7 @@ export default function AdminDashboard() {
                             placeholder="Brief description (optional)"
                             value={newSchedDesc}
                             onChange={(e) => setNewSchedDesc(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                            className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                           />
                         </div>
                         <div className="sm:col-span-2">
@@ -1328,7 +1328,7 @@ export default function AdminDashboard() {
                               setNewSchedTitle('');
                               setNewSchedDesc('');
                             }}
-                            className="w-full h-full py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
+                            className="w-full h-full py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
                           >
                             Add
                           </button>
@@ -1338,9 +1338,9 @@ export default function AdminDashboard() {
                       {/* Display schedule list */}
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {editingEvent.schedule && editingEvent.schedule.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-[#FFEFBF] border border-plum/10 rounded-xl">
+                          <div key={idx} className="flex items-center justify-between p-3 bg-[var(--color-linen)] border border-plum/10 rounded-xl">
                             <div className="text-xs">
-                              <span className="font-bold text-[#E65C17] mr-2">[{item.time_label}]</span>
+                              <span className="font-bold text-[var(--color-pink)] mr-2">[{item.time_label}]</span>
                               <span className="font-bold text-plum">{item.title}</span>
                               {item.description && <span className="text-warm-black/60 font-light block mt-0.5">{item.description}</span>}
                             </div>
@@ -1350,7 +1350,7 @@ export default function AdminDashboard() {
                                 const cur = editingEvent.schedule || [];
                                 setEditingEvent({ ...editingEvent, schedule: cur.filter((_, i) => i !== idx) });
                               }}
-                              className="text-xs text-[#E65C17] hover:text-red-700 font-bold px-2 py-1"
+                              className="text-xs text-[var(--color-pink)] hover:text-red-700 font-bold px-2 py-1"
                             >
                               Remove
                             </button>
@@ -1376,14 +1376,14 @@ export default function AdminDashboard() {
                           placeholder="Question (e.g. Is transport provided?)"
                           value={newFaqQuestion}
                           onChange={(e) => setNewFaqQuestion(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                         />
                         <textarea
                           rows={2}
                           placeholder="Answer details..."
                           value={newFaqAnswer}
                           onChange={(e) => setNewFaqAnswer(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs resize-none"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs resize-none"
                         />
                         <div className="flex justify-end">
                           <button
@@ -1398,7 +1398,7 @@ export default function AdminDashboard() {
                               setNewFaqQuestion('');
                               setNewFaqAnswer('');
                             }}
-                            className="px-5 py-2 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
+                            className="px-5 py-2 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
                           >
                             Add FAQ
                           </button>
@@ -1408,7 +1408,7 @@ export default function AdminDashboard() {
                       {/* Display FAQs list */}
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {editingEvent.faqs && editingEvent.faqs.map((faq, idx) => (
-                          <div key={idx} className="p-3 bg-[#FFEFBF] border border-plum/10 rounded-xl space-y-1 relative pr-16">
+                          <div key={idx} className="p-3 bg-[var(--color-linen)] border border-plum/10 rounded-xl space-y-1 relative pr-16">
                             <h5 className="font-bold text-plum text-xs">Q: {faq.question}</h5>
                             <p className="text-xs text-warm-black/70 font-light">A: {faq.answer}</p>
                             <button
@@ -1417,7 +1417,7 @@ export default function AdminDashboard() {
                                 const cur = editingEvent.faqs || [];
                                 setEditingEvent({ ...editingEvent, faqs: cur.filter((_, i) => i !== idx) });
                               }}
-                              className="absolute top-3 right-3 text-xs text-[#E65C17] hover:text-red-700 font-bold px-2 py-1"
+                              className="absolute top-3 right-3 text-xs text-[var(--color-pink)] hover:text-red-700 font-bold px-2 py-1"
                             >
                               Remove
                             </button>
@@ -1443,28 +1443,28 @@ export default function AdminDashboard() {
                           placeholder="Full Name (e.g. Radhika Devi dasi)"
                           value={newPersonName}
                           onChange={(e) => setNewPersonName(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                         />
                         <input
                           type="text"
                           placeholder="Role (e.g. Kirtan Lead & Counselor)"
                           value={newPersonRole}
                           onChange={(e) => setNewPersonRole(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                         />
                         <input
                           type="text"
                           placeholder="Image URL (Squarespace or CDN link)"
                           value={newPersonImage}
                           onChange={(e) => setNewPersonImage(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs md:col-span-2"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs md:col-span-2"
                         />
                         <textarea
                           rows={2}
                           placeholder="Bio details (1-2 sentences about them)..."
                           value={newPersonBio}
                           onChange={(e) => setNewPersonBio(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FFEFBF] border border-plum/15 rounded-xl text-xs md:col-span-2 resize-none"
+                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs md:col-span-2 resize-none"
                         />
                         <div className="md:col-span-2 flex justify-end">
                           <button
@@ -1481,7 +1481,7 @@ export default function AdminDashboard() {
                               setNewPersonBio('');
                               setNewPersonImage('');
                             }}
-                            className="px-5 py-2 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
+                            className="px-5 py-2 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-[10px] font-bold uppercase rounded-xl shadow-sm transition-all"
                           >
                             Add Team Member
                           </button>
@@ -1491,13 +1491,13 @@ export default function AdminDashboard() {
                       {/* Display people list */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-48 overflow-y-auto">
                         {editingEvent.people && editingEvent.people.map((p, idx) => (
-                          <div key={idx} className="flex items-start gap-3 p-3 bg-[#FFEFBF] border border-plum/10 rounded-xl relative pr-14">
+                          <div key={idx} className="flex items-start gap-3 p-3 bg-[var(--color-linen)] border border-plum/10 rounded-xl relative pr-14">
                             <div className="w-10 h-10 rounded-full bg-plum/10 relative overflow-hidden flex-shrink-0">
                               <Image src={p.image_url || '/placeholder.jpg'} alt="" fill className="object-cover" />
                             </div>
                             <div className="text-xs space-y-0.5">
                               <h5 className="font-bold text-plum">{p.name}</h5>
-                              <p className="text-[10px] uppercase tracking-wide text-[#E65C17] font-semibold">{p.role}</p>
+                              <p className="text-[10px] uppercase tracking-wide text-[var(--color-pink)] font-semibold">{p.role}</p>
                               <p className="text-[10px] text-warm-black/65 font-light line-clamp-2">{p.bio}</p>
                             </div>
                             <button
@@ -1506,7 +1506,7 @@ export default function AdminDashboard() {
                                 const cur = editingEvent.people || [];
                                 setEditingEvent({ ...editingEvent, people: cur.filter((_, i) => i !== idx) });
                               }}
-                              className="absolute top-2 right-2 text-xs text-[#E65C17] hover:text-red-700 font-bold px-1.5 py-0.5"
+                              className="absolute top-2 right-2 text-xs text-[var(--color-pink)] hover:text-red-700 font-bold px-1.5 py-0.5"
                             >
                               Remove
                             </button>
@@ -1528,7 +1528,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={handleSaveEvent}
-                      className="px-6 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
+                      className="px-6 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
                     >
                       Save Gathering
                     </button>
@@ -1553,14 +1553,14 @@ export default function AdminDashboard() {
                   image: '', status: 'available', external_checkout_url: '',
                   featured: false, published: true
                 })}
-                className="px-6 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+                className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <Plus className="mr-2 h-4.5 w-4.5" /> Add Product
               </button>
             </div>
 
             {/* List products */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
               <div className="overflow-x-auto text-sm">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -1592,7 +1592,7 @@ export default function AdminDashboard() {
                           </button>
                           <button
                             onClick={() => handleDeleteProduct(pr.id)}
-                            className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
+                            className="p-2.5 hover:bg-[var(--color-pink)]/10 rounded-xl text-[var(--color-pink)] transition-all border border-[var(--color-pink)]/5"
                           >
                             <Trash2 className="h-4.5 w-4.5" />
                           </button>
@@ -1606,11 +1606,11 @@ export default function AdminDashboard() {
 
             {/* Product form modal overlay */}
             {editingProduct && (
-              <div className="fixed inset-0 z-50 bg-[#1E1D1B]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-                <div className="max-w-xl w-full bg-[#FFEFBF] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
-                  <div className="p-6 bg-plum text-[#FFEFBF] flex items-center justify-between border-b border-plum/10">
+              <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
+                <div className="max-w-xl w-full bg-[var(--color-linen)] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
+                  <div className="p-6 bg-plum text-[var(--color-linen)] flex items-center justify-between border-b border-plum/10">
                     <h3 className="font-display text-xl font-bold text-white">{editingProduct.id ? 'Edit Product Details' : 'New Merchandise Product'}</h3>
-                    <button onClick={() => setEditingProduct(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
+                    <button onClick={() => setEditingProduct(null)} className="text-3xl text-[var(--color-linen)]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
 
                   <div className="p-8 space-y-6 text-sm">
@@ -1622,7 +1622,7 @@ export default function AdminDashboard() {
                           required
                           value={editingProduct.product_title || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, product_title: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] transition-all"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] transition-all"
                         />
                       </div>
 
@@ -1635,7 +1635,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. classic-tee"
                             value={editingProduct.slug || ''}
                             onChange={(e) => setEditingProduct({ ...editingProduct, slug: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                           />
                         </div>
                         <div className="space-y-2">
@@ -1645,7 +1645,7 @@ export default function AdminDashboard() {
                             placeholder="e.g. $25"
                             value={editingProduct.price || ''}
                             onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                           />
                         </div>
                       </div>
@@ -1656,7 +1656,7 @@ export default function AdminDashboard() {
                           rows={3}
                           value={editingProduct.description || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] resize-none leading-relaxed"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] resize-none leading-relaxed"
                         />
                       </div>
 
@@ -1667,7 +1667,7 @@ export default function AdminDashboard() {
                           placeholder="Paste <div id='...'></div> <script>...</script> code here..."
                           value={editingProduct.shopify_embed_code || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, shopify_embed_code: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs resize-y leading-relaxed"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs resize-y leading-relaxed"
                         />
                         <p className="text-[10px] text-warm-black/50 italic">Pasting Shopify embed code will render the official button &amp; size picker directly on the product page.</p>
                       </div>
@@ -1679,7 +1679,7 @@ export default function AdminDashboard() {
                           placeholder="https://..."
                           value={editingProduct.external_checkout_url || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, external_checkout_url: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                         />
                       </div>
 
@@ -1689,7 +1689,7 @@ export default function AdminDashboard() {
                           type="text"
                           value={editingProduct.image || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                           placeholder="https://images.squarespace-cdn.com/..."
                         />
                       </div>
@@ -1700,7 +1700,7 @@ export default function AdminDashboard() {
                           <select
                             value={editingProduct.status || 'available'}
                             onChange={(e) => setEditingProduct({ ...editingProduct, status: e.target.value as StoreProduct['status'] })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
                           >
                             <option value="available">Available</option>
                             <option value="unavailable">Unavailable</option>
@@ -1731,7 +1731,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={handleSaveProduct}
-                      className="px-5 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
+                      className="px-5 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum rounded-full font-bold text-xs uppercase tracking-wider shadow-md transition-all duration-300"
                     >
                       Save Product
                     </button>
@@ -1750,7 +1750,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-warm-black/60">Configure the donation checkout links and copy on the support page.</p>
             </div>
 
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Donation Links</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -1759,7 +1759,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.one_time_donation_url}
                     onBlur={(e) => handleSaveSettings('support', { one_time_donation_url: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1768,13 +1768,13 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.monthly_donation_url}
                     onBlur={(e) => handleSaveSettings('support', { monthly_donation_url: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Support Folds Copy</h2>
               <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
@@ -1783,7 +1783,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.support_headline}
                     onBlur={(e) => handleSaveSettings('support', { support_headline: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1792,7 +1792,7 @@ export default function AdminDashboard() {
                     rows={4}
                     defaultValue={siteSettings.support_text}
                     onBlur={(e) => handleSaveSettings('support', { support_text: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[#FFA526] resize-none leading-relaxed"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-sm focus:outline-none focus:border-[var(--color-sunshine)] resize-none leading-relaxed"
                   />
                 </div>
               </div>
@@ -1808,7 +1808,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-warm-black/60">Configure public URLs for community WhatsApp, Instagram, Facebook, and mail endpoints.</p>
             </div>
 
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Social Connections</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div className="md:col-span-2 space-y-2">
@@ -1817,7 +1817,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.whatsapp_url}
                     onBlur={(e) => handleSaveSettings('comms', { whatsapp_url: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1826,7 +1826,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.instagram_url}
                     onBlur={(e) => handleSaveSettings('comms', { instagram_url: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1835,7 +1835,7 @@ export default function AdminDashboard() {
                     type="text"
                     defaultValue={siteSettings.facebook_url}
                     onBlur={(e) => handleSaveSettings('comms', { facebook_url: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -1844,7 +1844,7 @@ export default function AdminDashboard() {
                     type="email"
                     defaultValue={siteSettings.contact_email}
                     onBlur={(e) => handleSaveSettings('comms', { contact_email: e.target.value })}
-                    className="w-full px-4 py-3.5 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                   />
                 </div>
               </div>
@@ -1866,14 +1866,14 @@ export default function AdminDashboard() {
                   external_url: '', uploaded_file_url: '',
                   published: true, sort_order: resources.length + 1
                 })}
-                className="px-6 py-3.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+                className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 <Plus className="mr-2 h-4.5 w-4.5" /> Add Resource
               </button>
             </div>
 
             {/* List resources */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] overflow-hidden shadow-md">
               <div className="overflow-x-auto text-sm font-sans">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -1890,7 +1890,7 @@ export default function AdminDashboard() {
                       <tr key={res.id} className="hover:bg-plum/5/20 transition-colors">
                         <td className="p-5 font-bold text-plum">{res.title}</td>
                         <td className="p-5 font-semibold text-plum">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FFA526]/10 text-plum border border-[#FFA526]/20">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--color-sunshine)]/10 text-plum border border-[var(--color-sunshine)]/20">
                             {res.category || 'General'}
                           </span>
                         </td>
@@ -1909,7 +1909,7 @@ export default function AdminDashboard() {
                               href={res.external_url || res.uploaded_file_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2.5 hover:bg-[#FFA526]/10 rounded-xl text-plum transition-all border border-[#FFA526]/5 flex items-center justify-center"
+                              className="p-2.5 hover:bg-[var(--color-sunshine)]/10 rounded-xl text-plum transition-all border border-[var(--color-sunshine)]/5 flex items-center justify-center"
                               title="View Document"
                             >
                               <ExternalLink className="h-4.5 w-4.5" />
@@ -1924,7 +1924,7 @@ export default function AdminDashboard() {
                           </button>
                           <button
                             onClick={() => handleDeleteResource(res.id)}
-                            className="p-2.5 hover:bg-[#E65C17]/10 rounded-xl text-[#E65C17] transition-all border border-[#E65C17]/5"
+                            className="p-2.5 hover:bg-[var(--color-pink)]/10 rounded-xl text-[var(--color-pink)] transition-all border border-[var(--color-pink)]/5"
                             title="Delete Resource"
                           >
                             <Trash2 className="h-4.5 w-4.5" />
@@ -1939,11 +1939,11 @@ export default function AdminDashboard() {
 
             {/* Resource form modal overlay */}
             {editingResource && (
-              <div className="fixed inset-0 z-50 bg-[#1E1D1B]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 text-warm-black">
-                <div className="max-w-xl w-full bg-[#FFEFBF] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col text-plum">
-                  <div className="p-6 bg-plum text-[#FFEFBF] flex items-center justify-between border-b border-plum/10">
+              <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 text-warm-black">
+                <div className="max-w-xl w-full bg-[var(--color-linen)] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col text-plum">
+                  <div className="p-6 bg-plum text-[var(--color-linen)] flex items-center justify-between border-b border-plum/10">
                     <h3 className="font-display text-xl font-bold text-white">{editingResource.id ? 'Edit Resource Details' : 'New Reading Resource'}</h3>
-                    <button onClick={() => setEditingResource(null)} className="text-3xl text-[#FFEFBF]/75 hover:text-white cursor-pointer">&times;</button>
+                    <button onClick={() => setEditingResource(null)} className="text-3xl text-[var(--color-linen)]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
 
                   <div className="p-8 space-y-6 text-sm overflow-y-auto max-h-[70vh] text-left">
@@ -1956,7 +1956,7 @@ export default function AdminDashboard() {
                           required
                           value={editingResource.title || ''}
                           onChange={(e) => setEditingResource({ ...editingResource, title: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] transition-all"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] transition-all"
                         />
                       </div>
 
@@ -1969,7 +1969,7 @@ export default function AdminDashboard() {
                           placeholder="e.g. Study Guides, Practices"
                           value={editingResource.category || ''}
                           onChange={(e) => setEditingResource({ ...editingResource, category: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                         />
                         {Array.from(new Set(resources.map(r => r.category).filter(Boolean))).length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-1.5 justify-start">
@@ -1980,7 +1980,7 @@ export default function AdminDashboard() {
                                 type="button"
                                 onClick={() => setEditingResource({ ...editingResource, category: cat })}
                                 className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${editingResource.category === cat
-                                    ? 'bg-plum text-[#FFEFBF] border-plum'
+                                    ? 'bg-plum text-[var(--color-linen)] border-plum'
                                     : 'bg-plum/5 text-plum border-plum/10 hover:bg-plum/10'
                                   }`}
                               >
@@ -1999,7 +1999,7 @@ export default function AdminDashboard() {
                           required
                           value={editingResource.description || ''}
                           onChange={(e) => setEditingResource({ ...editingResource, description: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] resize-none leading-relaxed text-warm-black"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] resize-none leading-relaxed text-warm-black"
                         />
                       </div>
 
@@ -2011,7 +2011,7 @@ export default function AdminDashboard() {
                           placeholder="https://docs.google.com/..."
                           value={editingResource.external_url || ''}
                           onChange={(e) => setEditingResource({ ...editingResource, external_url: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                         />
                       </div>
 
@@ -2023,7 +2023,7 @@ export default function AdminDashboard() {
                           placeholder="e.g. /my-guide.pdf"
                           value={editingResource.uploaded_file_url || ''}
                           onChange={(e) => setEditingResource({ ...editingResource, uploaded_file_url: e.target.value })}
-                          className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs"
+                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                         />
                       </div>
 
@@ -2035,7 +2035,7 @@ export default function AdminDashboard() {
                             type="number"
                             value={editingResource.sort_order ?? 0}
                             onChange={(e) => setEditingResource({ ...editingResource, sort_order: parseInt(e.target.value) || 0 })}
-                            className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526]"
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                           />
                         </div>
 
@@ -2046,7 +2046,7 @@ export default function AdminDashboard() {
                             id="published"
                             checked={!!editingResource.published}
                             onChange={(e) => setEditingResource({ ...editingResource, published: e.target.checked })}
-                            className="h-5 w-5 rounded border-plum/15 text-plum focus:ring-[#FFA526]"
+                            className="h-5 w-5 rounded border-plum/15 text-plum focus:ring-[var(--color-sunshine)]"
                           />
                           <label htmlFor="published" className="text-xs font-bold uppercase tracking-wider text-plum/70 cursor-pointer">
                             Published Live
@@ -2065,7 +2065,7 @@ export default function AdminDashboard() {
                     </button>
                     <button
                       onClick={handleSaveResource}
-                      className="px-6 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum font-bold rounded-full text-xs uppercase tracking-wider transition-all shadow cursor-pointer"
+                      className="px-6 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum font-bold rounded-full text-xs uppercase tracking-wider transition-all shadow cursor-pointer"
                     >
                       Save Resource
                     </button>
@@ -2084,7 +2084,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* List of images */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {events.map((ev, i) => (
                   <div key={i} className="flex flex-col border border-plum/10 bg-plum/5 rounded-2xl overflow-hidden p-3 text-xs shadow-sm hover:shadow-md transition-shadow">
@@ -2101,7 +2101,7 @@ export default function AdminDashboard() {
                         document.execCommand('copy');
                         triggerToast('Copied Image Link to clipboard!');
                       }}
-                      className="text-[10px] bg-[#FFEFBF] border border-plum/10 p-2 rounded-xl mt-2 truncate cursor-pointer focus:outline-none font-mono text-plum/70"
+                      className="text-[10px] bg-[var(--color-linen)] border border-plum/10 p-2 rounded-xl mt-2 truncate cursor-pointer focus:outline-none font-mono text-plum/70"
                     />
                   </div>
                 ))}
@@ -2123,8 +2123,8 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setSubTab('mailing')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'mailing'
-                    ? 'bg-plum text-[#FFEFBF] shadow'
-                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                    ? 'bg-plum text-[var(--color-linen)] shadow'
+                    : 'bg-[var(--color-linen)] border border-plum/10 text-plum/70 hover:bg-plum/5'
                   }`}
               >
                 Mailing List ({subscribers.length})
@@ -2132,8 +2132,8 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setSubTab('contact')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'contact'
-                    ? 'bg-plum text-[#FFEFBF] shadow'
-                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                    ? 'bg-plum text-[var(--color-linen)] shadow'
+                    : 'bg-[var(--color-linen)] border border-plum/10 text-plum/70 hover:bg-plum/5'
                   }`}
               >
                 Contact Forms ({messages.length})
@@ -2141,8 +2141,8 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setSubTab('orders')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'orders'
-                    ? 'bg-plum text-[#FFEFBF] shadow'
-                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                    ? 'bg-plum text-[var(--color-linen)] shadow'
+                    : 'bg-[var(--color-linen)] border border-plum/10 text-plum/70 hover:bg-plum/5'
                   }`}
               >
                 Store Orders ({orders.length})
@@ -2150,8 +2150,8 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setSubTab('registrations')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${subTab === 'registrations'
-                    ? 'bg-plum text-[#FFEFBF] shadow'
-                    : 'bg-[#FFEFBF] border border-plum/10 text-plum/70 hover:bg-plum/5'
+                    ? 'bg-plum text-[var(--color-linen)] shadow'
+                    : 'bg-[var(--color-linen)] border border-plum/10 text-plum/70 hover:bg-plum/5'
                   }`}
               >
                 Event Registrants ({registrations.length})
@@ -2168,13 +2168,13 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     onClick={() => exportToCSV('subscribers')}
-                    className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                    className="px-4 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
                   >
                     <Download className="mr-1.5 h-3.5 w-3.5" /> Export (CSV)
                   </button>
                 </div>
 
-                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                <div className="bg-[var(--color-linen)] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
                   {subscribers.length > 0 ? (
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -2209,13 +2209,13 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     onClick={() => exportToCSV('messages')}
-                    className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                    className="px-4 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
                   >
                     <Download className="mr-1.5 h-3.5 w-3.5" /> Export (CSV)
                   </button>
                 </div>
 
-                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                <div className="bg-[var(--color-linen)] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
                   {messages.length > 0 ? (
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -2255,7 +2255,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => exportToCSV('orders')}
-                      className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                      className="px-4 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
                     >
                       <Download className="mr-1.5 h-3.5 w-3.5" /> Export All (CSV)
                     </button>
@@ -2271,14 +2271,14 @@ export default function AdminDashboard() {
                       placeholder="Search by customer, email, or item..."
                       value={orderSearch}
                       onChange={(e) => setOrderSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                      className="w-full pl-9 pr-4 py-2.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
                     />
                   </div>
                   <div>
                     <select
                       value={orderStatusFilter}
                       onChange={(e) => setOrderStatusFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                      className="w-full px-3 py-2.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
                     >
                       <option value="all">All Payment Statuses</option>
                       <option value="paid">Paid</option>
@@ -2290,7 +2290,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                <div className="bg-[var(--color-linen)] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
                   {(() => {
                     const filtered = orders.filter(o => {
                       const searchLower = orderSearch.toLowerCase();
@@ -2331,11 +2331,11 @@ export default function AdminDashboard() {
                               <td className="p-4 max-w-xs truncate">
                                 {ord.items.map(i => `${i.product_title} x${i.quantity} (${i.size})`).join(', ')}
                               </td>
-                              <td className="p-4 font-bold text-[#E65C17]">${ord.total_amount.toFixed(2)}</td>
+                              <td className="p-4 font-bold text-[var(--color-pink)]">${ord.total_amount.toFixed(2)}</td>
                               <td className="p-4">
                                 <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${ord.status === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
                                     ord.status === 'completed' ? 'bg-plum/10 border-plum/20 text-plum' :
-                                      ord.status === 'pending' ? 'bg-[#FFA526]/10 border-[#FFA526]/20 text-[#FFA526]' :
+                                      ord.status === 'pending' ? 'bg-[var(--color-sunshine)]/10 border-[var(--color-sunshine)]/20 text-[var(--color-sunshine)]' :
                                         'bg-red-500/10 border-red-500/20 text-red-500'
                                   }`}>
                                   {ord.status}
@@ -2344,7 +2344,7 @@ export default function AdminDashboard() {
                               <td className="p-4 text-right">
                                 <button
                                   onClick={() => setSelectedOrder(ord)}
-                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[#FFEFBF] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
+                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[var(--color-linen)] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
                                 >
                                   View Detail
                                 </button>
@@ -2372,7 +2372,7 @@ export default function AdminDashboard() {
                   <div>
                     <button
                       onClick={() => exportToCSV('registrations', regEventFilter === 'all' ? undefined : regEventFilter)}
-                      className="px-4 py-2.5 bg-plum hover:bg-[#FFA526] text-[#FFEFBF] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
+                      className="px-4 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
                     >
                       <Download className="mr-1.5 h-3.5 w-3.5" /> Export Filtered (CSV)
                     </button>
@@ -2386,7 +2386,7 @@ export default function AdminDashboard() {
                     <select
                       value={regEventFilter}
                       onChange={(e) => setRegEventFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                      className="w-full px-3 py-2.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
+                      className="w-full px-3 py-2.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs focus:outline-none focus:border-plum font-sans text-plum"
                     >
                       <option value="all">All Events</option>
                       {events.map(ev => (
@@ -2397,7 +2397,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-[#FFEFBF] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
+                <div className="bg-[var(--color-linen)] border border-plum/10 rounded-2xl overflow-hidden shadow-sm text-xs font-sans max-h-[50vh] overflow-y-auto">
                   {(() => {
                     const filtered = registrations.filter(r => regEventFilter === 'all' || r.event_id === regEventFilter);
 
@@ -2428,7 +2428,7 @@ export default function AdminDashboard() {
                               </td>
                               <td className="p-4 max-w-xs truncate">
                                 {reg.dietary_restrictions ? (
-                                  <span className="text-[#E65C17] font-bold text-[10px]" title={reg.dietary_restrictions}>
+                                  <span className="text-[var(--color-pink)] font-bold text-[10px]" title={reg.dietary_restrictions}>
                                     ⚠️ {reg.dietary_restrictions}
                                   </span>
                                 ) : (
@@ -2438,7 +2438,7 @@ export default function AdminDashboard() {
                               <td className="p-4 text-right">
                                 <button
                                   onClick={() => setSelectedRegistration(reg)}
-                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[#FFEFBF] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
+                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[var(--color-linen)] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
                                 >
                                   View Card
                                 </button>
@@ -2465,44 +2465,16 @@ export default function AdminDashboard() {
               <p className="text-sm text-warm-black/60">Configure integrations, payment options, and website themes.</p>
             </div>
 
-            {/* Theme Settings Panel */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
-              <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/15 pb-3">Website Palette Theme</h2>
-              <p className="text-xs text-warm-black/60 -mt-3">Choose one of the curated design color schemes for the live website.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { id: 'default', name: 'Linen & Plum (Rebrand Default)', bg: '#FFEFBF', text: '#1E1D1B', primary: '#6E0B64', secondary: '#FF7DB4', accent: '#FFA526' },
-                  { id: 'berry', name: 'Berry Blast', bg: '#FFEFBF', text: '#1E1D1B', primary: '#BF3078', secondary: '#6E0B64', accent: '#17B2E6' },
-                  { id: 'sunset', name: 'Sunset Gradient', bg: '#FFEFBF', text: '#1E1D1B', primary: '#E65C17', secondary: '#FF7DB4', accent: '#6E0B64' },
-                  { id: 'mint', name: 'Minty Fresh', bg: '#FFEFBF', text: '#1E1D1B', primary: '#66CC6E', secondary: '#17B2E6', accent: '#FFEFBF' },
-                  { id: 'golden', name: 'Golden Hour', bg: '#FFEFBF', text: '#1E1D1B', primary: '#A67F08', secondary: '#FFEFBB', accent: '#8C3123' }
-                ].map((pal) => (
-                  <button
-                    key={pal.id}
-                    onClick={() => handleSaveSettings('theme', { color_palette: pal.id })}
-                    className={`flex flex-col text-left border rounded-2xl p-5 transition-all duration-300 hover:shadow-md cursor-pointer ${(siteSettings.color_palette || 'default') === pal.id
-                        ? 'border-plum bg-plum/5 ring-2 ring-plum shadow-md'
-                        : 'border-plum/15 bg-[#FFEFBF] hover:border-plum/45'
-                      }`}
-                  >
-                    <span className="font-bold text-plum text-sm">{pal.name}</span>
-
-                    {/* Swatch grid */}
-                    <div className="flex items-center space-x-2 mt-4">
-                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.bg }} title="Background" />
-                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.text }} title="Text color" />
-                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.primary }} title="Primary Color" />
-                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.secondary }} title="Secondary Color" />
-                      <div className="w-7 h-7 rounded-full border border-plum/10" style={{ backgroundColor: pal.accent }} title="Accent Color" />
-                    </div>
-                  </button>
-                ))}
-              </div>
+            {/* Theme Settings Info Panel */}
+            <div className="bg-plum/5 border border-plum/10 rounded-[2rem] p-8 space-y-3 shadow-sm">
+              <h2 className="font-display text-2xl font-bold text-plum">Website Palette Theme</h2>
+              <p className="text-xs text-warm-black/75">
+                The Sanga website has been fully unified under the official <strong className="text-pink">Sunset Gradient</strong> brand aesthetic. Curated palette selection is locked to Sunset Gradient.
+              </p>
             </div>
 
             {/* Stripe Settings Panel */}
-            <div className="bg-[#FFEFBF] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/15 pb-3">Stripe Integration Settings</h2>
               <p className="text-xs text-warm-black/60 -mt-3">Configure secure payment checkouts. (Changes apply automatically when keys are entered).</p>
 
@@ -2533,7 +2505,7 @@ export default function AdminDashboard() {
                       value={siteSettings.stripe_publishable_key || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, stripe_publishable_key: e.target.value })}
                       onBlur={(e) => handleSaveSettings('stripe', { stripe_publishable_key: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs text-plum"
+                      className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs text-plum"
                     />
                   </div>
 
@@ -2547,7 +2519,7 @@ export default function AdminDashboard() {
                       value={siteSettings.stripe_secret_key || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, stripe_secret_key: e.target.value })}
                       onBlur={(e) => handleSaveSettings('stripe', { stripe_secret_key: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#FFEFBF] border border-plum/15 rounded-2xl focus:outline-none focus:border-[#FFA526] font-mono text-xs text-plum"
+                      className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs text-plum"
                     />
                   </div>
                 </div>
@@ -2559,11 +2531,11 @@ export default function AdminDashboard() {
         {/* Selected Order Details Popup Modal */}
         {selectedOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div onClick={() => setSelectedOrder(null)} className="fixed inset-0 bg-[#1E1D1B]/60 backdrop-blur-xs" />
-            <div className="relative w-full max-w-lg bg-[#FFEFBF] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
+            <div onClick={() => setSelectedOrder(null)} className="fixed inset-0 bg-[var(--color-warm-black)]/60 backdrop-blur-xs" />
+            <div className="relative w-full max-w-lg bg-[var(--color-linen)] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
               <div className="flex justify-between items-center pb-3 border-b border-plum/10 flex-shrink-0">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#E65C17]">Order Reference</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-pink)]">Order Reference</span>
                   <h4 className="font-display font-black text-lg text-plum leading-tight">{selectedOrder.order_ref}</h4>
                 </div>
                 <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer">
@@ -2581,7 +2553,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Status Manager */}
-                <div className="flex justify-between items-center bg-[#FFA526]/5 border border-[#FFA526]/20 p-4 rounded-2xl">
+                <div className="flex justify-between items-center bg-[var(--color-sunshine)]/5 border border-[var(--color-sunshine)]/20 p-4 rounded-2xl">
                   <div>
                     <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Payment / Delivery Status</h5>
                     <span className="text-[11px] font-bold">Manage transaction state</span>
@@ -2599,7 +2571,7 @@ export default function AdminDashboard() {
                         triggerToast('Failed to update status.');
                       }
                     }}
-                    className="px-3 py-1.5 bg-[#FFEFBF] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
+                    className="px-3 py-1.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
                   >
                     <option value="pending">Pending</option>
                     <option value="paid">Paid</option>
@@ -2620,7 +2592,7 @@ export default function AdminDashboard() {
                         </div>
                         <div className="text-right">
                           <span className="text-[10px] text-warm-black/55 mr-3">x{it.quantity}</span>
-                          <span className="font-bold text-[#E65C17]">{it.price}</span>
+                          <span className="font-bold text-[var(--color-pink)]">{it.price}</span>
                         </div>
                       </div>
                     ))}
@@ -2630,7 +2602,7 @@ export default function AdminDashboard() {
 
               <div className="pt-3 border-t border-plum/10 flex justify-between items-center text-xs flex-shrink-0">
                 <span className="font-display font-bold text-plum">Total Paid</span>
-                <span className="font-display font-black text-sm text-[#E65C17]">${selectedOrder.total_amount.toFixed(2)}</span>
+                <span className="font-display font-black text-sm text-[var(--color-pink)]">${selectedOrder.total_amount.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -2639,11 +2611,11 @@ export default function AdminDashboard() {
         {/* Selected Registration Card Modal */}
         {selectedRegistration && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div onClick={() => setSelectedRegistration(null)} className="fixed inset-0 bg-[#1E1D1B]/60 backdrop-blur-xs" />
-            <div className="relative w-full max-w-lg bg-[#FFEFBF] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
+            <div onClick={() => setSelectedRegistration(null)} className="fixed inset-0 bg-[var(--color-warm-black)]/60 backdrop-blur-xs" />
+            <div className="relative w-full max-w-lg bg-[var(--color-linen)] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
               <div className="flex justify-between items-center pb-3 border-b border-plum/10 flex-shrink-0">
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#E65C17] block">Registrant Card</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-pink)] block">Registrant Card</span>
                   <h4 className="font-display font-black text-lg text-plum leading-tight">{selectedRegistration.full_name}</h4>
                 </div>
                 <button onClick={() => setSelectedRegistration(null)} className="p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer">
@@ -2679,9 +2651,9 @@ export default function AdminDashboard() {
                 </div>
 
                 {selectedRegistration.dietary_restrictions && (
-                  <div className="bg-[#E65C17]/5 p-4 rounded-2xl border border-[#E65C17]/25 space-y-1">
-                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-[#E65C17]">⚠️ Dietary Needs & Allergies</h5>
-                    <p className="text-[11px] font-medium text-[#E65C17]">{selectedRegistration.dietary_restrictions}</p>
+                  <div className="bg-[var(--color-pink)]/5 p-4 rounded-2xl border border-[var(--color-pink)]/25 space-y-1">
+                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-[var(--color-pink)]">⚠️ Dietary Needs & Allergies</h5>
+                    <p className="text-[11px] font-medium text-[var(--color-pink)]">{selectedRegistration.dietary_restrictions}</p>
                   </div>
                 )}
 

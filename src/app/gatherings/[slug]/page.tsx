@@ -60,22 +60,22 @@ export default async function GatheringDetailPage({ params }: PageProps) {
           <span className="inline-block px-4 py-1.5 bg-pink text-warm-black text-[10px] font-black uppercase tracking-widest rounded-full mb-4 shadow-sm select-none">
             {event.category}
           </span>
-          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[#FFEFBF] leading-tight mb-4 select-none drop-shadow-md">
+          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-[var(--color-linen)] leading-tight mb-4 select-none drop-shadow-md">
             {event.title}
           </h1>
           
-          <div className="flex flex-wrap gap-6 text-sm text-[#FFEFBF]/95 font-bold uppercase tracking-wider">
-            <div className="flex items-center bg-[#6E0B64]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[#FFEFBF]/10">
-              <Calendar className="h-4 w-4 mr-2 text-[#FFA526]" />
+          <div className="flex flex-wrap gap-6 text-sm text-[var(--color-linen)]/95 font-bold uppercase tracking-wider">
+            <div className="flex items-center bg-[var(--color-plum)]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-linen)]/10">
+              <Calendar className="h-4 w-4 mr-2 text-[var(--color-sunshine)]" />
               {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </div>
-            <div className="flex items-center bg-[#6E0B64]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[#FFEFBF]/10">
-              <MapPin className="h-4 w-4 mr-2 text-[#FFA526]" />
+            <div className="flex items-center bg-[var(--color-plum)]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-linen)]/10">
+              <MapPin className="h-4 w-4 mr-2 text-[var(--color-sunshine)]" />
               {event.location}
             </div>
             {event.age_range && (
-              <div className="flex items-center bg-[#6E0B64]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[#FFEFBF]/10">
-                <Users className="h-4 w-4 mr-2 text-[#FFA526]" />
+              <div className="flex items-center bg-[var(--color-plum)]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-linen)]/10">
+                <Users className="h-4 w-4 mr-2 text-[var(--color-sunshine)]" />
                 Ages {event.age_range}
               </div>
             )}
@@ -84,7 +84,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
         {/* Decorative Wave bottom overlay */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-12 fill-[#FFEFBF]">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-12 fill-[var(--color-linen)]">
             <path d="M985.66,92.83C906.67,72,823.78,31,741.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A855,855,0,0,1,0,58.38V120H1200V95.83C1132.19,118.92,1055.71,111.31,985.66,92.83Z" />
           </svg>
         </div>
@@ -97,25 +97,25 @@ export default async function GatheringDetailPage({ params }: PageProps) {
         <div className="lg:col-span-8 flex flex-col space-y-12">
           
           {/* Overview */}
-          <section className="bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-8 space-y-4">
-            <h2 className="font-display text-3xl font-black text-[#6E0B64] flex items-center border-b border-[#6E0B64]/5 pb-3">
+          <section className="bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-8 space-y-4">
+            <h2 className="font-display text-3xl font-black text-[var(--color-plum)] flex items-center border-b border-[var(--color-plum)]/5 pb-3">
               About this Experience
             </h2>
-            <p className="text-base sm:text-lg text-[#1E1D1B]/85 leading-relaxed font-sans font-light whitespace-pre-wrap">
+            <p className="text-base sm:text-lg text-[var(--color-warm-black)]/85 leading-relaxed font-sans font-light whitespace-pre-wrap">
               {event.long_description || event.short_description}
             </p>
           </section>
 
           {/* Highlights */}
           {event.highlights && event.highlights.length > 0 && (
-            <section className="bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-8 space-y-6">
-              <h2 className="font-display text-3xl font-black text-[#6E0B64] flex items-center border-b border-[#6E0B64]/5 pb-3">
+            <section className="bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-8 space-y-6">
+              <h2 className="font-display text-3xl font-black text-[var(--color-plum)] flex items-center border-b border-[var(--color-plum)]/5 pb-3">
                 What to Expect
               </h2>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {event.highlights.map((highlight, index) => (
-                  <li key={index} className="flex items-start text-sm text-[#1E1D1B]/80 font-sans font-medium">
-                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FF7DB4]/20 flex items-center justify-center text-[#6E0B64] font-black mr-3 text-xs mt-0.5 border border-[#FF7DB4]/10 shadow-sm">
+                  <li key={index} className="flex items-start text-sm text-[var(--color-warm-black)]/80 font-sans font-medium">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-pink)]/20 flex items-center justify-center text-[var(--color-plum)] font-black mr-3 text-xs mt-0.5 border border-[var(--color-pink)]/10 shadow-sm">
                       ✓
                     </span>
                     <span className="mt-0.5 leading-snug">{highlight}</span>
@@ -127,24 +127,24 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
           {/* Event Schedule */}
           {event.schedule && event.schedule.length > 0 && (
-            <section className="bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-8 space-y-8">
-              <h2 className="font-display text-3xl font-black text-[#6E0B64] flex items-center border-b border-[#6E0B64]/5 pb-3">
+            <section className="bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-8 space-y-8">
+              <h2 className="font-display text-3xl font-black text-[var(--color-plum)] flex items-center border-b border-[var(--color-plum)]/5 pb-3">
                 Daily Schedule
               </h2>
-              <div className="border-l-2 border-[#6E0B64]/15 ml-4 pl-8 space-y-8">
+              <div className="border-l-2 border-[var(--color-plum)]/15 ml-4 pl-8 space-y-8">
                 {event.schedule.map((item, idx) => (
                   <div key={idx} className="relative group">
                     {/* Circle Indicator */}
-                    <span className="absolute -left-[39px] top-1.5 w-4.5 h-4.5 rounded-full bg-[#FFA526] border-2 border-[#FFEFBF] shadow-md group-hover:bg-[#E65C17] transition-colors" />
+                    <span className="absolute -left-[39px] top-1.5 w-4.5 h-4.5 rounded-full bg-[var(--color-sunshine)] border-2 border-[var(--color-linen)] shadow-md group-hover:bg-[var(--color-pink)] transition-colors" />
                     
-                    <span className="text-[10px] font-black text-[#E65C17] uppercase tracking-widest block font-sans">
+                    <span className="text-[10px] font-black text-[var(--color-pink)] uppercase tracking-widest block font-sans">
                       {item.time_label}
                     </span>
-                    <h3 className="font-display text-xl font-bold text-[#6E0B64] mt-1 mb-2">
+                    <h3 className="font-display text-xl font-bold text-[var(--color-plum)] mt-1 mb-2">
                       {item.title}
                     </h3>
                     {item.description && (
-                      <p className="text-sm text-[#1E1D1B]/75 leading-relaxed font-sans font-light">
+                      <p className="text-sm text-[var(--color-warm-black)]/75 leading-relaxed font-sans font-light">
                         {item.description}
                       </p>
                     )}
@@ -156,21 +156,21 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
           {/* Collapsible FAQs */}
           {event.faqs && event.faqs.length > 0 && (
-            <section className="bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-8 space-y-6">
-              <h2 className="font-display text-3xl font-black text-[#6E0B64] flex items-center border-b border-[#6E0B64]/5 pb-3">
+            <section className="bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-8 space-y-6">
+              <h2 className="font-display text-3xl font-black text-[var(--color-plum)] flex items-center border-b border-[var(--color-plum)]/5 pb-3">
                 Frequently Asked Questions
               </h2>
               <div className="space-y-4">
                 {event.faqs.map((faq, index) => (
-                  <details key={index} className="group border-b border-[#6E0B64]/10 pb-4 cursor-pointer">
-                    <summary className="flex items-center justify-between font-display text-lg font-bold text-[#6E0B64] hover:text-[#E65C17] list-none">
+                  <details key={index} className="group border-b border-[var(--color-plum)]/10 pb-4 cursor-pointer">
+                    <summary className="flex items-center justify-between font-display text-lg font-bold text-[var(--color-plum)] hover:text-[var(--color-pink)] list-none">
                       <span className="flex items-center">
-                        <HelpCircle className="mr-3 h-5 w-5 text-[#FF7DB4] flex-shrink-0" />
+                        <HelpCircle className="mr-3 h-5 w-5 text-[var(--color-pink)] flex-shrink-0" />
                         {faq.question}
                       </span>
-                      <span className="text-xl group-open:rotate-45 transition-transform duration-250 text-[#6E0B64]/50">+</span>
+                      <span className="text-xl group-open:rotate-45 transition-transform duration-250 text-[var(--color-plum)]/50">+</span>
                     </summary>
-                    <p className="text-sm text-[#1E1D1B]/80 font-sans leading-relaxed mt-3 pl-8 whitespace-pre-wrap font-light">
+                    <p className="text-sm text-[var(--color-warm-black)]/80 font-sans leading-relaxed mt-3 pl-8 whitespace-pre-wrap font-light">
                       {faq.answer}
                     </p>
                   </details>
@@ -181,14 +181,14 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
           {/* Hosts / Team */}
           {event.people && event.people.length > 0 && (
-            <section className="bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-8 space-y-6">
-              <h2 className="font-display text-3xl font-black text-[#6E0B64] flex items-center border-b border-[#6E0B64]/5 pb-3">
+            <section className="bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-8 space-y-6">
+              <h2 className="font-display text-3xl font-black text-[var(--color-plum)] flex items-center border-b border-[var(--color-plum)]/5 pb-3">
                 Counselors & Organizers
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {event.people.map((person, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 p-4 bg-[#6E0B64]/5 rounded-2xl border border-[#6E0B64]/5">
-                    <div className="w-16 h-16 rounded-full bg-[#6E0B64]/10 flex-shrink-0 overflow-hidden flex items-center justify-center relative border border-[#6E0B64]/10 shadow-sm blob-2">
+                  <div key={index} className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 p-4 bg-[var(--color-plum)]/5 rounded-2xl border border-[var(--color-plum)]/5">
+                    <div className="w-16 h-16 rounded-full bg-[var(--color-plum)]/10 flex-shrink-0 overflow-hidden flex items-center justify-center relative border border-[var(--color-plum)]/10 shadow-sm blob-2">
                       {person.image_url ? (
                         <Image 
                           src={person.image_url} 
@@ -197,18 +197,18 @@ export default async function GatheringDetailPage({ params }: PageProps) {
                           className="object-cover" 
                         />
                       ) : (
-                        <span className="font-display text-xl font-bold text-[#6E0B64]/50 select-none">
+                        <span className="font-display text-xl font-bold text-[var(--color-plum)]/50 select-none">
                           {person.name[0]}
                         </span>
                       )}
                     </div>
                     <div>
-                      <h3 className="font-display text-lg font-bold text-[#6E0B64]">{person.name}</h3>
-                      <span className="text-[10px] uppercase tracking-wider text-[#E65C17] font-black font-sans block mb-1">
+                      <h3 className="font-display text-lg font-bold text-[var(--color-plum)]">{person.name}</h3>
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--color-pink)] font-black font-sans block mb-1">
                         {person.role}
                       </span>
                       {person.bio && (
-                        <p className="text-xs text-[#1E1D1B]/70 leading-relaxed font-sans font-light">{person.bio}</p>
+                        <p className="text-xs text-[var(--color-warm-black)]/70 leading-relaxed font-sans font-light">{person.bio}</p>
                       )}
                     </div>
                   </div>
@@ -218,12 +218,12 @@ export default async function GatheringDetailPage({ params }: PageProps) {
           )}
 
           {/* Scholarship details */}
-          <section className="bg-[#FFA526]/10 rounded-3xl border border-[#FFA526]/25 p-6 flex items-start gap-4 shadow-sm">
-            <AlertCircle className="h-6 w-6 text-[#E65C17] flex-shrink-0 mt-0.5" />
+          <section className="bg-[var(--color-sunshine)]/10 rounded-3xl border border-[var(--color-sunshine)]/25 p-6 flex items-start gap-4 shadow-sm">
+            <AlertCircle className="h-6 w-6 text-[var(--color-pink)] flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-display text-lg font-black text-[#6E0B64]">Accessibility & Scholarships</h3>
-              <p className="text-sm text-[#1E1D1B]/80 font-sans mt-1 leading-relaxed font-light">
-                We want Sanga to be accessible to everyone regardless of financial situation. If you need financial assistance or would like to apply for a scholarship, please contact us at <a href={`mailto:info@sangainitiative.org?subject=Scholarship Inquiry: ${event.title}`} className="underline text-[#6E0B64] font-black hover:text-[#E65C17]">info@sangainitiative.org</a> before registering.
+              <h3 className="font-display text-lg font-black text-[var(--color-plum)]">Accessibility & Scholarships</h3>
+              <p className="text-sm text-[var(--color-warm-black)]/80 font-sans mt-1 leading-relaxed font-light">
+                We want Sanga to be accessible to everyone regardless of financial situation. If you need financial assistance or would like to apply for a scholarship, please contact us at <a href={`mailto:info@sangainitiative.org?subject=Scholarship Inquiry: ${event.title}`} className="underline text-[var(--color-plum)] font-black hover:text-[var(--color-pink)]">info@sangainitiative.org</a> before registering.
               </p>
             </div>
           </section>
@@ -232,33 +232,33 @@ export default async function GatheringDetailPage({ params }: PageProps) {
 
         {/* Right Column: Sticky Action Booking Card */}
         <div className="lg:col-span-4">
-          <div className="sticky top-28 bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/15 shadow-md p-6 flex flex-col space-y-6">
+          <div className="sticky top-28 bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/15 shadow-md p-6 flex flex-col space-y-6">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1D1B]/50 block font-sans">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-warm-black)]/50 block font-sans">
                 Registration Fee
               </span>
-              <div className="text-4xl font-display font-black text-[#6E0B64]">{event.price}</div>
+              <div className="text-4xl font-display font-black text-[var(--color-plum)]">{event.price}</div>
             </div>
 
-            <div className="border-t border-[#6E0B64]/10 pt-4 space-y-4 font-sans text-sm">
+            <div className="border-t border-[var(--color-plum)]/10 pt-4 space-y-4 font-sans text-sm">
               <div>
-                <span className="font-black text-[#1E1D1B]/50 text-[10px] block uppercase tracking-widest mb-1">Date</span>
-                <span className="font-bold text-[#1E1D1B]/80">{new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span className="font-black text-[var(--color-warm-black)]/50 text-[10px] block uppercase tracking-widest mb-1">Date</span>
+                <span className="font-bold text-[var(--color-warm-black)]/80">{new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div>
-                <span className="font-black text-[#1E1D1B]/50 text-[10px] block uppercase tracking-widest mb-1">Location</span>
-                <span className="font-bold text-[#1E1D1B]/80">{event.location}</span>
+                <span className="font-black text-[var(--color-warm-black)]/50 text-[10px] block uppercase tracking-widest mb-1">Location</span>
+                <span className="font-bold text-[var(--color-warm-black)]/80">{event.location}</span>
               </div>
               {event.age_range && (
                 <div>
-                  <span className="font-black text-[#1E1D1B]/50 text-[10px] block uppercase tracking-widest mb-1">Age Limit</span>
-                  <span className="font-bold text-[#1E1D1B]/80">Ages {event.age_range}</span>
+                  <span className="font-black text-[var(--color-warm-black)]/50 text-[10px] block uppercase tracking-widest mb-1">Age Limit</span>
+                  <span className="font-bold text-[var(--color-warm-black)]/80">Ages {event.age_range}</span>
                 </div>
               )}
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col gap-3 pt-4 border-t border-[#6E0B64]/10">
+            <div className="flex flex-col gap-3 pt-4 border-t border-[var(--color-plum)]/10">
               {isOpen && (
                 <RegistrationModal
                   eventId={Number(event.id)}
@@ -272,7 +272,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
               {isComingSoon && (
                 <button
                   disabled
-                  className="w-full text-center px-6 py-4 bg-[#FFA526] text-[#6E0B64] rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed opacity-85 shadow-sm border border-[#E65C17]/10"
+                  className="w-full text-center px-6 py-4 bg-[var(--color-sunshine)] text-[var(--color-plum)] rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed opacity-85 shadow-sm border border-[var(--color-pink)]/10"
                 >
                   Coming Soon
                 </button>
@@ -281,7 +281,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
               {isClosed && (
                 <button
                   disabled
-                  className="w-full text-center px-6 py-4 bg-[#1E1D1B]/10 text-[#1E1D1B]/50 rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed border border-[#1E1D1B]/10"
+                  className="w-full text-center px-6 py-4 bg-[var(--color-warm-black)]/10 text-[var(--color-warm-black)]/50 rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed border border-[var(--color-warm-black)]/10"
                 >
                   Registration Closed
                 </button>
@@ -290,7 +290,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
               {isSoldOut && (
                 <button
                   disabled
-                  className="w-full text-center px-6 py-4 bg-[#E65C17] text-[#FFEFBF] rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed"
+                  className="w-full text-center px-6 py-4 bg-[var(--color-pink)] text-[var(--color-linen)] rounded-full font-black text-xs tracking-widest uppercase cursor-not-allowed"
                 >
                   Sold Out
                 </button>
@@ -301,14 +301,14 @@ export default async function GatheringDetailPage({ params }: PageProps) {
                   href={event.liability_form_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-center text-[#1E1D1B]/60 hover:text-[#6E0B64] hover:underline font-medium mt-2"
+                  className="text-xs text-center text-[var(--color-warm-black)]/60 hover:text-[var(--color-plum)] hover:underline font-medium mt-2"
                 >
                   View Liability Waiver Form
                 </a>
               )}
             </div>
             
-            <p className="text-[10px] text-[#1E1D1B]/50 text-center font-sans leading-normal font-light">
+            <p className="text-[10px] text-[var(--color-warm-black)]/50 text-center font-sans leading-normal font-light">
               By registering, you agree to Sanga&apos;s community rules. Refunds are permitted up to 30 days prior to start date.
             </p>
           </div>

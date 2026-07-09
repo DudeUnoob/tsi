@@ -264,10 +264,10 @@ export default function CartPage() {
               return (
                 <div
                   key={`${item.id}-${item.size}`}
-                  className="flex items-center gap-4 p-4 sm:p-5 bg-[#FFEFBF] rounded-2xl border border-[#6E0B64]/10 shadow-sm relative overflow-hidden group hover:border-[#6E0B64]/20 transition-all duration-200"
+                  className="flex items-center gap-4 p-4 sm:p-5 bg-[var(--color-linen)] rounded-2xl border border-[var(--color-plum)]/10 shadow-sm relative overflow-hidden group hover:border-[var(--color-plum)]/20 transition-all duration-200"
                 >
                   {/* Image Display */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-[#6E0B64]/5 rounded-xl border border-[#6E0B64]/10 overflow-hidden flex-shrink-0">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-[var(--color-plum)]/5 rounded-xl border border-[var(--color-plum)]/10 overflow-hidden flex-shrink-0">
                     {item.image ? (
                       <Image
                         src={item.image}
@@ -276,7 +276,7 @@ export default function CartPage() {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#6E0B64]/20">
+                      <div className="w-full h-full flex items-center justify-center text-[var(--color-plum)]/20">
                         <ShoppingBag className="h-8 w-8" />
                       </div>
                     )}
@@ -285,13 +285,13 @@ export default function CartPage() {
                   {/* Metadata and Adjustments */}
                   <div className="flex-grow flex flex-col sm:flex-row justify-between gap-4">
                     <div className="space-y-1.5">
-                      <h3 className="font-display text-lg font-bold text-[#6E0B64] group-hover:text-[#E65C17] transition-colors leading-tight">
+                      <h3 className="font-display text-lg font-bold text-[var(--color-plum)] group-hover:text-[var(--color-pink)] transition-colors leading-tight">
                         <Link href={`/store/${item.slug}`}>
                           {item.product_title}
                         </Link>
                       </h3>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#1E1D1B]/70">
-                        <span className="font-bold bg-[#6E0B64]/5 px-2 py-0.5 rounded border border-[#6E0B64]/5">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-warm-black)]/70">
+                        <span className="font-bold bg-[var(--color-plum)]/5 px-2 py-0.5 rounded border border-[var(--color-plum)]/5">
                           Size: {item.size}
                         </span>
                         <span>Unit: {item.price}</span>
@@ -300,28 +300,28 @@ export default function CartPage() {
 
                     {/* Quantity Adjustment Row */}
                     <div className="flex items-center gap-6 justify-between sm:justify-end">
-                      <div className="flex items-center bg-[#6E0B64]/5 border border-[#6E0B64]/10 rounded-xl overflow-hidden">
+                      <div className="flex items-center bg-[var(--color-plum)]/5 border border-[var(--color-plum)]/10 rounded-xl overflow-hidden">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                          className="px-2.5 py-1 text-sm font-black text-[#6E0B64] hover:bg-[#6E0B64]/10 cursor-pointer"
+                          className="px-2.5 py-1 text-sm font-black text-[var(--color-plum)] hover:bg-[var(--color-plum)]/10 cursor-pointer"
                         >
                           -
                         </button>
-                        <span className="px-2.5 py-1 font-bold text-xs text-[#6E0B64] w-8 text-center select-none">
+                        <span className="px-2.5 py-1 font-bold text-xs text-[var(--color-plum)] w-8 text-center select-none">
                           {item.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                          className="px-2.5 py-1 text-sm font-black text-[#6E0B64] hover:bg-[#6E0B64]/10 cursor-pointer"
+                          className="px-2.5 py-1 text-sm font-black text-[var(--color-plum)] hover:bg-[var(--color-plum)]/10 cursor-pointer"
                         >
                           +
                         </button>
                       </div>
 
                       {/* Item Total Price */}
-                      <span className="font-display font-black text-[#6E0B64] text-base min-w-[60px] text-right">
+                      <span className="font-display font-black text-[var(--color-plum)] text-base min-w-[60px] text-right">
                         ${itemTotal}
                       </span>
                     </div>
@@ -331,7 +331,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => removeFromCart(item.id, item.size)}
-                    className="absolute top-4 right-4 p-1.5 text-[#1E1D1B]/40 hover:text-[#E65C17] transition-colors cursor-pointer"
+                    className="absolute top-4 right-4 p-1.5 text-[var(--color-warm-black)]/40 hover:text-[var(--color-pink)] transition-colors cursor-pointer"
                     aria-label="Remove item from cart"
                   >
                     <Trash2 className="h-4.5 w-4.5" />
@@ -342,17 +342,17 @@ export default function CartPage() {
           </div>
 
           {/* Right Side: Checkout Form & Totals */}
-          <div className="lg:col-span-5 bg-[#FFEFBF] rounded-3xl border border-[#6E0B64]/10 p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="lg:col-span-5 bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-6 sm:p-8 shadow-sm space-y-6">
             
             {/* Shipping Form */}
             <form onSubmit={handleCheckout} className="space-y-4">
-              <h2 className="font-display text-xl font-bold text-[#6E0B64] border-b border-[#6E0B64]/10 pb-2.5">
+              <h2 className="font-display text-xl font-bold text-[var(--color-plum)] border-b border-[var(--color-plum)]/10 pb-2.5">
                 Shipping Details
               </h2>
 
               {/* Name */}
               <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                   Full Name
                 </label>
                 <input
@@ -361,16 +361,16 @@ export default function CartPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="John Doe"
-                  className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                    errors.name ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                    errors.name ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                   }`}
                 />
-                {errors.name && <p className="text-[10px] text-[#E65C17] font-bold">{errors.name}</p>}
+                {errors.name && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.name}</p>}
               </div>
 
               {/* Email */}
               <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                   Email Address
                 </label>
                 <input
@@ -379,16 +379,16 @@ export default function CartPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="john@example.com"
-                  className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                    errors.email ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                    errors.email ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                   }`}
                 />
-                {errors.email && <p className="text-[10px] text-[#E65C17] font-bold">{errors.email}</p>}
+                {errors.email && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.email}</p>}
               </div>
 
               {/* Address */}
               <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                   Shipping Address
                 </label>
                 <input
@@ -397,17 +397,17 @@ export default function CartPage() {
                   value={formData.address}
                   onChange={handleInputChange}
                   placeholder="123 Bhakti Way"
-                  className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                    errors.address ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                    errors.address ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                   }`}
                 />
-                {errors.address && <p className="text-[10px] text-[#E65C17] font-bold">{errors.address}</p>}
+                {errors.address && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.address}</p>}
               </div>
 
               {/* City, State, Zip grid */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                     City
                   </label>
                   <input
@@ -416,14 +416,14 @@ export default function CartPage() {
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="Gita Town"
-                    className={`w-full px-3.5 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                      errors.city ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                      errors.city ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {errors.city && <p className="text-[9px] text-[#E65C17] font-bold">{errors.city}</p>}
+                  {errors.city && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.city}</p>}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                     State
                   </label>
                   <input
@@ -432,14 +432,14 @@ export default function CartPage() {
                     value={formData.state}
                     onChange={handleInputChange}
                     placeholder="PA"
-                    className={`w-full px-3.5 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                      errors.state ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                      errors.state ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {errors.state && <p className="text-[9px] text-[#E65C17] font-bold">{errors.state}</p>}
+                  {errors.state && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.state}</p>}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                     Zip Code
                   </label>
                   <input
@@ -448,23 +448,23 @@ export default function CartPage() {
                     value={formData.zip}
                     onChange={handleInputChange}
                     placeholder="19525"
-                    className={`w-full px-3.5 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                      errors.zip ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                      errors.zip ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {errors.zip && <p className="text-[9px] text-[#E65C17] font-bold">{errors.zip}</p>}
+                  {errors.zip && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.zip}</p>}
                 </div>
               </div>
 
               {/* Card Information (Mock Fields) */}
-              <div className="space-y-4 pt-4 border-t border-[#6E0B64]/10">
-                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[#6E0B64]">
+              <div className="space-y-4 pt-4 border-t border-[var(--color-plum)]/10">
+                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--color-plum)]">
                   Mock Payment Details
                 </h3>
                 
                 {/* Card Number */}
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                     Card Number
                   </label>
                   <input
@@ -478,17 +478,17 @@ export default function CartPage() {
                       if (errors.cardNumber) setErrors({ ...errors, cardNumber: '' });
                     }}
                     placeholder="4111 2222 3333 4444"
-                    className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                      errors.cardNumber ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                    className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                      errors.cardNumber ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                     }`}
                   />
-                  {errors.cardNumber && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardNumber}</p>}
+                  {errors.cardNumber && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardNumber}</p>}
                 </div>
 
                 {/* Expiry & CVV */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                       Expiration Date
                     </label>
                     <input
@@ -504,14 +504,14 @@ export default function CartPage() {
                         if (errors.cardExpiry) setErrors({ ...errors, cardExpiry: '' });
                       }}
                       placeholder="MM/YY"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                        errors.cardExpiry ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                        errors.cardExpiry ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {errors.cardExpiry && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardExpiry}</p>}
+                    {errors.cardExpiry && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardExpiry}</p>}
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-widest font-black text-[#6E0B64]">
+                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
                       CVC / CVV
                     </label>
                     <input
@@ -524,30 +524,30 @@ export default function CartPage() {
                         if (errors.cardCvv) setErrors({ ...errors, cardCvv: '' });
                       }}
                       placeholder="123"
-                      className={`w-full px-4 py-3 bg-[#FFEFBF] rounded-xl border text-sm focus:outline-none focus:border-[#6E0B64] font-sans ${
-                        errors.cardCvv ? 'border-[#E65C17]' : 'border-[#6E0B64]/20'
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                        errors.cardCvv ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
                       }`}
                     />
-                    {errors.cardCvv && <p className="text-[10px] text-[#E65C17] font-bold">{errors.cardCvv}</p>}
+                    {errors.cardCvv && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardCvv}</p>}
                   </div>
                 </div>
               </div>
 
               {/* Order Calculations */}
-              <div className="pt-6 border-t border-[#6E0B64]/10 space-y-3 font-sans text-sm">
-                <div className="flex justify-between text-[#1E1D1B]/80 font-light">
+              <div className="pt-6 border-t border-[var(--color-plum)]/10 space-y-3 font-sans text-sm">
+                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
                   <span>Subtotal</span>
                   <span className="font-bold">${cartTotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#1E1D1B]/80 font-light">
+                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
                   <span>Shipping</span>
                   <span className="font-bold">${shippingCost.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#1E1D1B]/80 font-light">
+                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
                   <span>Estimated Tax (8%)</span>
                   <span className="font-bold">${estimatedTax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-[#6E0B64] font-display text-lg font-black pt-2 border-t border-[#6E0B64]/5">
+                <div className="flex justify-between text-[var(--color-plum)] font-display text-lg font-black pt-2 border-t border-[var(--color-plum)]/5">
                   <span>Grand Total</span>
                   <span>${grandTotal.toFixed(2)}</span>
                 </div>
@@ -557,7 +557,7 @@ export default function CartPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#6E0B64] hover:bg-[#E65C17] text-[#FFEFBF] font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Lock className="h-4 w-4" /> Place Secure Order
                 </button>
@@ -565,7 +565,7 @@ export default function CartPage() {
             </form>
 
             {/* Payment Trust Badges */}
-            <div className="pt-4 border-t border-[#6E0B64]/10 flex items-center justify-center space-x-2 text-[10px] text-[#1E1D1B]/60 font-sans font-light">
+            <div className="pt-4 border-t border-[var(--color-plum)]/10 flex items-center justify-center space-x-2 text-[10px] text-[var(--color-warm-black)]/60 font-sans font-light">
               <ShieldCheck className="h-4 w-4 text-[#66CC6E]" />
               <span>SSL Encrypted Checkout Processing</span>
             </div>
