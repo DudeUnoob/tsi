@@ -3,7 +3,7 @@ import { Fredoka, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getSiteSettings } from "@/lib/supabase";
+import { getSiteSettings } from "@/lib/firebase";
 import { THEME_PALETTES } from "@/lib/mockData";
 import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";

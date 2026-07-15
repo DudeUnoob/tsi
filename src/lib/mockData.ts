@@ -738,53 +738,5 @@ export const mockStoreProducts: StoreProduct[] = [
 </script>`,
     featured: true,
     published: true
-  },
-  {
-    id: 2,
-    product_title: "Sanga Classic Knit Beanie",
-    slug: "sanga-beanie",
-    description: "Soft, warm rib-knit beanie with embroidered brand lettering. Available in multiple autumn rebrand colors.",
-    image: "/merch-beanie.png",
-    price: "$20",
-    status: "available",
-    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
-    featured: true,
-    published: true
-  },
-  {
-    id: 3,
-    product_title: "Sanga Bhakti Tote Bag",
-    slug: "sanga-tote",
-    description: "Heavy-duty canvas tote bag featuring motivational quotes. Large enough to carry your books, japa beads, and daily travel essentials.",
-    image: "/merch-tote.png",
-    price: "$15",
-    status: "available",
-    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
-    featured: true,
-    published: true
-  },
-  {
-    id: 4,
-    product_title: "Sanga Plum Classic Tee",
-    slug: "sanga-plum-tshirt",
-    description: "Classic premium heavy-weight cotton t-shirt in our brand Plum purple, featuring the signature 'sanga' logo in vibrant Sunshine Yellow. Durable, soft, and built to last.",
-    image: "/merch-plum-tshirt.png",
-    price: "$28",
-    status: "available",
-    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
-    featured: true,
-    published: true
-  },
-  {
-    id: 5,
-    product_title: "Sanga Linen Logo Tee",
-    slug: "sanga-linen-tshirt",
-    description: "Comfortable light-weight organic cotton t-shirt in Linen off-white, featuring the minimalist 'sanga' brand name printed in deep Plum purple.",
-    image: "/merch-linen-tshirt.png",
-    price: "$28",
-    status: "available",
-    external_checkout_url: "https://sanga-initiative.squarespace.com/donate",
-    featured: true,
-    published: true
   }
 ];

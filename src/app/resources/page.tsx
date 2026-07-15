@@ -1,5 +1,5 @@
 import React from 'react';
-import { getResources } from '@/lib/supabase';
+import { getResources } from '@/lib/firebase';
 import { FileText, ExternalLink, Download, BookOpen, Sparkles } from 'lucide-react';
 
 export const revalidate = 0;

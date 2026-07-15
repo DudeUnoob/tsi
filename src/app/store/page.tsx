@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProducts } from '@/lib/supabase';
+import { getProducts } from '@/lib/firebase';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
 export const revalidate = 0;

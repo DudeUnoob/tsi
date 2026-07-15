@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSiteSettings } from '@/lib/supabase';
+import { getSiteSettings } from '@/lib/firebase';
 import { MessageCircle, MapPin, Sparkles, Heart, Compass, Users, Globe } from 'lucide-react';
 
 export const revalidate = 0;

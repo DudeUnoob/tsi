@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { getSiteSettings } from '@/lib/supabase';
+import { getSiteSettings, getProductInventory } from '@/lib/firebase';
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +8,19 @@ export async function POST(request: Request) {
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'No items in cart' }, { status: 400 });
+    }
+
+    // Validate inventory stock level before processing checkout
+    for (const item of items) {
+      const invList = await getProductInventory(item.id);
+      const sizeInv = invList.find(i => i.size.toUpperCase() === item.size.toUpperCase());
+      const stock = sizeInv ? sizeInv.stock : 0;
+      if (item.quantity > stock) {
+        return NextResponse.json(
+          { error: `Sorry, only ${stock} units of ${item.product_title} (${item.size}) are left in stock.` },
+          { status: 400 }
+        );
+      }
     }
 
     // Retrieve secret keys (from env or Supabase site settings)

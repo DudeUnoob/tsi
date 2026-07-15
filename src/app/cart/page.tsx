@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Lock, Loader2 } from 'lucide-react';
-import { createOrder } from '@/lib/supabase';
+import { createOrder } from '@/lib/firebase';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();

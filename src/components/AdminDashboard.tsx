@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { isSupabaseConfigured, supabase, getSiteSettings, getEvents, getProducts, getResources, getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, updateOrderStatus } from '@/lib/supabase';
+import { 
+  isFirebaseConfigured as isSupabaseConfigured, getSiteSettings, getEvents, getProducts, getResources, 
+  getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, 
+  updateOrderStatus, getProductInventory, saveProductInventory, saveEvent, deleteEvent, saveProduct, 
+  deleteProduct, saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers, 
+  getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange 
+} from '@/lib/firebase';
 import {
   mockSiteSettings, mockEvents, mockResources, mockStoreProducts,
   SiteSettings, Event, StoreProduct, Resource
@@ -12,7 +18,7 @@ import {
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
   Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X
 } from 'lucide-react';
-import { Session } from '@supabase/supabase-js';
+type Session = any;
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -56,6 +62,7 @@ export default function AdminDashboard() {
     !isSupabaseConfigured ? getLocalMessages() : []
   );
   const [orders, setOrders] = useState<Order[]>([]);
+  const [allInventories, setAllInventories] = useState<Record<number, any[]>>({});
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [subTab, setSubTab] = useState<'mailing' | 'contact' | 'orders' | 'registrations'>('mailing');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -66,10 +73,47 @@ export default function AdminDashboard() {
 
   const [toastMessage, setToastMessage] = useState('');
 
+  // Helper to count how many items were sold for a product & size
+  const getSoldQuantity = (productId: number, size: string): number => {
+    let count = 0;
+    orders.forEach(o => {
+      if (o.status === 'paid' || o.status === 'completed') {
+        o.items?.forEach(item => {
+          if (item.id === productId && item.size?.toUpperCase() === size.toUpperCase()) {
+            count += item.quantity || 0;
+          }
+        });
+      }
+    });
+    return count;
+  };
+
   // Form edit states (for Gatherings, Store, and Resources edit modals)
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<StoreProduct> | null>(null);
   const [editingResource, setEditingResource] = useState<Partial<Resource> | null>(null);
+  const [editingInventory, setEditingInventory] = useState<{ size: string; stock: number }[]>([]);
+
+  useEffect(() => {
+    if (editingProduct && editingProduct.id) {
+      getProductInventory(editingProduct.id).then(data => {
+        const defaultSizes = ['S', 'M', 'L', 'XL', 'OS'];
+        const list = defaultSizes.map(size => {
+          const found = data.find(item => item.size.toUpperCase() === size.toUpperCase());
+          return { size, stock: found ? found.stock : 0 };
+        });
+        setEditingInventory(list);
+      });
+    } else if (editingProduct) {
+      setEditingInventory([
+        { size: 'S', stock: 0 },
+        { size: 'M', stock: 0 },
+        { size: 'L', stock: 0 },
+        { size: 'XL', stock: 0 },
+        { size: 'OS', stock: 0 }
+      ]);
+    }
+  }, [editingProduct]);
 
   // New subcomponent editor states
   const [newHighlight, setNewHighlight] = useState('');
@@ -86,22 +130,19 @@ export default function AdminDashboard() {
   const [newPersonBio, setNewPersonBio] = useState('');
   const [newPersonImage, setNewPersonImage] = useState('');
 
-  // Supabase Auth listener
+  // Firebase Auth listener
   useEffect(() => {
     if (!isSupabaseConfigured) {
+      setAuthLoading(false);
       return;
     }
 
-    supabase!.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const unsubscribe = onAdminAuthStateChange((user) => {
+      setSession(user);
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase!.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   // Fetch data lists from database
@@ -111,23 +152,32 @@ export default function AdminDashboard() {
       setSiteSettings(s);
       setSlideshowUrls(s.hero_slideshow_images ?? ['', '', '']);
 
-      const e = await getEvents();
+      const e = await getEvents({ all: true });
       setEvents(e);
 
-      const p = await getProducts();
+      const p = await getProducts({ all: true });
       setProducts(p);
+
+      const invs: Record<number, any[]> = {};
+      for (const pr of p) {
+        if (pr.id) {
+          const inv = await getProductInventory(pr.id);
+          invs[pr.id] = inv;
+        }
+      }
+      setAllInventories(invs);
 
       const r = await getResources({ publishedOnly: false });
       setResources(r);
 
       if (isSupabaseConfigured) {
         // Fetch newsletter subscribers
-        const { data: subs } = await supabase!.from('newsletter_subscribers').select('*').order('subscribed_at', { ascending: false });
-        if (subs) setSubscribers(subs);
+        const subs = await getNewsletterSubscribers();
+        setSubscribers(subs);
 
         // Fetch contact messages
-        const { data: msgs } = await supabase!.from('contact_messages').select('*').order('submitted_at', { ascending: false });
-        if (msgs) setMessages(msgs);
+        const msgs = await getContactMessages();
+        setMessages(msgs);
 
         // Fetch orders
         const ords = await getOrders();
@@ -154,24 +204,30 @@ export default function AdminDashboard() {
   }, [authLoading, session]);
 
   // Auth handles
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setAuthError('');
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) {
+      setSession({ email: 'mock-admin@example.com' });
+      return;
+    }
 
     try {
-      const { data, error } = await supabase!.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      setSession(data.session);
+      setAuthLoading(true);
+      const res = await loginAdmin();
+      setAuthLoading(false);
+      if (!res.success) throw new Error(res.message);
+      setSession(res.session);
     } catch (err) {
+      setAuthLoading(false);
       const error = err as Error;
-      setAuthError(error.message || 'Login failed. Please verify credentials.');
+      setAuthError(error.message || 'Google Sign-In failed.');
     }
   };
 
   const handleLogout = async () => {
     if (isSupabaseConfigured) {
-      await supabase!.auth.signOut();
+      await logoutAdmin();
     }
     setSession(null);
   };
@@ -200,12 +256,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      // settings are stored key-by-key in settings table
-      for (const [key, val] of Object.entries(updatedSettings)) {
-        await supabase!
-          .from('site_settings')
-          .upsert({ key, value: val }, { onConflict: 'key' });
-      }
+      await saveSiteSettings(updatedSettings);
       triggerToast('Settings updated successfully!');
       router.refresh();
     } catch (err) {
@@ -240,73 +291,11 @@ export default function AdminDashboard() {
     }
 
     try {
-      let savedId = finalEvent.id;
-
-      const payload = {
-        title: finalEvent.title,
-        slug: finalEvent.slug,
-        category: finalEvent.category,
-        age_range: finalEvent.age_range,
-        start_date: finalEvent.start_date,
-        end_date: finalEvent.end_date,
-        location: finalEvent.location,
-        price: finalEvent.price,
-        status: finalEvent.status,
-        short_description: finalEvent.short_description,
-        long_description: finalEvent.long_description,
-        registration_url: finalEvent.registration_url,
-        payment_url: finalEvent.payment_url,
-        external_checkout_url: finalEvent.external_checkout_url,
-        liability_form_url: finalEvent.liability_form_url,
-        application_url: finalEvent.application_url,
-        scholarship_contact_url: finalEvent.scholarship_contact_url,
-        hero_image: finalEvent.hero_image,
-        featured_on_homepage: finalEvent.featured_on_homepage,
-        published: finalEvent.published,
-        seo_title: finalEvent.seo_title,
-        seo_description: finalEvent.seo_description,
-        stripe_price_id: finalEvent.stripe_price_id,
-        stripe_product_id: finalEvent.stripe_product_id
-      };
-
-      if (isNew) {
-        const { data, error } = await supabase!.from('events').insert([payload]).select().single();
-        if (error) throw error;
-        savedId = data.id;
-      } else {
-        const { error } = await supabase!.from('events').update(payload).eq('id', finalEvent.id);
-        if (error) throw error;
-      }
-
-      // Re-insert subcomponents
-      if (savedId) {
-        // Clear sub-tables
-        await supabase!.from('event_highlights').delete().eq('event_id', savedId);
-        await supabase!.from('event_schedule_items').delete().eq('event_id', savedId);
-        await supabase!.from('event_faqs').delete().eq('event_id', savedId);
-        await supabase!.from('event_people').delete().eq('event_id', savedId);
-
-        // Insert new sub-items
-        if (finalEvent.highlights && finalEvent.highlights.length > 0) {
-          const highlightsPayload = finalEvent.highlights.map(h => ({ event_id: savedId, highlight: h }));
-          await supabase!.from('event_highlights').insert(highlightsPayload);
-        }
-        if (finalEvent.schedule && finalEvent.schedule.length > 0) {
-          const schedulePayload = finalEvent.schedule.map(s => ({ ...s, event_id: savedId }));
-          await supabase!.from('event_schedule_items').insert(schedulePayload);
-        }
-        if (finalEvent.faqs && finalEvent.faqs.length > 0) {
-          const faqsPayload = finalEvent.faqs.map(f => ({ ...f, event_id: savedId }));
-          await supabase!.from('event_faqs').insert(faqsPayload);
-        }
-        if (finalEvent.people && finalEvent.people.length > 0) {
-          const peoplePayload = finalEvent.people.map(p => ({ ...p, event_id: savedId }));
-          await supabase!.from('event_people').insert(peoplePayload);
-        }
-      }
+      const res = await saveEvent(finalEvent);
+      if (!res.success) throw new Error(res.message);
 
       // Reload
-      const e = await getEvents();
+      const e = await getEvents({ all: true });
       setEvents(e);
       setEditingEvent(null);
       triggerToast('Gathering updated successfully!');
@@ -326,7 +315,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await supabase!.from('events').delete().eq('id', id);
+      await deleteEvent(id);
       setEvents(events.filter(e => e.id !== id));
       triggerToast('Gathering deleted successfully.');
     } catch {
@@ -341,14 +330,20 @@ export default function AdminDashboard() {
     const isNew = !editingProduct.id;
 
     if (!isSupabaseConfigured) {
+      let savedId = editingProduct.id;
       if (isNew) {
-        const newPr = { ...(editingProduct as StoreProduct), id: products.length + 1 };
+        const nextId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        const newPr = { ...(editingProduct as StoreProduct), id: nextId };
         setProducts([...products, newPr]);
+        savedId = nextId;
       } else {
         setProducts(products.map(pr => pr.id === editingProduct.id ? (editingProduct as StoreProduct) : pr));
       }
+      if (savedId) {
+        await saveProductInventory(savedId, editingInventory);
+      }
       setEditingProduct(null);
-      triggerToast('Local Mode: Product mock-saved!');
+      triggerToast('Local Mode: Product and inventory mock-saved!');
       return;
     }
 
@@ -369,17 +364,28 @@ export default function AdminDashboard() {
         published: editingProduct.published
       };
 
-      if (isNew) {
-        await supabase!.from('store_products').insert([payload]);
-      } else {
-        await supabase!.from('store_products').update(payload).eq('id', editingProduct.id);
+      const res = await saveProduct({ ...payload, id: editingProduct.id });
+      if (!res.success) throw new Error(res.message);
+      const savedId = res.product?.id;
+
+      if (savedId) {
+        await saveProductInventory(savedId, editingInventory);
       }
 
-      const p = await getProducts();
+      const p = await getProducts({ all: true });
       setProducts(p);
+      const invs: Record<number, any[]> = {};
+      for (const pr of p) {
+        if (pr.id) {
+          const inv = await getProductInventory(pr.id);
+          invs[pr.id] = inv;
+        }
+      }
+      setAllInventories(invs);
       setEditingProduct(null);
-      triggerToast('Store product updated!');
-    } catch {
+      triggerToast('Store product and inventory updated!');
+    } catch (err) {
+      console.error(err);
       triggerToast('Error saving product.');
     }
   };
@@ -394,7 +400,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await supabase!.from('store_products').delete().eq('id', id);
+      await deleteProduct(id);
       setProducts(products.filter(p => p.id !== id));
       triggerToast('Product deleted.');
     } catch {
@@ -431,11 +437,8 @@ export default function AdminDashboard() {
         sort_order: editingResource.sort_order ?? 0
       };
 
-      if (isNew) {
-        await supabase!.from('resources').insert([payload]);
-      } else {
-        await supabase!.from('resources').update(payload).eq('id', editingResource.id);
-      }
+      const res = await saveResource({ ...payload, id: editingResource.id });
+      if (!res.success) throw new Error(res.message);
 
       const r = await getResources({ publishedOnly: false });
       setResources(r);
@@ -457,7 +460,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await supabase!.from('resources').delete().eq('id', id);
+      await deleteResource(id);
       setResources(resources.filter(r => r.id !== id));
       triggerToast('Resource deleted.');
     } catch {
@@ -542,40 +545,23 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5 text-sm">
-            <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Email Address</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
-                  placeholder="name@example.com"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Password</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-5 py-3.5 bg-[var(--color-linen)] border border-plum/15 focus:border-[var(--color-sunshine)] rounded-2xl text-plum placeholder-plum/30 focus:outline-none transition-all duration-200"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
+          <div className="space-y-4">
             <button
-              type="submit"
-              className="w-full py-4 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum font-bold uppercase tracking-wider rounded-full text-xs shadow-md transform hover:-translate-y-0.5 transition-all duration-300"
+              onClick={() => handleLogin()}
+              className="w-full py-4 bg-white border border-plum/15 hover:border-[var(--color-sunshine)] text-plum hover:bg-[var(--color-sunshine)]/5 font-bold uppercase tracking-wider rounded-full text-xs shadow-md transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
             >
-              Sign In
+              <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+              </svg>
+              <span>Sign In with Google</span>
             </button>
-          </form>
+            <p className="text-[10px] text-warm-black/50 text-center leading-relaxed mt-4">
+              Access is restricted to authorized Sanga Initiative administrators.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -1569,6 +1555,7 @@ export default function AdminDashboard() {
                       <th className="p-5">Price</th>
                       <th className="p-5">Status</th>
                       <th className="p-5">Featured</th>
+                      <th className="p-5">Sizing Stock (Sold / Left)</th>
                       <th className="p-5 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -1583,6 +1570,26 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td className="p-5 text-xs font-bold text-plum">{pr.featured ? 'Yes' : 'No'}</td>
+                        <td className="p-5">
+                          <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                            {['S', 'M', 'L', 'XL', 'OS'].map(size => {
+                              const productInvs = allInventories[pr.id] || [];
+                              const match = productInvs.find(inv => inv.size.toUpperCase() === size.toUpperCase());
+                              const left = match ? match.stock : 0;
+                              const sold = getSoldQuantity(pr.id, size);
+                              
+                              if (size === 'OS' && left === 0 && sold === 0) return null;
+                              const hasOsOnly = productInvs.some(inv => inv.size.toUpperCase() === 'OS' && inv.stock > 0);
+                              if (hasOsOnly && ['S', 'M', 'L', 'XL'].includes(size)) return null;
+
+                              return (
+                                <span key={size} className="px-2 py-1 bg-plum/5 border border-plum/10 rounded-lg text-[11px] text-plum">
+                                  <strong className="text-plum">{size}:</strong> {sold} sold / <span className={left === 0 ? 'text-[var(--color-pink)] font-black' : 'text-plum'}>{left} left</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </td>
                         <td className="p-5 text-right flex justify-end space-x-3">
                           <button
                             onClick={() => setEditingProduct({ ...pr })}
@@ -1718,6 +1725,61 @@ export default function AdminDashboard() {
                             <span>Featured Product</span>
                           </label>
                         </div>
+                      </div>
+
+                      {/* Stripe Settings Config */}
+                      <div className="grid grid-cols-2 gap-4 border-t border-plum/10 pt-4">
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Price ID</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. price_1P..."
+                            value={editingProduct.stripe_price_id || ''}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, stripe_price_id: e.target.value })}
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Product ID</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. prod_1P..."
+                            value={editingProduct.stripe_product_id || ''}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, stripe_product_id: e.target.value })}
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Size-based Inventory Manager */}
+                      <div className="space-y-3 border-t border-plum/10 pt-4">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Size Inventory Stock Levels</label>
+                        <div className="grid grid-cols-5 gap-3">
+                          {editingInventory.map((item, index) => (
+                            <div key={item.size} className="bg-plum/5 border border-plum/10 rounded-2xl p-3 text-center flex flex-col items-center justify-between space-y-1.5">
+                              <span className="block text-xs font-black text-plum uppercase">{item.size}</span>
+                              <div className="text-[10px] text-warm-black/60">
+                                Sold: <strong>{editingProduct && editingProduct.id ? getSoldQuantity(editingProduct.id, item.size) : 0}</strong>
+                              </div>
+                              <div className="w-full">
+                                <label className="block text-[8px] font-bold text-plum/50 uppercase mb-0.5">Left</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={item.stock}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, parseInt(e.target.value) || 0);
+                                    const updated = [...editingInventory];
+                                    updated[index] = { size: item.size, stock: val };
+                                    setEditingInventory(updated);
+                                  }}
+                                  className="w-full text-center py-1 bg-[var(--color-linen)] border border-plum/15 rounded-lg focus:outline-none focus:border-[var(--color-sunshine)] text-xs font-semibold text-plum"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-[9px] text-warm-black/50 italic">Set stock for OS (One Size) for beanies/totes, and S/M/L/XL for hoodies/t-shirts.</p>
                       </div>
                     </div>
                   </div>

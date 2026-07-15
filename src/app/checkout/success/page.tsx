@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, ShoppingBag, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { updateOrderStatus } from '@/lib/supabase';
+import { updateOrderStatus } from '@/lib/firebase';
 
 interface OrderSummary {
   name: string;

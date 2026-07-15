@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { submitContactForm } from '@/lib/supabase';
+import { submitContactForm } from '@/lib/firebase';
 import { Loader2, CheckCircle2, AlertTriangle, Send } from 'lucide-react';
 
 const contactSchema = z.object({

@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getEventBySlug } from '@/lib/supabase';
+import { getEventBySlug } from '@/lib/firebase';
 import { Calendar, MapPin, Users, AlertCircle, HelpCircle, ArrowLeft, ArrowUpRight, Award, ShieldAlert } from 'lucide-react';
 import RegistrationModal from '@/components/RegistrationModal';
 

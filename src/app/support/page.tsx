@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSiteSettings } from '@/lib/supabase';
+import { getSiteSettings } from '@/lib/firebase';
 import { Heart, ShieldCheck, DollarSign, Calendar, ArrowUpRight } from 'lucide-react';
 
 export const revalidate = 0;

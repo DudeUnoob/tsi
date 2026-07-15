@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProducts } from '@/lib/supabase';
+import { getProducts } from '@/lib/firebase';
 import ProductForm from '@/components/ProductForm';
 import { ArrowLeft, Tag } from 'lucide-react';
 
