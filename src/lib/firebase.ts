@@ -141,6 +141,25 @@ export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
 export const storage = app ? getStorage(app) : null;
 
+function sanitizeObject(obj: any): any {
+  if (obj === null || obj === undefined) return null;
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeObject);
+  }
+  if (typeof obj === 'object') {
+    const clean: any = {};
+    for (const [key, val] of Object.entries(obj)) {
+      if (val === undefined) {
+        clean[key] = null;
+      } else {
+        clean[key] = sanitizeObject(val);
+      }
+    }
+    return clean;
+  }
+  return obj;
+}
+
 const defaultSiteSettings: SiteSettings = {
   hero_headline: "Connecting Young Adults to Ancient Bhakti Wisdom",
   hero_subheadline: "Sanga Initiative hosts residential retreats, kirtan gatherings, and spiritual education camps designed for seekers aged 18 to 35.",
@@ -713,7 +732,7 @@ export async function saveEvent(event: Partial<Event> & { id?: number }): Promis
       savedId = Date.now();
     }
     const docRef = doc(db!, 'events', String(savedId));
-    const payload = { ...event, id: savedId };
+    const payload = sanitizeObject({ ...event, id: savedId });
     await setDoc(docRef, payload);
     return { success: true, event: payload as Event };
   } catch (e) {
@@ -770,7 +789,7 @@ export async function saveProduct(product: Partial<StoreProduct> & { id?: number
       savedId = Date.now();
     }
     const docRef = doc(db!, 'store_products', String(savedId));
-    const payload = { ...product, id: savedId };
+    const payload = sanitizeObject({ ...product, id: savedId });
     await setDoc(docRef, payload);
     return { success: true, product: payload as StoreProduct };
   } catch (e) {
@@ -827,7 +846,7 @@ export async function saveResource(resource: Partial<Resource> & { id?: number }
       savedId = Date.now();
     }
     const docRef = doc(db!, 'resources', String(savedId));
-    const payload = { ...resource, id: savedId };
+    const payload = sanitizeObject({ ...resource, id: savedId });
     await setDoc(docRef, payload);
     return { success: true, resource: payload as Resource };
   } catch (e) {
@@ -864,7 +883,8 @@ export async function saveSiteSettings(updatedSettings: Partial<SiteSettings>): 
   }
   try {
     const batch = writeBatch(db!);
-    for (const [key, val] of Object.entries(updatedSettings)) {
+    const cleanSettings = sanitizeObject(updatedSettings);
+    for (const [key, val] of Object.entries(cleanSettings)) {
       const docRef = doc(db!, 'site_settings', key);
       batch.set(docRef, { value: val }, { merge: true });
     }
