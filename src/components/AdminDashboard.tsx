@@ -419,7 +419,7 @@ export default function AdminDashboard() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      triggerToast('Error saving settings.');
+      triggerToast(`Error saving settings: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -459,7 +459,7 @@ export default function AdminDashboard() {
       triggerToast('Gathering updated successfully!');
     } catch (err) {
       console.error(err);
-      triggerToast('Error saving gathering.');
+      triggerToast(`Error saving gathering: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -544,7 +544,7 @@ export default function AdminDashboard() {
       triggerToast('Store product and inventory updated!');
     } catch (err) {
       console.error(err);
-      triggerToast('Error saving product.');
+      triggerToast(`Error saving product: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -602,9 +602,9 @@ export default function AdminDashboard() {
       setResources(r);
       setEditingResource(null);
       triggerToast('Resource updated successfully!');
-    } catch (e) {
-      console.error(e);
-      triggerToast('Error saving resource.');
+    } catch (err) {
+      console.error(err);
+      triggerToast(`Error saving resource: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
