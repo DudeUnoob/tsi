@@ -1613,14 +1613,14 @@ export default function AdminDashboard() {
 
             {/* Product form modal overlay */}
             {editingProduct && (
-              <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-                <div className="max-w-xl w-full bg-[var(--color-linen)] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
+              <div className="fixed inset-0 z-50 bg-[var(--color-warm-black)]/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+                <div className="max-w-xl w-full bg-[var(--color-linen)] border border-plum/15 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                   <div className="p-6 bg-plum text-[var(--color-linen)] flex items-center justify-between border-b border-plum/10">
                     <h3 className="font-display text-xl font-bold text-white">{editingProduct.id ? 'Edit Product Details' : 'New Merchandise Product'}</h3>
                     <button onClick={() => setEditingProduct(null)} className="text-3xl text-[var(--color-linen)]/75 hover:text-white cursor-pointer">&times;</button>
                   </div>
 
-                  <div className="p-8 space-y-6 text-sm">
+                  <div className="p-8 space-y-6 text-sm overflow-y-auto">
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Product Title</label>
