@@ -168,5 +168,6 @@ export interface SiteSettings {
   hero_image_url?: string;
   promo_video_cover_url?: string;
   hero_slideshow_images?: string[];
+  hero_slideshow_labels?: string[];
   hero_slideshow_hidden?: boolean;
 }

@@ -75,6 +75,7 @@ export default function AdminDashboard() {
   // Loaded site states
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
   const [slideshowUrls, setSlideshowUrls] = useState<string[]>(['', '', '']);
+  const [slideshowLabels, setSlideshowLabels] = useState<string[]>(['', '', '']);
   const [events, setEvents] = useState<Event[]>([]);
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
@@ -174,6 +175,7 @@ export default function AdminDashboard() {
       const s = await getSiteSettings();
       setSiteSettings(s);
       setSlideshowUrls(s.hero_slideshow_images ?? ['', '', '']);
+      setSlideshowLabels(s.hero_slideshow_labels ?? ['', '', '']);
 
       const e = await getEvents({ all: true });
       setEvents(e);
@@ -988,9 +990,14 @@ export default function AdminDashboard() {
                             <span className="text-[10px] font-black text-plum uppercase tracking-wider">Slideshow Image {i + 1}</span>
                             <button
                               onClick={() => {
-                                const updated = slideshowUrls.filter((_, idx) => idx !== i);
-                                setSlideshowUrls(updated);
-                                handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
+                                const updatedUrls = slideshowUrls.filter((_, idx) => idx !== i);
+                                const updatedLabels = slideshowLabels.filter((_, idx) => idx !== i);
+                                setSlideshowUrls(updatedUrls);
+                                setSlideshowLabels(updatedLabels);
+                                handleSaveSettings('hero', { 
+                                  hero_slideshow_images: updatedUrls.filter(Boolean),
+                                  hero_slideshow_labels: updatedLabels
+                                });
                               }}
                               className="p-1.5 rounded-lg text-[var(--color-pink)] hover:bg-[var(--color-pink)]/10 transition-all cursor-pointer"
                               title="Remove image"
@@ -998,23 +1005,48 @@ export default function AdminDashboard() {
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
-                          <ImageUploader
-                            label=""
-                            value={url}
-                            onChange={(newUrl) => {
-                              const updated = [...slideshowUrls];
-                              updated[i] = newUrl;
-                              setSlideshowUrls(updated);
-                              handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
-                            }}
-                            folder="homepage/slideshow"
-                          />
+                          
+                          <div className="space-y-2">
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-plum/60">Image Upload</label>
+                            <ImageUploader
+                              label=""
+                              value={url}
+                              onChange={(newUrl) => {
+                                const updated = [...slideshowUrls];
+                                updated[i] = newUrl;
+                                setSlideshowUrls(updated);
+                                handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
+                              }}
+                              folder="homepage/slideshow"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="block text-[10px] font-bold uppercase tracking-wider text-plum/60">Caption Label</label>
+                            <input
+                              type="text"
+                              value={slideshowLabels[i] ?? ''}
+                              onChange={(e) => {
+                                const updated = [...slideshowLabels];
+                                updated[i] = e.target.value;
+                                setSlideshowLabels(updated);
+                              }}
+                              onBlur={() => {
+                                handleSaveSettings('hero', { hero_slideshow_labels: slideshowLabels });
+                              }}
+                              placeholder="Caption label (e.g. Summer Camp '26)"
+                              className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs focus:outline-none focus:border-[var(--color-sunshine)] font-sans"
+                            />
+                          </div>
                         </div>
                       ))}
 
                       {/* Add image button */}
                       <button
-                        onClick={() => setSlideshowUrls([...slideshowUrls, ''])}
+                        onClick={() => {
+                          setSlideshowUrls([...slideshowUrls, '']);
+                          setSlideshowLabels([...slideshowLabels, '']);
+                        }}
                         className="flex items-center gap-2 text-xs font-bold text-plum/60 hover:text-plum uppercase tracking-wider transition-all cursor-pointer px-4 py-2.5 border border-dashed border-plum/20 hover:border-plum/40 rounded-2xl w-full justify-center"
                       >
                         <Plus className="h-3.5 w-3.5" /> Add Image

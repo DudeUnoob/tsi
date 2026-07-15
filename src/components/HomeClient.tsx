@@ -36,7 +36,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   const heroImages = (settings.hero_slideshow_images && settings.hero_slideshow_images.filter(Boolean).length > 0)
     ? settings.hero_slideshow_images.filter(Boolean).map((src, i) => ({
         src,
-        label: DEFAULT_HERO_IMAGES[i]?.label ?? `Photo ${i + 1}`
+        label: (settings.hero_slideshow_labels?.[i] || DEFAULT_HERO_IMAGES[i]?.label) || `Photo ${i + 1}`
       }))
     : DEFAULT_HERO_IMAGES;
 
