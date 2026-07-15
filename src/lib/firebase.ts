@@ -181,6 +181,7 @@ const defaultSiteSettings: SiteSettings = {
   monthly_donation_url: "",
   color_palette: "default",
   hero_slideshow_images: [],
+  hero_slideshow_labels: [],
   hero_slideshow_hidden: false
 };
 
