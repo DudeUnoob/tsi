@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar, X } from 'lucide-react';
-import { SiteSettings, Event } from '@/lib/mockData';
+import { SiteSettings, Event } from '@/lib/types';
 import { useTheme } from '@/context/ThemeContext';
 
 interface HomeClientProps {

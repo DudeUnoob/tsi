@@ -9,9 +9,8 @@ import {
   getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange, uploadFile, deleteFile 
 } from '@/lib/firebase';
 import {
-  mockSiteSettings, mockEvents, mockResources, mockStoreProducts,
   SiteSettings, Event, StoreProduct, Resource
-} from '@/lib/mockData';
+} from '@/lib/types';
 import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
   MessageCircle, FileText, Image as ImageIcon, LogOut,
@@ -49,12 +48,36 @@ export default function AdminDashboard() {
   // Active Tab
   const [activeTab, setActiveTab] = useState<'overview' | 'homepage' | 'gatherings' | 'store' | 'support' | 'community' | 'resources' | 'media' | 'submissions' | 'settings'>('overview');
 
+  const defaultSiteSettings: SiteSettings = {
+    hero_headline: "Connecting Young Adults to Ancient Bhakti Wisdom",
+    hero_subheadline: "Sanga Initiative hosts residential retreats, kirtan gatherings, and spiritual education camps designed for seekers aged 18 to 35.",
+    primary_cta_label: "Join a Gathering",
+    primary_cta_url: "/gatherings",
+    secondary_cta_label: "See Details",
+    secondary_cta_url: "#details",
+    intro_headline: "Connecting Vaishnava Youth",
+    intro_text: "",
+    community_headline: "",
+    community_text: "",
+    support_headline: "Support Sanga",
+    support_text: "",
+    whatsapp_url: "",
+    instagram_url: "",
+    facebook_url: "",
+    contact_email: "",
+    one_time_donation_url: "",
+    monthly_donation_url: "",
+    color_palette: "default",
+    hero_slideshow_images: [],
+    hero_slideshow_hidden: false
+  };
+
   // Loaded site states
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(mockSiteSettings);
-  const [slideshowUrls, setSlideshowUrls] = useState<string[]>(mockSiteSettings.hero_slideshow_images ?? ['', '', '']);
-  const [events, setEvents] = useState<Event[]>(mockEvents);
-  const [products, setProducts] = useState<StoreProduct[]>(mockStoreProducts);
-  const [resources, setResources] = useState<Resource[]>(mockResources);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
+  const [slideshowUrls, setSlideshowUrls] = useState<string[]>(['', '', '']);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [products, setProducts] = useState<StoreProduct[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>(() =>
     !isSupabaseConfigured ? getLocalSubscribers() : []
   );

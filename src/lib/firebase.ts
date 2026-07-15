@@ -11,9 +11,8 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
 } from 'firebase/storage';
 import { 
-  mockSiteSettings, mockEvents, mockResources, mockStoreProducts, 
   SiteSettings, Event, StoreProduct, Resource
-} from './mockData';
+} from './types';
 export type { SiteSettings, Event, StoreProduct, Resource };
 
 export interface Order {
@@ -142,6 +141,30 @@ export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
 export const storage = app ? getStorage(app) : null;
 
+const defaultSiteSettings: SiteSettings = {
+  hero_headline: "Connecting Young Adults to Ancient Bhakti Wisdom",
+  hero_subheadline: "Sanga Initiative hosts residential retreats, kirtan gatherings, and spiritual education camps designed for seekers aged 18 to 35.",
+  primary_cta_label: "Join a Gathering",
+  primary_cta_url: "/gatherings",
+  secondary_cta_label: "See Details",
+  secondary_cta_url: "#details",
+  intro_headline: "Connecting Vaishnava Youth",
+  intro_text: "",
+  community_headline: "",
+  community_text: "",
+  support_headline: "Support Sanga",
+  support_text: "",
+  whatsapp_url: "",
+  instagram_url: "",
+  facebook_url: "",
+  contact_email: "",
+  one_time_donation_url: "",
+  monthly_donation_url: "",
+  color_palette: "default",
+  hero_slideshow_images: [],
+  hero_slideshow_hidden: false
+};
+
 // Helper: Safe LocalStorage operations
 function getLocalStorageItem(key: string): string | null {
   if (typeof window === 'undefined') return null;
@@ -191,12 +214,12 @@ const defaultMockInventory: ProductInventory[] = [
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   if (!isFirebaseConfigured) {
-    return mockSiteSettings;
+    return defaultSiteSettings;
   }
   try {
     const colRef = collection(db!, 'site_settings');
     const snap = await getDocs(colRef);
-    const settings = { ...mockSiteSettings };
+    const settings = { ...defaultSiteSettings };
     snap.forEach(docSnap => {
       const key = docSnap.id;
       const val = docSnap.data().value;
@@ -207,13 +230,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     return settings;
   } catch (e) {
     console.error("Firebase getSiteSettings error:", e);
-    return mockSiteSettings;
+    return defaultSiteSettings;
   }
 }
 
 export async function getEvents(options?: { featuredOnly?: boolean; all?: boolean }): Promise<Event[]> {
   if (!isFirebaseConfigured) {
-    let list = [...mockEvents];
+    let list: Event[] = [];
     const stored = getLocalStorageItem('sanga_mock_events');
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
@@ -242,7 +265,7 @@ export async function getEvents(options?: { featuredOnly?: boolean; all?: boolea
     return list;
   } catch (e) {
     console.error("Firebase getEvents error:", e);
-    return mockEvents;
+    return [];
   }
 }
 
@@ -257,7 +280,7 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
 
 export async function getProducts(options?: { featuredOnly?: boolean; all?: boolean }): Promise<StoreProduct[]> {
   if (!isFirebaseConfigured) {
-    let products = [...mockStoreProducts];
+    let products: StoreProduct[] = [];
     const stored = getLocalStorageItem('sanga_mock_products');
     if (stored) {
       try { products = JSON.parse(stored); } catch {}
@@ -286,13 +309,13 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
     return list;
   } catch (e) {
     console.error("Firebase getProducts error:", e);
-    return mockStoreProducts;
+    return [];
   }
 }
 
 export async function getResources(options?: { publishedOnly?: boolean }): Promise<Resource[]> {
   if (!isFirebaseConfigured) {
-    let list = [...mockResources];
+    let list: Resource[] = [];
     const stored = getLocalStorageItem('sanga_mock_resources');
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
@@ -315,7 +338,7 @@ export async function getResources(options?: { publishedOnly?: boolean }): Promi
     return list;
   } catch (e) {
     console.error("Firebase getResources error:", e);
-    return mockResources;
+    return [];
   }
 }
 
@@ -488,10 +511,9 @@ export async function getEventRegistrations(eventId?: number): Promise<EventRegi
       setLocalStorageItem('sanga_mock_registrations', JSON.stringify(defaultMockRegistrations));
     }
     const listWithTitles = list.map(reg => {
-      const ev = mockEvents.find(e => e.id === reg.event_id);
       return {
         ...reg,
-        event_title: ev ? ev.title : `Event #${reg.event_id}`
+        event_title: `Event #${reg.event_id}`
       };
     });
     if (eventId) {
@@ -668,7 +690,7 @@ export async function decrementProductInventory(productId: number, size: string,
 export async function saveEvent(event: Partial<Event> & { id?: number }): Promise<{ success: boolean; event?: Event; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_events');
-    let list = mockEvents;
+    let list: Event[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
@@ -704,7 +726,7 @@ export async function saveEvent(event: Partial<Event> & { id?: number }): Promis
 export async function deleteEvent(id: number): Promise<{ success: boolean; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_events');
-    let list = mockEvents;
+    let list: Event[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
@@ -714,7 +736,6 @@ export async function deleteEvent(id: number): Promise<{ success: boolean; messa
   }
   try {
     await deleteDoc(doc(db!, 'events', String(id)));
-    // Also clear highlights/schedule/faqs/people if stored separately, but they are nested arrays now!
     return { success: true };
   } catch (e) {
     const err = e as Error;
@@ -726,7 +747,7 @@ export async function deleteEvent(id: number): Promise<{ success: boolean; messa
 export async function saveProduct(product: Partial<StoreProduct> & { id?: number }): Promise<{ success: boolean; product?: StoreProduct; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_products');
-    let list = mockStoreProducts;
+    let list: StoreProduct[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
@@ -762,7 +783,7 @@ export async function saveProduct(product: Partial<StoreProduct> & { id?: number
 export async function deleteProduct(id: number): Promise<{ success: boolean; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_products');
-    let list = mockStoreProducts;
+    let list: StoreProduct[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
@@ -783,7 +804,7 @@ export async function deleteProduct(id: number): Promise<{ success: boolean; mes
 export async function saveResource(resource: Partial<Resource> & { id?: number }): Promise<{ success: boolean; resource?: Resource; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_resources');
-    let list = mockResources;
+    let list: Resource[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
@@ -819,7 +840,7 @@ export async function saveResource(resource: Partial<Resource> & { id?: number }
 export async function deleteResource(id: number): Promise<{ success: boolean; message?: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_resources');
-    let list = mockResources;
+    let list: Resource[] = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }

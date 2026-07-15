@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { THEME_PALETTES, ThemePalette } from '@/lib/mockData';
+import { THEME_PALETTES, ThemePalette } from '@/lib/types';
 
 interface ThemeContextType {
   currentPaletteKey: string;

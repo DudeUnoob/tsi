@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, MapPin, Users, ArrowRight, ChevronLeft, ChevronRight, Grid, List } from 'lucide-react';
-import { Event } from '@/lib/mockData';
+import { Event } from '@/lib/types';
 
 interface GatheringsCatalogProps {
   events: Event[];

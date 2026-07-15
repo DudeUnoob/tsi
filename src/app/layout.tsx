@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/firebase";
-import { THEME_PALETTES } from "@/lib/mockData";
+import { THEME_PALETTES } from "@/lib/types";
 import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
