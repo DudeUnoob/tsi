@@ -180,6 +180,12 @@ const defaultSiteSettings: SiteSettings = {
   one_time_donation_url: "",
   monthly_donation_url: "",
   color_palette: "default",
+  stripe_publishable_key: "",
+  stripe_secret_key: "",
+  stripe_checkout_enabled: false,
+  promo_video_url: "",
+  hero_image_url: "",
+  promo_video_cover_url: "",
   hero_slideshow_images: [],
   hero_slideshow_labels: [],
   hero_slideshow_hidden: false
