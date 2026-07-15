@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   isFirebaseConfigured as isSupabaseConfigured, getSiteSettings, getEvents, getProducts, getResources, 
   getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, 
   updateOrderStatus, getProductInventory, saveProductInventory, saveEvent, deleteEvent, saveProduct, 
   deleteProduct, saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers, 
-  getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange 
+  getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange, uploadFile, deleteFile 
 } from '@/lib/firebase';
 import {
   mockSiteSettings, mockEvents, mockResources, mockStoreProducts,
@@ -16,7 +16,7 @@ import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
   MessageCircle, FileText, Image as ImageIcon, LogOut,
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
-  Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X
+  Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X, Upload
 } from 'lucide-react';
 type Session = any;
 import Image from 'next/image';
@@ -236,6 +236,141 @@ export default function AdminDashboard() {
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  // Reusable Image Uploader component
+  const ImageUploader = ({
+    label,
+    value,
+    onChange,
+    folder = 'general'
+  }: {
+    label: string;
+    value: string;
+    onChange: (url: string) => void;
+    folder?: string;
+  }) => {
+    const [uploading, setUploading] = useState(false);
+    const [showUrlInput, setShowUrlInput] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      try {
+        setUploading(true);
+        const res = await uploadFile(folder, file);
+        setUploading(false);
+        if (res.success && res.url) {
+          onChange(res.url);
+          triggerToast('Image uploaded successfully!');
+        } else {
+          alert(res.message || 'Failed to upload image.');
+        }
+      } catch (err) {
+        setUploading(false);
+        console.error(err);
+        alert('An error occurred during upload.');
+      }
+    };
+
+    const handleDelete = async () => {
+      if (!value) return;
+      if (!confirm('Are you sure you want to delete this image?')) return;
+      
+      try {
+        setUploading(true);
+        await deleteFile(value);
+        setUploading(false);
+        onChange('');
+        triggerToast('Image deleted!');
+      } catch (err) {
+        setUploading(false);
+        console.error(err);
+        triggerToast('Error deleting image.');
+      }
+    };
+
+    return (
+      <div className="space-y-2 text-left">
+        {label && <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">{label}</label>}
+        
+        {value ? (
+          <div className="relative group rounded-2xl overflow-hidden border border-plum/15 bg-plum/5 p-2 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img src={value} alt="Preview" className="w-16 h-16 object-cover rounded-xl border border-plum/10 shadow-sm" />
+              <div className="space-y-1 overflow-hidden">
+                <span className="text-[10px] text-plum/60 font-semibold block truncate max-w-[200px]">{value.split('/').pop()}</span>
+                <span className="text-[8px] font-mono text-warm-black/40 block truncate max-w-[200px]">{value}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 bg-white hover:bg-[var(--color-sunshine)] text-plum hover:text-plum border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
+                title="Change Image"
+              >
+                <Upload className="h-4.5 w-4.5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="p-2 bg-white hover:bg-[var(--color-pink)] hover:text-white text-[var(--color-pink)] border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
+                title="Delete Image"
+              >
+                <Trash2 className="h-4.5 w-4.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-plum/15 hover:border-[var(--color-sunshine)] bg-plum/5/20 hover:bg-plum/5 transition-all rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-2 group"
+          >
+            {uploading ? (
+              <div className="w-6 h-6 border-2 border-plum border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Upload className="h-6 w-6 text-plum/40 group-hover:text-plum transition-colors" />
+            )}
+            <span className="text-xs font-semibold text-plum/60 group-hover:text-plum transition-colors">
+              {uploading ? 'Uploading image...' : 'Click to upload image'}
+            </span>
+            <span className="text-[9px] text-warm-black/40">PNG, JPG, or WEBP</span>
+          </div>
+        )}
+
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          accept="image/*" 
+          className="hidden" 
+        />
+
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="text-[9px] font-semibold text-plum/50 hover:text-plum transition-colors underline"
+          >
+            {showUrlInput ? 'Hide manual URL input' : 'Or paste an image URL instead'}
+          </button>
+        </div>
+
+        {showUrlInput && (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Paste image URL here..."
+            className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl focus:outline-none focus:border-[var(--color-sunshine)] text-xs text-plum font-mono"
+          />
+        )}
+      </div>
+    );
   };
 
   // Settings Save
@@ -823,33 +958,34 @@ export default function AdminDashboard() {
 
                   {/* Dynamic image list */}
                   {!siteSettings.hero_slideshow_hidden && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {slideshowUrls.map((url, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <span className="text-[10px] font-black text-plum/30 uppercase tracking-wider w-6 flex-shrink-0 text-center">{i + 1}</span>
-                          <input
-                            type="text"
+                        <div key={i} className="relative group bg-plum/5 border border-plum/10 rounded-2xl p-4 flex flex-col gap-3">
+                          <div className="flex items-center justify-between border-b border-plum/5 pb-2">
+                            <span className="text-[10px] font-black text-plum uppercase tracking-wider">Slideshow Image {i + 1}</span>
+                            <button
+                              onClick={() => {
+                                const updated = slideshowUrls.filter((_, idx) => idx !== i);
+                                setSlideshowUrls(updated);
+                                handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
+                              }}
+                              className="p-1.5 rounded-lg text-[var(--color-pink)] hover:bg-[var(--color-pink)]/10 transition-all cursor-pointer"
+                              title="Remove image"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <ImageUploader
+                            label=""
                             value={url}
-                            onChange={(e) => {
+                            onChange={(newUrl) => {
                               const updated = [...slideshowUrls];
-                              updated[i] = e.target.value;
-                              setSlideshowUrls(updated);
-                            }}
-                            onBlur={() => handleSaveSettings('hero', { hero_slideshow_images: slideshowUrls.filter(Boolean) })}
-                            className="flex-1 px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl text-xs font-mono focus:outline-none focus:border-[var(--color-sunshine)] transition-all"
-                            placeholder="https://images.squarespace-cdn.com/..."
-                          />
-                          <button
-                            onClick={() => {
-                              const updated = slideshowUrls.filter((_, idx) => idx !== i);
+                              updated[i] = newUrl;
                               setSlideshowUrls(updated);
                               handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
                             }}
-                            className="p-2 rounded-xl text-[var(--color-pink)] hover:bg-[var(--color-pink)]/10 transition-all cursor-pointer flex-shrink-0"
-                            title="Remove image"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                            folder="homepage/slideshow"
+                          />
                         </div>
                       ))}
 
@@ -1168,13 +1304,11 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="md:col-span-3 space-y-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Cover/Hero Image URL</label>
-                          <input
-                            type="text"
+                          <ImageUploader
+                            label="Cover/Hero Image"
                             value={editingEvent.hero_image || ''}
-                            onChange={(e) => setEditingEvent({ ...editingEvent, hero_image: e.target.value })}
-                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
-                            placeholder="https://images.squarespace-cdn.com/..."
+                            onChange={(url) => setEditingEvent({ ...editingEvent, hero_image: url })}
+                            folder="events"
                           />
                         </div>
 
@@ -1438,13 +1572,14 @@ export default function AdminDashboard() {
                           onChange={(e) => setNewPersonRole(e.target.value)}
                           className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs"
                         />
-                        <input
-                          type="text"
-                          placeholder="Image URL (Squarespace or CDN link)"
-                          value={newPersonImage}
-                          onChange={(e) => setNewPersonImage(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl text-xs md:col-span-2"
-                        />
+                        <div className="md:col-span-2">
+                          <ImageUploader
+                            label="Avatar Image"
+                            value={newPersonImage}
+                            onChange={(url) => setNewPersonImage(url)}
+                            folder="events/people"
+                          />
+                        </div>
                         <textarea
                           rows={2}
                           placeholder="Bio details (1-2 sentences about them)..."
@@ -1690,16 +1825,12 @@ export default function AdminDashboard() {
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Product Image URL</label>
-                        <input
-                          type="text"
-                          value={editingProduct.image || ''}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
-                          placeholder="https://images.squarespace-cdn.com/..."
-                        />
-                      </div>
+                      <ImageUploader
+                        label="Product Image"
+                        value={editingProduct.image || ''}
+                        onChange={(url) => setEditingProduct({ ...editingProduct, image: url })}
+                        folder="merchandise"
+                      />
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">

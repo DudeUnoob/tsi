@@ -8,6 +8,9 @@ import {
   GoogleAuthProvider, signInWithPopup
 } from 'firebase/auth';
 import { 
+  getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
+} from 'firebase/storage';
+import { 
   mockSiteSettings, mockEvents, mockResources, mockStoreProducts, 
   SiteSettings, Event, StoreProduct, Resource
 } from './mockData';
@@ -137,6 +140,7 @@ const app = isFirebaseConfigured
 
 export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
+export const storage = app ? getStorage(app) : null;
 
 // Helper: Safe LocalStorage operations
 function getLocalStorageItem(key: string): string | null {
@@ -987,4 +991,45 @@ export function getLocalMessages(): Array<{ id: string; name: string; email: str
   const stored = getLocalStorageItem('sanga_mock_messages');
   if (!stored) return [];
   try { return JSON.parse(stored); } catch { return []; }
+}
+
+// ----------------------------------------------------
+// File Upload & Delete Helpers (Firebase Storage)
+// ----------------------------------------------------
+
+export async function uploadFile(folderPath: string, file: File): Promise<{ success: boolean; url?: string; message?: string }> {
+  if (!isFirebaseConfigured || !storage) {
+    // Local mock fallback: create a local object URL
+    const mockUrl = URL.createObjectURL(file);
+    return { success: true, url: mockUrl };
+  }
+  try {
+    const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const fileRef = ref(storage, `${folderPath}/${filename}`);
+    const snapshot = await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    return { success: true, url };
+  } catch (e) {
+    const err = e as Error;
+    console.error("Firebase uploadFile error:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+export async function deleteFile(fileUrl: string): Promise<{ success: boolean; message?: string }> {
+  if (!isFirebaseConfigured || !storage) {
+    return { success: true };
+  }
+  try {
+    // Only attempt to delete if it's a firebase storage url
+    if (fileUrl.includes('firebasestorage.googleapis.com')) {
+      const fileRef = ref(storage, fileUrl);
+      await deleteObject(fileRef);
+    }
+    return { success: true };
+  } catch (e) {
+    const err = e as Error;
+    console.error("Firebase deleteFile error:", err);
+    return { success: false, message: err.message };
+  }
 }

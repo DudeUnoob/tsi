@@ -82,45 +82,42 @@ const mockSiteSettings = {
 const mockEvents = [
   {
     id: 1,
-    title: "Summer Bhakti Retreat 2026",
-    slug: "summer-retreat-2026",
+    title: "TSI East Coast Summit 2026",
+    slug: "tsi-east-coast-2026",
     category: "Retreat",
-    age_range: "18-35",
-    start_date: "2026-08-10",
-    end_date: "2026-08-16",
-    location: "Blue Ridge Mountains, NC",
-    price: "$299",
+    age_range: "18-30",
+    start_date: "2026-07-30",
+    end_date: "2026-08-03",
+    location: "New Vrindaban, WV",
+    price: "$375",
     status: "open",
-    short_description: "A transformative week of kirtan, philosophy, hiking, and deep spiritual community in nature.",
-    long_description: "Escape the noise of daily life and join 100+ young adults in the beautiful mountains of North Carolina. Experience daily yoga, deep workshops on Bhagavad-gita, ecstatic kirtans, and scenic trail hikes. Pricing includes shared cabin lodging, all meals, and workshop materials.",
-    registration_url: "",
-    payment_url: "",
-    external_checkout_url: "",
-    liability_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSfMockLiability/viewform",
-    application_url: "https://docs.google.com/forms/d/e/1FAIpQLSfMockApplication/viewform",
-    scholarship_contact_url: "mailto:info@sangainitiative.org?subject=Scholarship%20Inquiry",
-    hero_image: "/gathering-group.png",
+    short_description: "A deep dive kirtan and workshop retreat in West Virginia for young adults aged 18 to 30.",
+    long_description: "The Summit Retreat is Sanga's landmark spiritual retreat for young adults aged 18–30. Running from Thursday evening through midday Monday in the peaceful hills of New Vrindaban, West Virginia, this retreat covers accommodations, organic prasadam meals, interactive seminars, complimentary merchandise, and supplies. It is designed to spark deep devotional connections, introspective workshops, and ecstatic community kirtans.",
+    external_checkout_url: "https://www.sangainitiative.org/summit-retreat/tsi-east-coast-2026-5sxa6",
+    hero_image: "http://static1.squarespace.com/static/55c3a641e4b01d44af64ae03/6a3d45657818225b42c98d27/6a3d42e826a7ae482e75f992/1783435829951/Summit26+Registration+1x1+%281%29.png?format=1500w",
+    gallery_images: [
+      "http://static1.squarespace.com/static/55c3a641e4b01d44af64ae03/6a3d45657818225b42c98d27/6a3d42e826a7ae482e75f992/1783435829951/Summit26+Registration+1x1+%281%29.png?format=1500w"
+    ],
     featured_on_homepage: true,
     published: true,
-    seo_title: "Summer Bhakti Retreat 2026 | Sanga Initiative",
-    seo_description: "Join Sanga Initiative for our annual summer retreat. Shared cabins, spiritual friendships, yoga, and kirtan in North Carolina.",
     highlights: [
-      "Ecstatic daily kirtans with guest speakers",
-      "Interactive philosophy panels on Gita wisdom",
-      "Organic plant-based meals prepared daily",
-      "Hikes and campfires under the mountain stars"
+      "Ecstatic daily kirtans in the hills of West Virginia",
+      "Interactive wisdom panels & philosophy workshops",
+      "Delicious organic plant-based prasadam meals daily",
+      "Includes complimentary Sanga Rebrand merchandise"
     ],
     schedule: [
-      { time: "7:00 AM", title: "Morning meditation & japa circle", description: "Quiet chanting under the trees" },
-      { time: "8:30 AM", title: "Organic breakfast feast", description: "Fresh fruits, porridge, and warm herbal tea" },
-      { time: "10:00 AM", title: "interactive Gita wisdom panel", description: "Guest guides lead breakout sessions" }
+      { time_label: "7:00 AM", title: "Morning meditation & reflections", description: "Quiet chanting and mantra meditation in the temple." },
+      { time_label: "9:00 AM", title: "Healthy breakfast feast", description: "Fresh oatmeal, fruits, and hot herbal teas." },
+      { time_label: "10:30 AM", title: "Morning wisdom panel", description: "Interactive philosophy seminars with guest speakers." },
+      { time_label: "1:00 PM", title: "Lunch and outdoor recreation", description: "Enjoy nature trails and networking with attendees." }
     ],
     faqs: [
-      { question: "Is transportation provided?", answer: "We coordinate carpools from CLT airport and nearby major cities. Details will be sent to accepted applicants." },
-      { question: "What should I pack?", answer: "Comfortable hiking clothes, a yoga mat, warm layers for the evening campfires, and personal toiletries." }
+      { question: "Is transportation provided?", answer: "Carpools are coordinated from major East Coast hubs. Detail forms will be sent to all registrants." },
+      { question: "What is the refund policy?", answer: "Full refunds are available until June 30, 2026. After that date, registrations are non-refundable." }
     ],
     people: [
-      { name: "Govinda Dev", role: "Retreat Organizer", bio: "Serving retreats for 8 years, bringing community together.", image: "" }
+      { name: "Govinda Dev", role: "Retreat Organizer", bio: "Leading young adult camps for years, focusing on community bhakti.", image_url: "" }
     ]
   }
 ];
@@ -163,8 +160,9 @@ const productInventory = [
 
 async function seed() {
   try {
-    console.log('Cleaning up previous store products & inventory...');
+    console.log('Cleaning up previous store products, events & inventory...');
     const productsToDelete = [1, 2, 3, 4, 5];
+    const eventsToDelete = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     const inventoryToDelete = [
       '1_S', '1_M', '1_L', '1_XL', '1_OS',
       '2_S', '2_M', '2_L', '2_XL', '2_OS',
@@ -174,6 +172,9 @@ async function seed() {
     ];
     for (const id of productsToDelete) {
       await deleteDoc(doc(db, 'store_products', String(id)));
+    }
+    for (const id of eventsToDelete) {
+      await deleteDoc(doc(db, 'events', String(id)));
     }
     for (const key of inventoryToDelete) {
       await deleteDoc(doc(db, 'product_inventory', key));
