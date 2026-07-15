@@ -15,6 +15,9 @@ export default function CartPage() {
   const shippingCost = 5.00;
   const estimatedTax = cartTotal * 0.08;
   const grandTotal = cartTotal + shippingCost + estimatedTax;
+
+  // Detect whether real Stripe is configured (set in env vars)
+  const stripeEnabled = !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   
   // Shipping & Mock Payment form fields
   const [formData, setFormData] = useState({
@@ -35,7 +38,7 @@ export default function CartPage() {
       ...formData,
       [e.target.name]: e.target.value
     });
-    if (errors[e.target.name]) {
+    if (errors?.[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
   };
@@ -53,25 +56,27 @@ export default function CartPage() {
     if (!formData.state.trim()) tempErrors.state = 'State is required';
     if (!formData.zip.trim()) tempErrors.zip = 'Zip code is required';
     
-    // Payment details validation (for local mock checkouts)
-    const rawCard = formData.cardNumber.replace(/\s+/g, '');
-    if (!rawCard.trim()) {
-      tempErrors.cardNumber = 'Card number is required';
-    } else if (rawCard.length !== 16) {
-      tempErrors.cardNumber = 'Card must be 16 digits';
-    }
+    // Only validate card details when Stripe is NOT configured (mock mode)
+    if (!stripeEnabled) {
+      const rawCard = formData.cardNumber.replace(/\s+/g, '');
+      if (!rawCard.trim()) {
+        tempErrors.cardNumber = 'Card number is required';
+      } else if (rawCard.length !== 16) {
+        tempErrors.cardNumber = 'Card must be 16 digits';
+      }
 
-    if (!formData.cardExpiry.trim()) {
-      tempErrors.cardExpiry = 'Expiry is required';
-    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.cardExpiry)) {
-      tempErrors.cardExpiry = 'Format MM/YY required';
-    }
+      if (!formData.cardExpiry.trim()) {
+        tempErrors.cardExpiry = 'Expiry is required';
+      } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.cardExpiry)) {
+        tempErrors.cardExpiry = 'Format MM/YY required';
+      }
 
-    const rawCvv = formData.cardCvv.replace(/\D/g, '');
-    if (!rawCvv.trim()) {
-      tempErrors.cardCvv = 'CVC is required';
-    } else if (rawCvv.length < 3 || rawCvv.length > 4) {
-      tempErrors.cardCvv = 'Must be 3-4 digits';
+      const rawCvv = formData.cardCvv.replace(/\D/g, '');
+      if (!rawCvv.trim()) {
+        tempErrors.cardCvv = 'CVC is required';
+      } else if (rawCvv.length < 3 || rawCvv.length > 4) {
+        tempErrors.cardCvv = 'Must be 3-4 digits';
+      }
     }
     
     setErrors(tempErrors);
@@ -456,82 +461,94 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Card Information (Mock Fields) */}
-              <div className="space-y-4 pt-4 border-t border-[var(--color-plum)]/10">
-                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--color-plum)]">
-                  Mock Payment Details
-                </h3>
-                
-                {/* Card Number */}
-                <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '').substring(0, 16);
-                      const formatted = val.match(/.{1,4}/g)?.join(' ') || val;
-                      setFormData({ ...formData, cardNumber: formatted });
-                      if (errors.cardNumber) setErrors({ ...errors, cardNumber: '' });
-                    }}
-                    placeholder="4111 2222 3333 4444"
-                    className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                      errors.cardNumber ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                    }`}
-                  />
-                  {errors.cardNumber && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardNumber}</p>}
-                </div>
+              {/* Card Information — only shown in mock mode (no Stripe keys) */}
+              {!stripeEnabled && (
+                <div className="space-y-4 pt-4 border-t border-[var(--color-plum)]/10">
+                  <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--color-plum)]">
+                    Mock Payment Details
+                  </h3>
+                  
+                  {/* Card Number */}
+                  <div className="space-y-1">
+                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
+                      Card Number
+                    </label>
+                    <input
+                      type="text"
+                      name="cardNumber"
+                      value={formData.cardNumber}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').substring(0, 16);
+                        const formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+                        setFormData({ ...formData, cardNumber: formatted });
+                        if (errors?.cardNumber) setErrors({ ...errors, cardNumber: '' });
+                      }}
+                      placeholder="4111 2222 3333 4444"
+                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                        errors?.cardNumber ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
+                      }`}
+                    />
+                    {errors?.cardNumber && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardNumber}</p>}
+                  </div>
 
-                {/* Expiry & CVV */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                      Expiration Date
-                    </label>
-                    <input
-                      type="text"
-                      name="cardExpiry"
-                      value={formData.cardExpiry}
-                      onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, '').substring(0, 4);
-                        if (val.length > 2) {
-                          val = val.substring(0, 2) + '/' + val.substring(2);
-                        }
-                        setFormData({ ...formData, cardExpiry: val });
-                        if (errors.cardExpiry) setErrors({ ...errors, cardExpiry: '' });
-                      }}
-                      placeholder="MM/YY"
-                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                        errors.cardExpiry ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                      }`}
-                    />
-                    {errors.cardExpiry && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardExpiry}</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                      CVC / CVV
-                    </label>
-                    <input
-                      type="text"
-                      name="cardCvv"
-                      value={formData.cardCvv}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').substring(0, 4);
-                        setFormData({ ...formData, cardCvv: val });
-                        if (errors.cardCvv) setErrors({ ...errors, cardCvv: '' });
-                      }}
-                      placeholder="123"
-                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                        errors.cardCvv ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                      }`}
-                    />
-                    {errors.cardCvv && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardCvv}</p>}
+                  {/* Expiry & CVV */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
+                        Expiration Date
+                      </label>
+                      <input
+                        type="text"
+                        name="cardExpiry"
+                        value={formData.cardExpiry}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+                          if (val.length > 2) {
+                            val = val.substring(0, 2) + '/' + val.substring(2);
+                          }
+                          setFormData({ ...formData, cardExpiry: val });
+                          if (errors?.cardExpiry) setErrors({ ...errors, cardExpiry: '' });
+                        }}
+                        placeholder="MM/YY"
+                        className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                          errors?.cardExpiry ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
+                        }`}
+                      />
+                      {errors?.cardExpiry && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardExpiry}</p>}
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
+                        CVC / CVV
+                      </label>
+                      <input
+                        type="text"
+                        name="cardCvv"
+                        value={formData.cardCvv}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').substring(0, 4);
+                          setFormData({ ...formData, cardCvv: val });
+                          if (errors?.cardCvv) setErrors({ ...errors, cardCvv: '' });
+                        }}
+                        placeholder="123"
+                        className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
+                          errors?.cardCvv ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
+                        }`}
+                      />
+                      {errors?.cardCvv && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardCvv}</p>}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Stripe mode notice */}
+              {stripeEnabled && (
+                <div className="flex items-center gap-3 pt-4 border-t border-[var(--color-plum)]/10 bg-[var(--color-plum)]/5 rounded-2xl px-4 py-3">
+                  <ShieldCheck className="h-5 w-5 text-[#66CC6E] flex-shrink-0" />
+                  <p className="text-xs text-[var(--color-warm-black)]/70 font-sans">
+                    You will be securely redirected to <strong>Stripe</strong> to complete payment. Your card details are never shared with us.
+                  </p>
+                </div>
+              )}
 
               {/* Order Calculations */}
               <div className="pt-6 border-t border-[var(--color-plum)]/10 space-y-3 font-sans text-sm">
@@ -557,9 +574,16 @@ export default function CartPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
                 >
-                  <Lock className="h-4 w-4" /> Place Secure Order
+                  {isSubmitting ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> {statusMessage || 'Processing...'}</>
+                  ) : stripeEnabled ? (
+                    <><Lock className="h-4 w-4" /> Proceed to Secure Checkout &rarr;</>
+                  ) : (
+                    <><Lock className="h-4 w-4" /> Place Secure Order</>
+                  )}
                 </button>
               </div>
             </form>
