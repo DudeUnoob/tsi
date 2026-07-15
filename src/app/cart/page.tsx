@@ -114,6 +114,7 @@ export default function CartPage() {
       });
 
       const data = await response.json();
+      console.log('[cart] Checkout API response:', JSON.stringify(data));
 
       if (data.url) {
         setStatusMessage('Redirecting to Stripe secure payment gateway...');

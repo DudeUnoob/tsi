@@ -23,14 +23,18 @@ export async function POST(request: Request) {
       }
     }
 
-    // Retrieve secret keys (from env or Supabase site settings)
+    // Retrieve secret keys (from env or Firestore site settings)
     const settings = await getSiteSettings();
-    const secretKey = process.env.STRIPE_SECRET_KEY || settings.stripe_secret_key;
+    const envKey = process.env.STRIPE_SECRET_KEY;
+    const dbKey = settings.stripe_secret_key;
+    const secretKey = envKey || dbKey;
+
+    console.log('[checkout] env key present:', !!envKey, '| db key present:', !!dbKey, '| using key:', !!secretKey);
 
     if (!secretKey) {
       // If Stripe keys are not configured, return url: null to let frontend trigger mock checkout
       console.warn('Stripe checkout requested but STRIPE_SECRET_KEY is not configured. Falling back to Mock Checkout.');
-      return NextResponse.json({ url: null });
+      return NextResponse.json({ url: null, _debug: 'no_stripe_key' });
     }
 
     const stripe = new Stripe(secretKey, {
