@@ -165,7 +165,7 @@ export default function Header() {
 
       {/* Organic Curved Bottom Divider */}
       <div 
-        className="absolute top-full left-0 right-0 w-full overflow-hidden leading-none pointer-events-none z-30"
+        className="absolute top-full left-0 right-0 hidden w-full overflow-hidden leading-none pointer-events-none z-30 md:block"
         style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.04))' }}
       >
         <svg 
