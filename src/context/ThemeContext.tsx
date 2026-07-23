@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { THEME_PALETTES, ThemePalette } from '@/lib/types';
+import React, { createContext, useContext, useEffect } from 'react';
+import { ThemePalette } from '@/lib/types';
 
 interface ThemeContextType {
   currentPaletteKey: string;
@@ -11,16 +11,12 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-import { usePathname } from 'next/navigation';
-
 export function ThemeProvider({
   children,
-  initialPaletteKey = 'sunset',
 }: {
   children: React.ReactNode;
   initialPaletteKey?: string;
 }) {
-  const pathname = usePathname();
   const currentPaletteKey = 'sunset';
 
   useEffect(() => {
@@ -32,12 +28,12 @@ export function ThemeProvider({
     }
   }, []);
 
-  const setTheme = (key: string) => {
+  const setTheme = () => {
     // No-op to lock the theme exclusively to sunset
   };
 
-  // Home Page gets original magenta/orange palette
-  const homePalette = {
+  // Use one brand palette across every page.
+  const palette = {
     name: "Sunset Gradient",
     background: "#FFEFBF", // Linen
     foreground: "#1E1D1B", // Warm Black
@@ -45,18 +41,6 @@ export function ThemeProvider({
     secondary: "#F26E27",  // Orange
     accent: "#6E0B64"      // Deep purple/plum
   };
-
-  // Other pages get the warm sunset orange/amber palette
-  const innerPalette = {
-    name: "Sunset Gradient",
-    background: "#FFEFBF", // Linen
-    foreground: "#1E1D1B", // Warm Black
-    primary: "#D9480F",    // Sunset Orange
-    secondary: "#F59E0B",  // Warm Amber
-    accent: "#FF8A65"      // Peach/coral
-  };
-
-  const palette = pathname === '/' ? homePalette : innerPalette;
 
   return (
     <ThemeContext.Provider value={{ currentPaletteKey, palette, setTheme }}>
