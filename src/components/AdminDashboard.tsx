@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  isFirebaseConfigured as isSupabaseConfigured, getSiteSettings, getEvents, getProducts, getResources, 
+  isFirebaseConfigured as isSupabaseConfigured, getSiteSettings, getEvents, getProducts, getResources,
   getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, 
-  updateOrderStatus, getProductInventory, saveProductInventory, saveEvent, deleteEvent, saveProduct, 
-  deleteProduct, saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers, 
-  getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange, uploadFile, deleteFile 
+  getProductInventory, saveProductInventory, saveEvent, deleteEvent, saveProduct,
+  deleteProduct, saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers,
+  getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange, uploadFile, deleteFile,
+  getAdminIdToken,
 } from '@/lib/firebase';
 import {
   SiteSettings, Event, StoreProduct, Resource
@@ -21,6 +22,7 @@ type Session = any;
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { CURRENCY, formatMoney, legacyPriceToCents } from '@/lib/commerce';
 
 interface Subscriber {
   email: string;
@@ -34,6 +36,21 @@ interface ContactMessage {
   message: string;
   reviewed: boolean;
   submitted_at: string;
+}
+
+async function commerceAdminRequest(method: 'GET' | 'PATCH', body?: unknown) {
+  const token = await getAdminIdToken();
+  const response = await fetch('/api/admin/commerce', {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Commerce request failed.');
+  return data;
 }
 
 export default function AdminDashboard() {
@@ -86,7 +103,7 @@ export default function AdminDashboard() {
     !isSupabaseConfigured ? getLocalMessages() : []
   );
   const [orders, setOrders] = useState<Order[]>([]);
-  const [allInventories, setAllInventories] = useState<Record<number, any[]>>({});
+  const [allInventories, setAllInventories] = useState<Record<number, ProductInventoryView[]>>({});
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [subTab, setSubTab] = useState<'mailing' | 'contact' | 'orders' | 'registrations'>('mailing');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -96,6 +113,15 @@ export default function AdminDashboard() {
   const [regEventFilter, setRegEventFilter] = useState<number | 'all'>('all');
 
   const [toastMessage, setToastMessage] = useState('');
+
+  interface ProductInventoryView {
+    product_id: number;
+    size: string;
+    stock: number;
+    on_hand: number;
+    reserved: number;
+    sold: number;
+  }
 
   // Helper to count how many items were sold for a product & size
   const getSoldQuantity = (productId: number, size: string): number => {
@@ -180,17 +206,46 @@ export default function AdminDashboard() {
       const e = await getEvents({ all: true });
       setEvents(e);
 
-      const p = await getProducts({ all: true });
-      setProducts(p);
-
-      const invs: Record<number, any[]> = {};
-      for (const pr of p) {
-        if (pr.id) {
-          const inv = await getProductInventory(pr.id);
-          invs[pr.id] = inv;
+      if (isSupabaseConfigured) {
+        const commerce = await commerceAdminRequest('GET');
+        setProducts(commerce.products as StoreProduct[]);
+        const invs: Record<number, ProductInventoryView[]> = {};
+        for (const item of commerce.inventory as Array<{
+          product_id: number;
+          variant: string;
+          available: number;
+          on_hand: number;
+          reserved: number;
+          sold: number;
+        }>) {
+          (invs[item.product_id] ||= []).push({
+            product_id: item.product_id,
+            size: item.variant,
+            stock: item.available,
+            on_hand: item.on_hand,
+            reserved: item.reserved,
+            sold: item.sold,
+          });
         }
+        setAllInventories(invs);
+        setOrders(commerce.orders as Order[]);
+      } else {
+        const p = await getProducts({ all: true });
+        setProducts(p);
+        const invs: Record<number, ProductInventoryView[]> = {};
+        for (const pr of p) {
+          const inv = await getProductInventory(pr.id);
+          invs[pr.id] = inv.map(item => ({
+            product_id: item.product_id,
+            size: item.size,
+            stock: item.stock,
+            on_hand: item.on_hand ?? item.stock,
+            reserved: item.reserved ?? 0,
+            sold: item.sold ?? 0,
+          }));
+        }
+        setAllInventories(invs);
       }
-      setAllInventories(invs);
 
       const r = await getResources({ publishedOnly: false });
       setResources(r);
@@ -203,10 +258,6 @@ export default function AdminDashboard() {
         // Fetch contact messages
         const msgs = await getContactMessages();
         setMessages(msgs);
-
-        // Fetch orders
-        const ords = await getOrders();
-        if (ords) setOrders(ords);
 
         // Fetch registrations
         const regs = await getEventRegistrations();
@@ -508,38 +559,51 @@ export default function AdminDashboard() {
     }
 
     try {
-      const payload = {
+      const savedId = editingProduct.id
+        || (products.length > 0 ? Math.max(...products.map(product => product.id)) + 1 : 1);
+      const priceCents = editingProduct.price_cents
+        ?? legacyPriceToCents(editingProduct.price || '0');
+      const payload: StoreProduct = {
+        id: savedId,
         product_title: editingProduct.product_title,
         slug: editingProduct.slug,
-        description: editingProduct.description,
-        image: editingProduct.image,
-        price: editingProduct.price,
-        status: editingProduct.status,
-        external_checkout_url: editingProduct.external_checkout_url,
-        external_product_url: editingProduct.external_product_url,
-        shopify_embed_code: editingProduct.shopify_embed_code,
-        stripe_price_id: editingProduct.stripe_price_id,
-        stripe_product_id: editingProduct.stripe_product_id,
-        featured: editingProduct.featured,
-        published: editingProduct.published
+        description: editingProduct.description || '',
+        image: editingProduct.image || '',
+        price_cents: priceCents,
+        price: formatMoney(priceCents),
+        currency: CURRENCY,
+        variant_type: editingProduct.variant_type || 'size',
+        status: editingProduct.status || 'available',
+        featured: Boolean(editingProduct.featured),
+        published: Boolean(editingProduct.published),
       };
 
-      const res = await saveProduct({ ...payload, id: editingProduct.id });
-      if (!res.success) throw new Error(res.message);
-      const savedId = res.product?.id;
-
-      if (savedId) {
-        await saveProductInventory(savedId, editingInventory);
-      }
-
-      const p = await getProducts({ all: true });
-      setProducts(p);
-      const invs: Record<number, any[]> = {};
-      for (const pr of p) {
-        if (pr.id) {
-          const inv = await getProductInventory(pr.id);
-          invs[pr.id] = inv;
-        }
+      await commerceAdminRequest('PATCH', {
+        action: 'save_product',
+        product: payload,
+        inventory: editingInventory
+          .filter(item => payload.variant_type === 'size' ? item.size !== 'OS' : item.size === 'OS')
+          .map(item => ({ variant: item.size, on_hand: item.stock })),
+      });
+      const commerce = await commerceAdminRequest('GET');
+      setProducts(commerce.products as StoreProduct[]);
+      const invs: Record<number, ProductInventoryView[]> = {};
+      for (const item of commerce.inventory as Array<{
+        product_id: number;
+        variant: string;
+        available: number;
+        on_hand: number;
+        reserved: number;
+        sold: number;
+      }>) {
+        (invs[item.product_id] ||= []).push({
+          product_id: item.product_id,
+          size: item.variant,
+          stock: item.available,
+          on_hand: item.on_hand,
+          reserved: item.reserved,
+          sold: item.sold,
+        });
       }
       setAllInventories(invs);
       setEditingProduct(null);
@@ -560,11 +624,33 @@ export default function AdminDashboard() {
     }
 
     try {
-      await deleteProduct(id);
-      setProducts(products.filter(p => p.id !== id));
-      triggerToast('Product deleted.');
+      await commerceAdminRequest('PATCH', { action: 'archive_product', productId: id });
+      setProducts(products.map(product =>
+        product.id === id
+          ? { ...product, published: false, status: 'unavailable' }
+          : product,
+      ));
+      triggerToast('Product archived.');
     } catch {
       triggerToast('Failed to delete product.');
+    }
+  };
+
+  const handleReconcileReservations = async () => {
+    if (!isSupabaseConfigured) {
+      triggerToast('Reservation reconciliation requires Firebase.');
+      return;
+    }
+    try {
+      const result = await commerceAdminRequest('PATCH', { action: 'reconcile' });
+      const commerce = await commerceAdminRequest('GET');
+      setOrders(commerce.orders as Order[]);
+      triggerToast(
+        `Checked ${result.scanned} expired reservations; released ${result.released}.`,
+      );
+    } catch (err) {
+      console.error(err);
+      triggerToast('Failed to reconcile expired reservations.');
     }
   };
 
@@ -1721,13 +1807,13 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Store Products Editor</h1>
-                <p className="text-sm text-warm-black/60">Manage merchandise cards, details, pricing, and external checkout routes.</p>
+                <p className="text-sm text-warm-black/60">Manage physical merchandise, trusted prices, and transactional variant inventory.</p>
               </div>
               <button
                 onClick={() => setEditingProduct({
-                  product_title: '', slug: '', description: '', price: '',
-                  image: '', status: 'available', external_checkout_url: '',
-                  featured: false, published: true
+                  product_title: '', slug: '', description: '', price: '$0.00',
+                  price_cents: 0, currency: 'usd', variant_type: 'size',
+                  image: '', status: 'available', featured: false, published: true
                 })}
                 className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
               >
@@ -1745,7 +1831,7 @@ export default function AdminDashboard() {
                       <th className="p-5">Price</th>
                       <th className="p-5">Status</th>
                       <th className="p-5">Featured</th>
-                      <th className="p-5">Sizing Stock (Sold / Left)</th>
+                      <th className="p-5">Inventory (On hand / Reserved / Available)</th>
                       <th className="p-5 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -1766,15 +1852,16 @@ export default function AdminDashboard() {
                               const productInvs = allInventories[pr.id] || [];
                               const match = productInvs.find(inv => inv.size.toUpperCase() === size.toUpperCase());
                               const left = match ? match.stock : 0;
-                              const sold = getSoldQuantity(pr.id, size);
+                              const onHand = match ? match.on_hand : 0;
+                              const reserved = match ? match.reserved : 0;
                               
-                              if (size === 'OS' && left === 0 && sold === 0) return null;
+                              if (size === 'OS' && onHand === 0 && reserved === 0) return null;
                               const hasOsOnly = productInvs.some(inv => inv.size.toUpperCase() === 'OS' && inv.stock > 0);
                               if (hasOsOnly && ['S', 'M', 'L', 'XL'].includes(size)) return null;
 
                               return (
                                 <span key={size} className="px-2 py-1 bg-plum/5 border border-plum/10 rounded-lg text-[11px] text-plum">
-                                  <strong className="text-plum">{size}:</strong> {sold} sold / <span className={left === 0 ? 'text-[var(--color-pink)] font-black' : 'text-plum'}>{left} left</span>
+                                  <strong>{size}:</strong> {onHand} / {reserved} / <span className={left === 0 ? 'text-[var(--color-pink)] font-black' : ''}>{left}</span>
                                 </span>
                               );
                             })}
@@ -1836,12 +1923,17 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Price Label</label>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Price (USD)</label>
                           <input
-                            type="text"
-                            placeholder="e.g. $25"
-                            value={editingProduct.price || ''}
-                            onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="25.00"
+                            value={(editingProduct.price_cents ?? legacyPriceToCents(editingProduct.price || '0')) / 100}
+                            onChange={(e) => {
+                              const cents = Math.max(0, Math.round(Number(e.target.value || 0) * 100));
+                              setEditingProduct({ ...editingProduct, price_cents: cents, price: formatMoney(cents) });
+                            }}
                             className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)]"
                           />
                         </div>
@@ -1854,29 +1946,6 @@ export default function AdminDashboard() {
                           value={editingProduct.description || ''}
                           onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
                           className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] resize-none leading-relaxed"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Shopify Buy Button Embed Code (HTML/Script)</label>
-                        <textarea
-                          rows={4}
-                          placeholder="Paste <div id='...'></div> <script>...</script> code here..."
-                          value={editingProduct.shopify_embed_code || ''}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, shopify_embed_code: e.target.value })}
-                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs resize-y leading-relaxed"
-                        />
-                        <p className="text-[10px] text-warm-black/50 italic">Pasting Shopify embed code will render the official button &amp; size picker directly on the product page.</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Price Checkout Link / URL (Optional)</label>
-                        <input
-                          type="text"
-                          placeholder="https://..."
-                          value={editingProduct.external_checkout_url || ''}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, external_checkout_url: e.target.value })}
-                          className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                         />
                       </div>
 
@@ -1897,7 +1966,17 @@ export default function AdminDashboard() {
                           >
                             <option value="available">Available</option>
                             <option value="unavailable">Unavailable</option>
-                            <option value="sold-out">Sold Out</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Variant Type</label>
+                          <select
+                            value={editingProduct.variant_type || 'size'}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, variant_type: e.target.value as StoreProduct['variant_type'] })}
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none"
+                          >
+                            <option value="size">Apparel Sizes</option>
+                            <option value="one_size">One Size</option>
                           </select>
                         </div>
                         <div className="flex items-center space-x-2 pt-6">
@@ -1913,42 +1992,19 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      {/* Stripe Settings Config */}
-                      <div className="grid grid-cols-2 gap-4 border-t border-plum/10 pt-4">
-                        <div className="space-y-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Price ID</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. price_1P..."
-                            value={editingProduct.stripe_price_id || ''}
-                            onChange={(e) => setEditingProduct({ ...editingProduct, stripe_price_id: e.target.value })}
-                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Stripe Product ID</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. prod_1P..."
-                            value={editingProduct.stripe_product_id || ''}
-                            onChange={(e) => setEditingProduct({ ...editingProduct, stripe_product_id: e.target.value })}
-                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
-                          />
-                        </div>
-                      </div>
-
                       {/* Size-based Inventory Manager */}
                       <div className="space-y-3 border-t border-plum/10 pt-4">
                         <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Size Inventory Stock Levels</label>
                         <div className="grid grid-cols-5 gap-3">
                           {editingInventory.map((item, index) => (
+                            ((editingProduct.variant_type || 'size') === 'size' ? item.size !== 'OS' : item.size === 'OS') && (
                             <div key={item.size} className="bg-plum/5 border border-plum/10 rounded-2xl p-3 text-center flex flex-col items-center justify-between space-y-1.5">
                               <span className="block text-xs font-black text-plum uppercase">{item.size}</span>
                               <div className="text-[10px] text-warm-black/60">
-                                Sold: <strong>{editingProduct && editingProduct.id ? getSoldQuantity(editingProduct.id, item.size) : 0}</strong>
+                                Reserved: <strong>{editingProduct?.id ? (allInventories[editingProduct.id]?.find(inv => inv.size === item.size)?.reserved || 0) : 0}</strong>
                               </div>
                               <div className="w-full">
-                                <label className="block text-[8px] font-bold text-plum/50 uppercase mb-0.5">Left</label>
+                                <label className="block text-[8px] font-bold text-plum/50 uppercase mb-0.5">On hand</label>
                                 <input
                                   type="number"
                                   min="0"
@@ -1963,9 +2019,10 @@ export default function AdminDashboard() {
                                 />
                               </div>
                             </div>
+                            )
                           ))}
                         </div>
-                        <p className="text-[9px] text-warm-black/50 italic">Set stock for OS (One Size) for beanies/totes, and S/M/L/XL for hoodies/t-shirts.</p>
+                        <p className="text-[9px] text-warm-black/50 italic">Available stock is calculated as on-hand minus active checkout reservations.</p>
                       </div>
                     </div>
                   </div>
@@ -2502,6 +2559,12 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
+                      onClick={handleReconcileReservations}
+                      className="px-4 py-2.5 bg-[var(--color-linen)] hover:bg-plum/5 text-plum border border-plum/20 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm flex items-center justify-center cursor-pointer transition-all duration-300"
+                    >
+                      <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Release Expired
+                    </button>
+                    <button
                       onClick={() => exportToCSV('orders')}
                       className="px-4 py-2.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300"
                     >
@@ -2531,8 +2594,9 @@ export default function AdminDashboard() {
                       <option value="all">All Payment Statuses</option>
                       <option value="paid">Paid</option>
                       <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
+                      <option value="processing">Processing</option>
+                      <option value="failed">Failed</option>
+                      <option value="refunded">Refunded</option>
                     </select>
                   </div>
                 </div>
@@ -2548,7 +2612,9 @@ export default function AdminDashboard() {
                         o.order_ref.toLowerCase().includes(searchLower) ||
                         o.items.some(i => i.product_title.toLowerCase().includes(searchLower));
 
-                      const matchStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
+                      const matchStatus =
+                        orderStatusFilter === 'all'
+                        || (o.payment_status || o.status) === orderStatusFilter;
 
                       return matchQuery && matchStatus;
                     });
@@ -2561,7 +2627,7 @@ export default function AdminDashboard() {
                             <th className="p-4">Customer</th>
                             <th className="p-4">Items Summary</th>
                             <th className="p-4">Total</th>
-                            <th className="p-4">Status</th>
+                            <th className="p-4">Payment / Fulfillment</th>
                             <th className="p-4 text-right">Actions</th>
                           </tr>
                         </thead>
@@ -2581,12 +2647,15 @@ export default function AdminDashboard() {
                               </td>
                               <td className="p-4 font-bold text-[var(--color-pink)]">${ord.total_amount.toFixed(2)}</td>
                               <td className="p-4">
-                                <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${ord.status === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
-                                    ord.status === 'completed' ? 'bg-plum/10 border-plum/20 text-plum' :
-                                      ord.status === 'pending' ? 'bg-[var(--color-sunshine)]/10 border-[var(--color-sunshine)]/20 text-[var(--color-sunshine)]' :
+                                <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${(ord.payment_status || ord.status) === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
+                                    (ord.payment_status || ord.status) === 'refunded' ? 'bg-plum/10 border-plum/20 text-plum' :
+                                      (ord.payment_status || ord.status) === 'pending' ? 'bg-[var(--color-sunshine)]/10 border-[var(--color-sunshine)]/20 text-[var(--color-sunshine)]' :
                                         'bg-red-500/10 border-red-500/20 text-red-500'
                                   }`}>
-                                  {ord.status}
+                                  {ord.payment_status || ord.status}
+                                </span>
+                                <span className="block mt-1 text-[9px] font-bold uppercase text-plum/55">
+                                  {ord.fulfillment_status || 'unfulfilled'}
                                 </span>
                               </td>
                               <td className="p-4 text-right">
@@ -2724,7 +2793,9 @@ export default function AdminDashboard() {
             {/* Stripe Settings Panel */}
             <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/15 pb-3">Stripe Integration Settings</h2>
-              <p className="text-xs text-warm-black/60 -mt-3">Configure secure payment checkouts. (Changes apply automatically when keys are entered).</p>
+              <p className="text-xs text-warm-black/60 -mt-3">
+                Stripe credentials are managed as server environment variables and are never stored in Firebase or exposed in this dashboard.
+              </p>
 
               <div className="space-y-5">
                 <div className="flex items-center justify-between p-5 bg-plum/5 rounded-2xl border border-plum/10">
@@ -2742,34 +2813,9 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">
-                      Stripe Publishable Key
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="pk_test_..."
-                      value={siteSettings.stripe_publishable_key || ''}
-                      onChange={(e) => setSiteSettings({ ...siteSettings, stripe_publishable_key: e.target.value })}
-                      onBlur={(e) => handleSaveSettings('stripe', { stripe_publishable_key: e.target.value })}
-                      className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs text-plum"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">
-                      Stripe Secret Key
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="sk_test_..."
-                      value={siteSettings.stripe_secret_key || ''}
-                      onChange={(e) => setSiteSettings({ ...siteSettings, stripe_secret_key: e.target.value })}
-                      onBlur={(e) => handleSaveSettings('stripe', { stripe_secret_key: e.target.value })}
-                      className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs text-plum"
-                    />
-                  </div>
+                <div className="rounded-2xl border border-plum/10 bg-plum/5 p-5 text-xs text-warm-black/70">
+                  Configure <code>STRIPE_SECRET_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code> in the deployment environment.
+                  Use Stripe test/sandbox credentials until the integration has been verified end to end.
                 </div>
               </div>
             </div>
@@ -2800,32 +2846,64 @@ export default function AdminDashboard() {
                   <p className="text-[10px] font-light text-plum/60 mt-1">Email: {selectedOrder.customer_email}</p>
                 </div>
 
-                {/* Status Manager */}
-                <div className="flex justify-between items-center bg-[var(--color-sunshine)]/5 border border-[var(--color-sunshine)]/20 p-4 rounded-2xl">
-                  <div>
-                    <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Payment / Delivery Status</h5>
-                    <span className="text-[11px] font-bold">Manage transaction state</span>
+                {/* Payment and fulfillment manager */}
+                <div className="bg-[var(--color-sunshine)]/5 border border-[var(--color-sunshine)]/20 p-4 rounded-2xl space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Stripe Payment</h5>
+                      <span className="text-[11px] font-bold uppercase">{selectedOrder.payment_status || selectedOrder.status}</span>
+                    </div>
+                    <select
+                      value={selectedOrder.fulfillment_status || (selectedOrder.status === 'completed' ? 'completed' : 'unfulfilled')}
+                      onChange={(e) => setSelectedOrder({
+                        ...selectedOrder,
+                        fulfillment_status: e.target.value as NonNullable<Order['fulfillment_status']>,
+                      })}
+                      className="px-3 py-1.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
+                    >
+                      <option value="unfulfilled">Unfulfilled</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </div>
-                  <select
-                    value={selectedOrder.status}
-                    onChange={async (e) => {
-                      const newStatus = e.target.value as Order['status'];
-                      const res = await updateOrderStatus(selectedOrder.order_ref, newStatus);
-                      if (res.success) {
-                        setOrders(prev => prev.map(o => o.order_ref === selectedOrder.order_ref ? { ...o, status: newStatus } : o));
-                        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
-                        triggerToast('Order status updated!');
-                      } else {
-                        triggerToast('Failed to update status.');
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      value={selectedOrder.carrier || ''}
+                      onChange={(e) => setSelectedOrder({ ...selectedOrder, carrier: e.target.value })}
+                      placeholder="Carrier"
+                      className="px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
+                    />
+                    <input
+                      value={selectedOrder.tracking_number || ''}
+                      onChange={(e) => setSelectedOrder({ ...selectedOrder, tracking_number: e.target.value })}
+                      placeholder="Tracking number"
+                      className="px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await commerceAdminRequest('PATCH', {
+                          action: 'update_fulfillment',
+                          orderId: String(selectedOrder.id),
+                          fulfillmentStatus: selectedOrder.fulfillment_status || 'unfulfilled',
+                          carrier: selectedOrder.carrier || '',
+                          trackingNumber: selectedOrder.tracking_number || '',
+                        });
+                        setOrders(previous => previous.map(order =>
+                          order.id === selectedOrder.id ? selectedOrder : order,
+                        ));
+                        triggerToast('Fulfillment updated!');
+                      } catch (error) {
+                        triggerToast(error instanceof Error ? error.message : 'Fulfillment update failed.');
                       }
                     }}
-                    className="px-3 py-1.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
+                    className="w-full px-3 py-2 bg-plum text-linen rounded-xl text-[10px] font-black uppercase tracking-wider"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
+                    Save Fulfillment
+                  </button>
                 </div>
 
                 {/* Purchased items table */}

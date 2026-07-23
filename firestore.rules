@@ -1,0 +1,86 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function admin() {
+      return signedIn()
+        && (
+          request.auth.token.admin == true
+          || (
+            request.auth.token.email is string
+            && (
+              request.auth.token.email.matches('.*@sangainitiative[.]org$')
+              || request.auth.token.email in [
+                'info@sangainitiative.org',
+                'sangainitiative@gmail.com',
+                'avanish@sangainitiative.org',
+                'avanish600@gmail.com',
+                "to.baladev@gmail.com",
+                "damodar@sangainitiative.org"
+              ]
+            )
+          )
+        );
+    }
+
+    match /store_products/{productId} {
+      allow read: if resource.data.published == true || admin();
+      allow write: if false;
+    }
+
+    match /product_inventory/{variantId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /orders/{orderId} {
+      allow read, write: if false;
+    }
+
+    match /stripe_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /inventory_audit/{entryId} {
+      allow read, write: if false;
+    }
+
+    match /order_audit/{entryId} {
+      allow read, write: if false;
+    }
+
+    match /events/{eventId} {
+      allow read: if resource.data.published == true || admin();
+      allow write: if admin();
+    }
+
+    match /resources/{resourceId} {
+      allow read: if resource.data.published == true || admin();
+      allow write: if admin();
+    }
+
+    match /site_settings/{settingId} {
+      allow read: if true;
+      allow write: if admin();
+    }
+
+    match /newsletter_subscribers/{subscriberId} {
+      allow create: if true;
+      allow read, update, delete: if admin();
+    }
+
+    match /contact_messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if admin();
+    }
+
+    match /registrations/{registrationId} {
+      allow create: if true;
+      allow read, update, delete: if admin();
+    }
+  }
+}

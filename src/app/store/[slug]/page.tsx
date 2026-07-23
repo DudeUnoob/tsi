@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProducts } from '@/lib/firebase';
+import { getProductInventory, getProducts } from '@/lib/firebase';
 import ProductForm from '@/components/ProductForm';
 import { ArrowLeft, Tag } from 'lucide-react';
 
@@ -22,7 +22,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   const isAvailable = product.status === 'available';
-  const isSoldOut = product.status === 'sold-out';
+  const inventory = await getProductInventory(product.id);
+  const isSoldOut = inventory.every(item => (item.available ?? item.stock) < 1);
 
   return (
     <div className="bg-linen min-h-screen py-6 font-sans text-warm-black flex flex-col justify-center">

@@ -2,11 +2,20 @@
   "name": "tsi",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
+    "stripe:listen": "set -a; . ./.env.local; set +a; stripe listen --api-key \"$STRIPE_SECRET_KEY\" --events checkout.session.completed,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed,checkout.session.expired,charge.refunded --forward-to localhost:3000/api/stripe/webhook",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:emulator": "firebase emulators:exec --only firestore \"vitest run src/lib/commerce-emulator.test.ts\"",
+    "commerce:migrate": "node scripts/migrate_commerce.js",
+    "commerce:migrate:apply": "node scripts/migrate_commerce.js --apply"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -14,9 +23,10 @@
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "firebase": "^12.16.0",
+    "firebase-admin": "^14.2.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.20.0",
-    "next": "16.2.9",
+    "next": "^16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.79.0",
@@ -29,8 +39,10 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "^16.2.11",
+    "firebase-tools": "^15.24.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }

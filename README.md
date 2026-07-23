@@ -9,7 +9,7 @@ Welcome to the production-quality, custom-built web platform for **Sanga** (a Va
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (CSS-first engine)
-- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL with Row-Level Security RLS)
+- **Database, Auth & Storage**: [Firebase](https://firebase.google.com/) (Firestore, Firebase Auth, and Cloud Storage)
 - **Motion & Interactions**: Framer Motion
 - **Form Handling**: React Hook Form + Zod validation
 - **Deployment**: Vercel-ready with zero additional configuration
@@ -29,10 +29,12 @@ We have fully audited Sanga's upcoming and historical events on the live squares
 - **Vrindavana Yatra (Ages 21–30)**: Chanting and parikrama trip to Vrindavana, India (marked as *Coming Soon*).
 - **Heartspace Talk (Ages 18–35)**: Digital monthly check-in and Q&A (marked as *Online*).
 
-### 2. E-Commerce & Cabins Upgrades
-Seeded the e-commerce tab with Sanga's cabin packages:
-- **Premium Cabin Upgrade (Couple)**: Double queens with private attached bathroom at Gita Nagari.
-- **Premium Cabin Upgrade (Family)**: Shared cabins with bunk beds, heater, and en-suite facilities.
+### 2. Merchandise Store
+
+The store is reserved for physical Sanga merchandise. Firebase owns catalog,
+variant inventory, reservations, and orders; Stripe-hosted Checkout owns payment
+collection. Every order ships within the United States for a flat $5 fee. Events,
+registrations, cabin upgrades, and donations use their own separate flows.
 
 ### 3. Dynamic Color Themes & Swatches
 Admins can change the site's palette on the fly from the staff portal. We defined four premium themes:
@@ -43,17 +45,19 @@ Admins can change the site's palette on the fly from the staff portal. We define
 
 *How it works*: `src/app/layout.tsx` fetches active configurations and injects CSS custom variables (`--background`, `--color-plum`, etc.) directly into the document header on the server side, resulting in instant theme rendering without unstyled content flash.
 
-### 4. Direct Stripe Checkout Integration
-Sanga can transition from external checkouts to native overlays in the **Settings** panel:
-- **Direct Mode**: Toggle "Direct Stripe Checkout Mode" to swap Squarespace links with direct Stripe sessions.
-- **API Setup**: Input your `Stripe Publishable Key` and `Stripe Secret Key` directly into the panel. Local fallback files are pre-wired to read these inputs.
+### 4. Stripe-hosted Checkout
+
+Merchandise Checkout is server-created from trusted Firebase prices and inventory.
+The browser submits only product, variant, quantity, and a checkout-attempt ID.
+Secrets are never stored in Firebase or exposed in the admin panel.
 
 ---
 
 ## Local Development
 
 ### 1. Install Packages
-In the root directory, install npm packages:
+Use Node.js 22 (the version pinned in `.nvmrc`). In the root directory, install
+npm packages:
 ```bash
 npm install
 ```
@@ -63,23 +67,26 @@ npm install
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) to view the live site. 
-*(If Supabase environment variables are missing, the project will automatically fall back to loading the seeded retreats and store catalog from memory, while the `/admin` portal shows setup configurations.)*
+*(If Firebase environment variables are missing, the project falls back to local mock data.)*
 
 ---
 
-## Database Configuration (Supabase Setup)
+## Database and Payments Configuration
 
-To configure the live database for newsletter subscriber data collections, contact form submissions, and database edits:
+The active backend is the Firebase project `tsiwebsite`. The `supabase/` directory is retained as historical migration material and is not on the runtime path.
 
-1. **Create Supabase Account & Project**: Sign up on [Supabase](https://supabase.com).
-2. **Run Migrations Schema**: Copy the SQL schema file from `supabase/migrations/20260616000000_init_schema.sql` and run it in the SQL Editor of your Supabase panel.
-3. **Configure Storage**: In the Storage tab of Supabase, create a new public bucket named `media` so coordinators can upload custom photos.
-4. **Link Credentials**: Create a `.env.local` file in the project root:
+1. Copy `.env.example` to `.env.local`.
+2. Add the Firebase web configuration and Stripe sandbox/test credentials:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-key
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=tsiwebsite
+   STRIPE_SECRET_KEY=rk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
-5. **Add Admin Account**: Go to Authentication -> Users in Supabase, and invite or create your first staff member. Use these credentials to sign in at `/admin`.
+3. Follow [docs/firebase-stripe-setup.md](docs/firebase-stripe-setup.md) to deploy
+   Firestore rules, migrate catalog data, and configure admin credentials.
+4. Point the Stripe event destination at `/api/stripe/webhook` and subscribe to
+   every event listed in the setup guide.
 
 ---
 
@@ -88,9 +95,7 @@ To configure the live database for newsletter subscriber data collections, conta
 1. Push this code repository to your GitHub account.
 2. Go to the [Vercel Dashboard](https://vercel.com) and click **Add New** -> **Project**.
 3. Import your Sanga repository.
-4. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Add every variable listed in `.env.example`, using sandbox/test Stripe credentials until end-to-end verification is complete.
 5. Click **Deploy**. Vercel will bundle the optimized site and publish it.
 
 ### Routing your custom domain
