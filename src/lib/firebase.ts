@@ -1,11 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
   getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, 
-  deleteDoc, query, orderBy, where, writeBatch 
+  deleteDoc, query, orderBy, where, writeBatch,
 } from 'firebase/firestore';
 import { 
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, User,
-  GoogleAuthProvider, signInWithPopup
+  GoogleAuthProvider, signInWithPopup,
 } from 'firebase/auth';
 import { 
   getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
@@ -13,16 +13,22 @@ import {
 import { 
   SiteSettings, Event, StoreProduct, Resource
 } from './types';
+import { formatMoney, legacyPriceToCents } from './commerce';
 export type { SiteSettings, Event, StoreProduct, Resource };
 
 export interface Order {
-  id: number;
+  id: number | string;
   order_ref: string;
   customer_name: string;
   customer_email: string;
   shipping_address: string;
   total_amount: number;
   status: 'pending' | 'paid' | 'completed' | 'cancelled';
+  payment_status?: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded';
+  fulfillment_status?: 'unfulfilled' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  reservation_status?: 'reserved' | 'committed' | 'released';
+  carrier?: string;
+  tracking_number?: string;
   items: Array<{
     id: number;
     product_title: string;
@@ -180,8 +186,6 @@ const defaultSiteSettings: SiteSettings = {
   one_time_donation_url: "",
   monthly_donation_url: "",
   color_palette: "default",
-  stripe_publishable_key: "",
-  stripe_secret_key: "",
   stripe_checkout_enabled: false,
   promo_video_url: "",
   hero_image_url: "",
@@ -210,6 +214,11 @@ export interface ProductInventory {
   product_id: number;
   size: string;
   stock: number;
+  variant?: string;
+  on_hand?: number;
+  reserved?: number;
+  sold?: number;
+  available?: number;
 }
 
 const defaultMockInventory: ProductInventory[] = [
@@ -277,7 +286,10 @@ export async function getEvents(options?: { featuredOnly?: boolean; all?: boolea
   }
   try {
     const colRef = collection(db!, 'events');
-    const snap = await getDocs(colRef);
+    const eventsQuery = options?.all
+      ? colRef
+      : query(colRef, where('published', '==', true));
+    const snap = await getDocs(eventsQuery);
     let list: Event[] = [];
     snap.forEach(docSnap => {
       list.push({ id: Number(docSnap.id), ...docSnap.data() } as Event);
@@ -311,6 +323,19 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
     if (stored) {
       try { products = JSON.parse(stored); } catch {}
     }
+    products = products.map(product => {
+      const priceCents = Number(
+        product.price_cents ?? legacyPriceToCents(product.price || '0'),
+      );
+      return {
+        ...product,
+        price_cents: priceCents,
+        price: formatMoney(priceCents),
+        currency: 'usd',
+        variant_type: product.variant_type === 'one_size' ? 'one_size' : 'size',
+        status: product.status === 'unavailable' ? 'unavailable' : 'available',
+      };
+    });
     if (options?.featuredOnly) {
       products = products.filter(p => p.featured);
     }
@@ -321,10 +346,25 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
   }
   try {
     const colRef = collection(db!, 'store_products');
-    const snap = await getDocs(colRef);
+    // Public Firestore rules can prove this query only returns public products.
+    // Authenticated admin screens use the Firebase Admin-backed API instead.
+    const productsQuery = options?.all
+      ? colRef
+      : query(colRef, where('published', '==', true));
+    const snap = await getDocs(productsQuery);
     let list: StoreProduct[] = [];
     snap.forEach(docSnap => {
-      list.push({ id: Number(docSnap.id), ...docSnap.data() } as StoreProduct);
+      const data = docSnap.data();
+      const priceCents = Number(data.price_cents ?? legacyPriceToCents(data.price || '0'));
+      list.push({
+        id: Number(docSnap.id),
+        ...data,
+        price_cents: priceCents,
+        price: formatMoney(priceCents),
+        currency: 'usd',
+        variant_type: data.variant_type === 'one_size' ? 'one_size' : 'size',
+        status: data.status === 'unavailable' ? 'unavailable' : 'available',
+      } as StoreProduct);
     });
     if (options?.featuredOnly) {
       list = list.filter(p => p.featured);
@@ -337,6 +377,11 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
     console.error("Firebase getProducts error:", e);
     return [];
   }
+}
+
+export async function getProductById(productId: number): Promise<StoreProduct | undefined> {
+  const products = await getProducts({ all: true });
+  return products.find(product => product.id === productId);
 }
 
 export async function getResources(options?: { publishedOnly?: boolean }): Promise<Resource[]> {
@@ -353,12 +398,15 @@ export async function getResources(options?: { publishedOnly?: boolean }): Promi
   }
   try {
     const colRef = collection(db!, 'resources');
-    const snap = await getDocs(colRef);
+    const resourcesQuery = options?.publishedOnly === false
+      ? colRef
+      : query(colRef, where('published', '==', true));
+    const snap = await getDocs(resourcesQuery);
     let list: Resource[] = [];
     snap.forEach(docSnap => {
       list.push({ id: Number(docSnap.id), ...docSnap.data() } as Resource);
     });
-    if (options?.publishedOnly) {
+    if (options?.publishedOnly !== false) {
       list = list.filter(r => r.published);
     }
     return list;
@@ -466,7 +514,9 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'created_at'>): 
     const orders = await getOrders();
     const newOrder: Order = {
       ...orderData,
-      id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
+      id: orders.length > 0
+        ? Math.max(...orders.map(order => Number(order.id) || 0)) + 1
+        : 1,
       created_at: new Date().toISOString()
     };
     setLocalStorageItem('sanga_mock_orders', JSON.stringify([newOrder, ...orders]));
@@ -620,10 +670,18 @@ export async function getProductInventory(productId: number): Promise<ProductInv
     snap.forEach(docSnap => {
       const data = docSnap.data();
       if (Number(data.product_id) === productId) {
+        const onHand = Number(data.on_hand ?? data.stock ?? 0);
+        const reserved = Number(data.reserved ?? 0);
+        const available = Math.max(0, onHand - reserved);
         list.push({
           product_id: Number(data.product_id),
-          size: String(data.size),
-          stock: Number(data.stock)
+          size: String(data.variant ?? data.size),
+          variant: String(data.variant ?? data.size),
+          stock: available,
+          on_hand: onHand,
+          reserved,
+          sold: Number(data.sold ?? 0),
+          available,
         });
       }
     });
@@ -1010,6 +1068,13 @@ export async function logoutAdmin(): Promise<{ success: boolean; message?: strin
     console.error("Firebase logoutAdmin error:", err);
     return { success: false, message: err.message };
   }
+}
+
+export async function getAdminIdToken(): Promise<string> {
+  if (!auth?.currentUser) {
+    throw new Error('Administrator authentication is required.');
+  }
+  return auth.currentUser.getIdToken();
 }
 
 export function onAdminAuthStateChange(callback: (session: any | null) => void): () => void {

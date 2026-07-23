@@ -1,13 +1,19 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProducts } from '@/lib/firebase';
+import { getProductInventory, getProducts } from '@/lib/firebase';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
 export const revalidate = 0;
 
 export default async function StorePage() {
   const products = await getProducts();
+  const inventoryByProduct = new Map(
+    await Promise.all(products.map(async product => [
+      product.id,
+      await getProductInventory(product.id),
+    ] as const)),
+  );
 
   return (
     <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
@@ -19,10 +25,10 @@ export default async function StorePage() {
             Sanga Merch
           </span>
           <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight text-plum">
-            Merchandise & Cabin Upgrades
+            Official Merchandise
           </h1>
           <p className="text-base sm:text-lg text-warm-black/75 leading-relaxed font-sans font-light">
-            Support Sanga and prepare for your gatherings. Book premium cabin accommodations or secure official retreat apparel here.
+            Support Sanga with official apparel and accessories, shipped anywhere in the United States for a flat $5 rate.
           </p>
         </div>
 
@@ -31,7 +37,9 @@ export default async function StorePage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
             {products.map((product, idx) => {
               const isAvailable = product.status === 'available';
-              const isSoldOut = product.status === 'sold-out';
+              const isSoldOut = inventoryByProduct
+                .get(product.id)
+                ?.every(item => (item.available ?? item.stock) < 1) ?? true;
               
               // Feature the hoodie, or the first product as fallback
               const isFeatured = product.slug === 'sanga-rebrand-hoodie' || (idx === 0 && !products.some(p => p.slug === 'sanga-rebrand-hoodie'));
@@ -200,7 +208,7 @@ export default async function StorePage() {
             <ShoppingBag className="mx-auto h-12 w-12 text-plum/25 mb-4 animate-bounce" />
             <h3 className="font-display text-2xl font-bold text-plum mb-2">No Merch Available</h3>
             <p className="text-sm text-warm-black/60 font-sans font-light">
-              There are currently no items in the store catalogue. Keep an eye out for upcoming drops or cabin upgrade availabilities!
+              There are currently no merchandise items available. Keep an eye out for an upcoming drop.
             </p>
           </div>
         )}
@@ -209,7 +217,7 @@ export default async function StorePage() {
         <div className="max-w-xl mx-auto text-center py-4 px-6 bg-plum/5 rounded-2xl border border-plum/5 flex items-center justify-center space-x-2.5">
           <ShieldCheck className="h-5 w-5 text-mint-green flex-shrink-0" />
           <span className="text-xs text-warm-black/75 font-sans font-bold">
-            Checkout processing is handled securely via our partner checkout systems.
+            Payment and shipping details are collected securely by Stripe Checkout.
           </span>
         </div>
 

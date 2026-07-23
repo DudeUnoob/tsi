@@ -1,22 +1,22 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { StoreProduct } from '@/lib/types';
 
 export interface CartItem {
   id: number;
   product_title: string;
   slug: string;
   price: string;
+  price_cents: number;
   image: string;
   quantity: number;
   size: string;
-  stripe_price_id?: string;
-  stripe_product_id?: string;
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: any, size: string, quantity: number) => void;
+  addToCart: (product: StoreProduct, size: string, quantity: number) => void;
   removeFromCart: (id: number, size: string) => void;
   updateQuantity: (id: number, size: string, quantity: number) => void;
   clearCart: () => void;
@@ -32,15 +32,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Load cart on client mount
   useEffect(() => {
+    let restoredItems: CartItem[] = [];
     try {
       const stored = localStorage.getItem('sanga_cart');
       if (stored) {
-        setCartItems(JSON.parse(stored));
+        restoredItems = JSON.parse(stored) as CartItem[];
       }
     } catch (e) {
       console.error('Failed to load cart from localStorage', e);
     }
-    setIsInitialized(true);
+    queueMicrotask(() => {
+      setCartItems(restoredItems);
+      setIsInitialized(true);
+    });
   }, []);
 
   // Save cart changes
@@ -54,7 +58,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartItems, isInitialized]);
 
-  const addToCart = useCallback((product: any, size: string, quantity: number) => {
+  const addToCart = useCallback((product: StoreProduct, size: string, quantity: number) => {
     setCartItems((prevItems) => {
       const existingIndex = prevItems.findIndex(
         (item) => item.id === product.id && item.size === size
@@ -73,11 +77,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           product_title: product.product_title,
           slug: product.slug,
           price: product.price,
+          price_cents: product.price_cents,
           image: product.image,
           quantity: quantity,
           size: size,
-          stripe_price_id: product.stripe_price_id,
-          stripe_product_id: product.stripe_product_id,
         },
       ];
     });
@@ -113,8 +116,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const cartTotal = cartItems.reduce((sum, item) => {
-    const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, ''));
-    return sum + (isNaN(numericPrice) ? 0 : numericPrice * item.quantity);
+    return sum + item.price_cents / 100 * item.quantity;
   }, 0);
 
   return (

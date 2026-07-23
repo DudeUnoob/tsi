@@ -79,12 +79,10 @@ export interface StoreProduct {
   description: string;
   image: string;
   price: string;
-  status: 'available' | 'unavailable' | 'sold-out';
-  external_checkout_url?: string;
-  external_product_url?: string;
-  shopify_embed_code?: string;
-  stripe_price_id?: string;
-  stripe_product_id?: string;
+  price_cents: number;
+  currency: 'usd';
+  variant_type: 'size' | 'one_size';
+  status: 'available' | 'unavailable';
   featured: boolean;
   published: boolean;
 }
@@ -160,8 +158,6 @@ export interface SiteSettings {
   contact_email: string;
   one_time_donation_url: string;
   monthly_donation_url: string;
-  stripe_publishable_key?: string;
-  stripe_secret_key?: string;
   stripe_checkout_enabled?: boolean;
   color_palette?: string;
   promo_video_url?: string;

@@ -1,202 +1,99 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight, Loader2, Lock, ShieldCheck, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Lock, Loader2 } from 'lucide-react';
-import { createOrder } from '@/lib/firebase';
+import { CartQuote, formatMoney } from '@/lib/commerce';
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
+  const [quote, setQuote] = useState<CartQuote | null>(null);
+  const [quoteError, setQuoteError] = useState('');
+  const [quoteLoading, setQuoteLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
-  
-  const shippingCost = 5.00;
-  const estimatedTax = cartTotal * 0.08;
-  const grandTotal = cartTotal + shippingCost + estimatedTax;
+  const [checkoutAttempt, setCheckoutAttempt] = useState<{ cartKey: string; id: string } | null>(null);
 
-  // Detect whether real Stripe is configured (set in env vars)
-  const stripeEnabled = !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  
-  // Shipping & Mock Payment form fields
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    address: '',
-    city: '',
-    state: '',
-    zip: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvv: ''
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const requestItems = useMemo(
+    () => cartItems.map(item => ({
+      productId: item.id,
+      variant: item.size,
+      quantity: item.quantity,
+    })),
+    [cartItems],
+  );
+  const requestKey = JSON.stringify(requestItems);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+  useEffect(() => {
+    let active = true;
+    if (requestItems.length === 0) {
+      queueMicrotask(() => {
+        if (!active) return;
+        setQuote(null);
+        setQuoteError('');
+      });
+      return () => {
+        active = false;
+      };
+    }
+
+    const controller = new AbortController();
+    queueMicrotask(() => {
+      if (!active) return;
+      setQuoteLoading(true);
+      setQuoteError('');
     });
-    if (errors?.[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
-  };
+    fetch('/api/store/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: requestItems }),
+      signal: controller.signal,
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Unable to refresh the cart.');
+        setQuote(data as CartQuote);
+      })
+      .catch(error => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setQuote(null);
+        setQuoteError(error instanceof Error ? error.message : 'Unable to refresh the cart.');
+      })
+      .finally(() => setQuoteLoading(false));
 
-  const validateForm = () => {
-    const tempErrors: Record<string, string> = {};
-    if (!formData.name.trim()) tempErrors.name = 'Full name is required';
-    if (!formData.email.trim()) {
-      tempErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      tempErrors.email = 'Invalid email address';
-    }
-    if (!formData.address.trim()) tempErrors.address = 'Address is required';
-    if (!formData.city.trim()) tempErrors.city = 'City is required';
-    if (!formData.state.trim()) tempErrors.state = 'State is required';
-    if (!formData.zip.trim()) tempErrors.zip = 'Zip code is required';
-    
-    // Only validate card details when Stripe is NOT configured (mock mode)
-    if (!stripeEnabled) {
-      const rawCard = formData.cardNumber.replace(/\s+/g, '');
-      if (!rawCard.trim()) {
-        tempErrors.cardNumber = 'Card number is required';
-      } else if (rawCard.length !== 16) {
-        tempErrors.cardNumber = 'Card must be 16 digits';
-      }
+    return () => {
+      active = false;
+      controller.abort();
+    };
+    // requestKey represents the complete authoritative cart request.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestKey]);
 
-      if (!formData.cardExpiry.trim()) {
-        tempErrors.cardExpiry = 'Expiry is required';
-      } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.cardExpiry)) {
-        tempErrors.cardExpiry = 'Format MM/YY required';
-      }
-
-      const rawCvv = formData.cardCvv.replace(/\D/g, '');
-      if (!rawCvv.trim()) {
-        tempErrors.cardCvv = 'CVC is required';
-      } else if (rawCvv.length < 3 || rawCvv.length > 4) {
-        tempErrors.cardCvv = 'Must be 3-4 digits';
-      }
-    }
-    
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
-
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
+  const handleCheckout = async () => {
+    if (!quote || quoteLoading || quoteError) return;
     setIsSubmitting(true);
-    setStatusMessage('Initiating order session...');
+    const attemptId = checkoutAttempt?.cartKey === requestKey
+      ? checkoutAttempt.id
+      : crypto.randomUUID();
+    setCheckoutAttempt({ cartKey: requestKey, id: attemptId });
 
     try {
-      // Call Stripe API checkout endpoint
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: cartItems.map(item => ({
-            id: item.id,
-            product_title: item.product_title,
-            slug: item.slug,
-            price: item.price,
-            quantity: item.quantity,
-            size: item.size,
-            stripe_price_id: item.stripe_price_id
-          })),
-          customerEmail: formData.email,
-          customerName: formData.name,
-          shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-          successUrl: window.location.origin + `/checkout/success`,
-          cancelUrl: window.location.href
-        })
+          checkoutAttemptId: attemptId,
+          items: requestItems,
+        }),
       });
-
       const data = await response.json();
-      console.log('[cart] Checkout API response:', JSON.stringify(data));
-
-      if (data.url) {
-        setStatusMessage('Redirecting to Stripe secure payment gateway...');
-        
-        // Save pending order record in Supabase / LocalStorage
-        try {
-          await createOrder({
-            order_ref: data.sessionId || `session_${Date.now()}`,
-            customer_name: formData.name,
-            customer_email: formData.email,
-            shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-            total_amount: grandTotal,
-            status: 'pending',
-            items: cartItems.map(item => ({
-              id: Number(item.id),
-              product_title: item.product_title,
-              price: item.price,
-              quantity: item.quantity,
-              size: item.size
-            }))
-          });
-        } catch (e) {
-          console.error('Failed to create pending order record:', e);
-        }
-
-        // Wait briefly for smooth user transition
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 1200);
-      } else {
-        // Fallback simulation if Stripe keys are not configured
-        setStatusMessage('Mock Mode: Stripe keys are not configured. Activating fallback...');
-        
-        setTimeout(() => {
-          setStatusMessage('Processing payment security check...');
-        }, 800);
-
-        setTimeout(() => {
-          setStatusMessage('Fulfilling mock purchase details...');
-        }, 1600);
-
-        const mockSessionId = `mock_${Date.now()}`;
-        
-        // Save paid order record in Supabase / LocalStorage
-        try {
-          await createOrder({
-            order_ref: mockSessionId,
-            customer_name: formData.name,
-            customer_email: formData.email,
-            shipping_address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-            total_amount: grandTotal,
-            status: 'paid',
-            items: cartItems.map(item => ({
-              id: Number(item.id),
-              product_title: item.product_title,
-              price: item.price,
-              quantity: item.quantity,
-              size: item.size
-            }))
-          });
-        } catch (e) {
-          console.error('Failed to create mock order record:', e);
-        }
-
-        setTimeout(() => {
-          // Serialize cart details in localStorage/sessionStorage for the success page
-          sessionStorage.setItem('sanga_last_order', JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`,
-            total: grandTotal,
-            items: cartItems
-          }));
-          clearCart();
-          window.location.href = `/checkout/success?session_id=${mockSessionId}`;
-        }, 2400);
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
+      if (!response.ok) throw new Error(data.error || 'Unable to start checkout.');
+      if (!data.url) throw new Error('Stripe did not return a Checkout URL.');
+      window.location.assign(data.url);
+    } catch (error) {
       setIsSubmitting(false);
-      setStatusMessage('');
-      alert('An error occurred during checkout. Please try again.');
+      setQuoteError(error instanceof Error ? error.message : 'Unable to start checkout.');
     }
   };
 
@@ -204,19 +101,14 @@ export default function CartPage() {
     return (
       <div className="bg-linen min-h-screen py-24 font-sans text-warm-black flex items-center">
         <div className="max-w-xl mx-auto px-6 text-center space-y-6">
-          <div className="w-20 h-20 bg-plum/5 border border-plum/10 rounded-full flex items-center justify-center mx-auto shadow-inner">
+          <div className="w-20 h-20 bg-plum/5 border border-plum/10 rounded-full flex items-center justify-center mx-auto">
             <ShoppingBag className="h-8 w-8 text-plum/40" />
           </div>
-          <div className="space-y-2">
+          <div>
             <h1 className="font-display text-3xl font-black text-plum">Your Cart is Empty</h1>
-            <p className="text-sm text-warm-black/60 font-light max-w-sm mx-auto leading-relaxed">
-              Looks like you haven&apos;t added any merchandise or upgrades to your catalog yet. Support Sanga by visiting the store.
-            </p>
+            <p className="text-sm text-warm-black/60 mt-2">Explore official Sanga merchandise to get started.</p>
           </div>
-          <Link
-            href="/store"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-plum text-linen hover:opacity-90 font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
-          >
+          <Link href="/store" className="inline-flex items-center gap-2 px-6 py-3 bg-plum text-linen font-black text-xs uppercase tracking-widest rounded-full">
             Explore Store <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -225,378 +117,111 @@ export default function CartPage() {
   }
 
   return (
-    <div className="bg-linen min-h-screen py-16 font-sans text-warm-black relative">
-      
-      {/* Checkout Processing Overlay */}
+    <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
       {isSubmitting && (
-        <div className="fixed inset-0 bg-plum/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-linen px-6 text-center select-none">
-          <div className="space-y-6 max-w-sm">
-            <Loader2 className="h-12 w-12 text-sunshine animate-spin mx-auto" />
-            <div className="space-y-2">
-              <h2 className="font-display text-2xl font-black tracking-tight text-sunshine">
-                Securing Transaction
-              </h2>
-              <p className="text-sm text-linen/85 font-light animate-pulse min-h-[40px]">
-                {statusMessage}
-              </p>
-            </div>
-            <div className="pt-4 border-t border-linen/15 flex items-center justify-center gap-2 text-xs text-linen/60">
-              <Lock className="h-3.5 w-3.5" /> Fully Encrypted Checkout Session
-            </div>
-          </div>
+        <div className="fixed inset-0 bg-plum/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-linen">
+          <Loader2 className="h-12 w-12 text-sunshine animate-spin" />
+          <h2 className="font-display text-2xl font-black text-sunshine mt-5">Opening Secure Checkout</h2>
+          <p className="text-sm text-linen/75 mt-2">Your merchandise is reserved for 30 minutes.</p>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Page Header */}
-        <div className="border-b border-plum/10 pb-8 mb-12">
-          <h1 className="font-display text-3xl sm:text-5xl font-black text-plum">
-            Shopping Cart
-          </h1>
-          <p className="text-sm text-warm-black/60 font-light mt-2">
-            Review your Sanga merchandise and proceed to secure card payment.
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="border-b border-plum/10 pb-8 mb-10">
+          <h1 className="font-display text-4xl sm:text-5xl font-black text-plum">Shopping Cart</h1>
+          <p className="text-sm text-warm-black/60 mt-2">
+            Prices and stock are verified live before Stripe Checkout.
           </p>
         </div>
 
-        {/* 2-Column Checkout Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Left Side: Items List */}
-          <div className="lg:col-span-7 space-y-6">
-            {cartItems.map((item) => {
-              const numericItemPrice = parseFloat(item.price.replace(/[^0-9.]/g, ''));
-              const itemTotal = (isNaN(numericItemPrice) ? 0 : numericItemPrice * item.quantity).toFixed(2);
-              
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-7 space-y-4">
+            {cartItems.map(item => {
+              const authoritative = quote?.items.find(
+                line => line.product_id === item.id && line.variant === item.size.toUpperCase(),
+              );
+              const maxQuantity = authoritative?.available ?? item.quantity;
               return (
-                <div
-                  key={`${item.id}-${item.size}`}
-                  className="flex items-center gap-4 p-4 sm:p-5 bg-[var(--color-linen)] rounded-2xl border border-[var(--color-plum)]/10 shadow-sm relative overflow-hidden group hover:border-[var(--color-plum)]/20 transition-all duration-200"
-                >
-                  {/* Image Display */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-[var(--color-plum)]/5 rounded-xl border border-[var(--color-plum)]/10 overflow-hidden flex-shrink-0">
+                <div key={`${item.id}-${item.size}`} className="flex gap-4 p-5 bg-linen rounded-2xl border border-plum/10 shadow-sm">
+                  <div className="relative w-24 h-24 bg-plum/5 rounded-xl overflow-hidden flex-shrink-0">
                     {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.product_title}
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={item.image} alt={item.product_title} fill className="object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[var(--color-plum)]/20">
-                        <ShoppingBag className="h-8 w-8" />
-                      </div>
+                      <ShoppingBag className="h-8 w-8 text-plum/20 absolute inset-0 m-auto" />
                     )}
                   </div>
-
-                  {/* Metadata and Adjustments */}
-                  <div className="flex-grow flex flex-col sm:flex-row justify-between gap-4">
-                    <div className="space-y-1.5">
-                      <h3 className="font-display text-lg font-bold text-[var(--color-plum)] group-hover:text-[var(--color-pink)] transition-colors leading-tight">
-                        <Link href={`/store/${item.slug}`}>
-                          {item.product_title}
+                  <div className="flex-grow min-w-0">
+                    <div className="flex justify-between gap-4">
+                      <div>
+                        <Link href={`/store/${item.slug}`} className="font-display text-lg font-bold text-plum">
+                          {authoritative?.title || item.product_title}
                         </Link>
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-warm-black)]/70">
-                        <span className="font-bold bg-[var(--color-plum)]/5 px-2 py-0.5 rounded border border-[var(--color-plum)]/5">
-                          Size: {item.size}
-                        </span>
-                        <span>Unit: {item.price}</span>
+                        <p className="text-xs text-warm-black/60 mt-1">Variant: {item.size}</p>
                       </div>
+                      <button onClick={() => removeFromCart(item.id, item.size)} aria-label="Remove item" className="text-warm-black/35 hover:text-pink">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
-
-                    {/* Quantity Adjustment Row */}
-                    <div className="flex items-center gap-6 justify-between sm:justify-end">
-                      <div className="flex items-center bg-[var(--color-plum)]/5 border border-[var(--color-plum)]/10 rounded-xl overflow-hidden">
+                    <div className="flex items-center justify-between mt-5">
+                      <div className="flex items-center bg-plum/5 border border-plum/10 rounded-xl overflow-hidden">
+                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="px-3 py-1.5 font-black text-plum">−</button>
+                        <span className="w-9 text-center text-xs font-bold text-plum">{item.quantity}</span>
                         <button
-                          type="button"
-                          onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                          className="px-2.5 py-1 text-sm font-black text-[var(--color-plum)] hover:bg-[var(--color-plum)]/10 cursor-pointer"
-                        >
-                          -
-                        </button>
-                        <span className="px-2.5 py-1 font-bold text-xs text-[var(--color-plum)] w-8 text-center select-none">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
                           onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                          className="px-2.5 py-1 text-sm font-black text-[var(--color-plum)] hover:bg-[var(--color-plum)]/10 cursor-pointer"
+                          disabled={item.quantity >= maxQuantity}
+                          className="px-3 py-1.5 font-black text-plum disabled:opacity-30"
                         >
                           +
                         </button>
                       </div>
-
-                      {/* Item Total Price */}
-                      <span className="font-display font-black text-[var(--color-plum)] text-base min-w-[60px] text-right">
-                        ${itemTotal}
+                      <span className="font-display font-black text-plum">
+                        {authoritative
+                          ? formatMoney(authoritative.line_total)
+                          : 'Refreshing…'}
                       </span>
                     </div>
                   </div>
-
-                  {/* Deletion Trigger */}
-                  <button
-                    type="button"
-                    onClick={() => removeFromCart(item.id, item.size)}
-                    className="absolute top-4 right-4 p-1.5 text-[var(--color-warm-black)]/40 hover:text-[var(--color-pink)] transition-colors cursor-pointer"
-                    aria-label="Remove item from cart"
-                  >
-                    <Trash2 className="h-4.5 w-4.5" />
-                  </button>
                 </div>
               );
             })}
           </div>
 
-          {/* Right Side: Checkout Form & Totals */}
-          <div className="lg:col-span-5 bg-[var(--color-linen)] rounded-3xl border border-[var(--color-plum)]/10 p-6 sm:p-8 shadow-sm space-y-6">
-            
-            {/* Shipping Form */}
-            <form onSubmit={handleCheckout} className="space-y-4">
-              <h2 className="font-display text-xl font-bold text-[var(--color-plum)] border-b border-[var(--color-plum)]/10 pb-2.5">
-                Shipping Details
-              </h2>
-
-              {/* Name */}
-              <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="John Doe"
-                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                    errors.name ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                  }`}
-                />
-                {errors.name && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.name}</p>}
+          <aside className="lg:col-span-5 bg-linen rounded-3xl border border-plum/10 p-7 shadow-sm space-y-5">
+            <h2 className="font-display text-2xl font-black text-plum">Order Summary</h2>
+            {quoteLoading ? (
+              <div className="flex items-center gap-2 text-sm text-plum/60">
+                <Loader2 className="h-4 w-4 animate-spin" /> Refreshing price and stock…
               </div>
-
-              {/* Email */}
-              <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="john@example.com"
-                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                    errors.email ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                  }`}
-                />
-                {errors.email && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.email}</p>}
-              </div>
-
-              {/* Address */}
-              <div className="space-y-1">
-                <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                  Shipping Address
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="123 Bhakti Way"
-                  className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                    errors.address ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                  }`}
-                />
-                {errors.address && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.address}</p>}
-              </div>
-
-              {/* City, State, Zip grid */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="Gita Town"
-                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                      errors.city ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                    }`}
-                  />
-                  {errors.city && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.city}</p>}
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                    State
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    placeholder="PA"
-                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                      errors.state ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                    }`}
-                  />
-                  {errors.state && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.state}</p>}
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                    Zip Code
-                  </label>
-                  <input
-                    type="text"
-                    name="zip"
-                    value={formData.zip}
-                    onChange={handleInputChange}
-                    placeholder="19525"
-                    className={`w-full px-3.5 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                      errors.zip ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                    }`}
-                  />
-                  {errors.zip && <p className="text-[9px] text-[var(--color-pink)] font-bold">{errors.zip}</p>}
+            ) : quote ? (
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span>Subtotal</span><strong>{formatMoney(quote.subtotal_cents)}</strong></div>
+                <div className="flex justify-between"><span>US shipping</span><strong>{formatMoney(quote.shipping_cents)}</strong></div>
+                <div className="flex justify-between pt-3 border-t border-plum/10 text-lg font-display font-black text-plum">
+                  <span>Total</span><span>{formatMoney(quote.total_cents)}</span>
                 </div>
               </div>
+            ) : null}
 
-              {/* Card Information — only shown in mock mode (no Stripe keys) */}
-              {!stripeEnabled && (
-                <div className="space-y-4 pt-4 border-t border-[var(--color-plum)]/10">
-                  <h3 className="font-display text-sm font-bold uppercase tracking-wider text-[var(--color-plum)]">
-                    Mock Payment Details
-                  </h3>
-                  
-                  {/* Card Number */}
-                  <div className="space-y-1">
-                    <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').substring(0, 16);
-                        const formatted = val.match(/.{1,4}/g)?.join(' ') || val;
-                        setFormData({ ...formData, cardNumber: formatted });
-                        if (errors?.cardNumber) setErrors({ ...errors, cardNumber: '' });
-                      }}
-                      placeholder="4111 2222 3333 4444"
-                      className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                        errors?.cardNumber ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                      }`}
-                    />
-                    {errors?.cardNumber && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardNumber}</p>}
-                  </div>
-
-                  {/* Expiry & CVV */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                        Expiration Date
-                      </label>
-                      <input
-                        type="text"
-                        name="cardExpiry"
-                        value={formData.cardExpiry}
-                        onChange={(e) => {
-                          let val = e.target.value.replace(/\D/g, '').substring(0, 4);
-                          if (val.length > 2) {
-                            val = val.substring(0, 2) + '/' + val.substring(2);
-                          }
-                          setFormData({ ...formData, cardExpiry: val });
-                          if (errors?.cardExpiry) setErrors({ ...errors, cardExpiry: '' });
-                        }}
-                        placeholder="MM/YY"
-                        className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                          errors?.cardExpiry ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                        }`}
-                      />
-                      {errors?.cardExpiry && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardExpiry}</p>}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs uppercase tracking-widest font-black text-[var(--color-plum)]">
-                        CVC / CVV
-                      </label>
-                      <input
-                        type="text"
-                        name="cardCvv"
-                        value={formData.cardCvv}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').substring(0, 4);
-                          setFormData({ ...formData, cardCvv: val });
-                          if (errors?.cardCvv) setErrors({ ...errors, cardCvv: '' });
-                        }}
-                        placeholder="123"
-                        className={`w-full px-4 py-3 bg-[var(--color-linen)] rounded-xl border text-sm focus:outline-none focus:border-[var(--color-plum)] font-sans ${
-                          errors?.cardCvv ? 'border-[var(--color-pink)]' : 'border-[var(--color-plum)]/20'
-                        }`}
-                      />
-                      {errors?.cardCvv && <p className="text-[10px] text-[var(--color-pink)] font-bold">{errors.cardCvv}</p>}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Stripe mode notice */}
-              {stripeEnabled && (
-                <div className="flex items-center gap-3 pt-4 border-t border-[var(--color-plum)]/10 bg-[var(--color-plum)]/5 rounded-2xl px-4 py-3">
-                  <ShieldCheck className="h-5 w-5 text-[#66CC6E] flex-shrink-0" />
-                  <p className="text-xs text-[var(--color-warm-black)]/70 font-sans">
-                    You will be securely redirected to <strong>Stripe</strong> to complete payment. Your card details are never shared with us.
-                  </p>
-                </div>
-              )}
-
-              {/* Order Calculations */}
-              <div className="pt-6 border-t border-[var(--color-plum)]/10 space-y-3 font-sans text-sm">
-                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
-                  <span>Subtotal</span>
-                  <span className="font-bold">${cartTotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
-                  <span>Shipping</span>
-                  <span className="font-bold">${shippingCost.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-[var(--color-warm-black)]/80 font-light">
-                  <span>Estimated Tax (8%)</span>
-                  <span className="font-bold">${estimatedTax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-[var(--color-plum)] font-display text-lg font-black pt-2 border-t border-[var(--color-plum)]/5">
-                  <span>Grand Total</span>
-                  <span>${grandTotal.toFixed(2)}</span>
-                </div>
+            {quoteError && (
+              <div className="rounded-xl border border-pink/30 bg-pink/5 p-3 text-xs font-bold text-pink">
+                {quoteError}
               </div>
+            )}
 
-              {/* Place Order CTA */}
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {isSubmitting ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> {statusMessage || 'Processing...'}</>
-                  ) : stripeEnabled ? (
-                    <><Lock className="h-4 w-4" /> Proceed to Secure Checkout &rarr;</>
-                  ) : (
-                    <><Lock className="h-4 w-4" /> Place Secure Order</>
-                  )}
-                </button>
-              </div>
-            </form>
+            <button
+              type="button"
+              onClick={handleCheckout}
+              disabled={!quote || quoteLoading || Boolean(quoteError) || isSubmitting}
+              className="w-full py-4 bg-plum text-linen font-black uppercase text-xs tracking-widest rounded-2xl shadow disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <Lock className="h-4 w-4" /> Continue to Stripe
+            </button>
 
-            {/* Payment Trust Badges */}
-            <div className="pt-4 border-t border-[var(--color-plum)]/10 flex items-center justify-center space-x-2 text-[10px] text-[var(--color-warm-black)]/60 font-sans font-light">
-              <ShieldCheck className="h-4 w-4 text-[#66CC6E]" />
-              <span>SSL Encrypted Checkout Processing</span>
+            <div className="flex gap-2 text-[11px] text-warm-black/60 border-t border-plum/10 pt-4">
+              <ShieldCheck className="h-4 w-4 text-pink flex-shrink-0" />
+              Stripe securely collects payment, email, and the US shipping address.
             </div>
-
-          </div>
-
+          </aside>
         </div>
       </div>
     </div>

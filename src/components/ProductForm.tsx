@@ -5,19 +5,10 @@ import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Check, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { getProductInventory, ProductInventory } from '@/lib/firebase';
+import type { StoreProduct } from '@/lib/types';
 
 interface ProductFormProps {
-  product: {
-    id: number;
-    product_title: string;
-    slug: string;
-    description: string;
-    image: string;
-    price: string;
-    status: 'available' | 'unavailable' | 'sold-out';
-    stripe_price_id?: string;
-    stripe_product_id?: string;
-  };
+  product: StoreProduct;
 }
 
 export default function ProductForm({ product }: ProductFormProps) {
@@ -29,12 +20,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [added, setAdded] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const isApparel = 
-    product.slug.includes('hoodie') || 
-    product.slug.includes('tshirt') || 
-    product.slug.includes('tee') ||
-    product.product_title.toLowerCase().includes('shirt') ||
-    product.product_title.toLowerCase().includes('hoodie');
+  const isApparel = product.variant_type === 'size';
 
   useEffect(() => {
     getProductInventory(product.id)
@@ -90,7 +76,7 @@ export default function ProductForm({ product }: ProductFormProps) {
           {product.price}
         </span>
         <span className="text-[10px] text-[var(--color-warm-black)]/50 uppercase tracking-widest font-black">
-          + Shipping & Taxes
+          + $5 US shipping
         </span>
       </div>
 

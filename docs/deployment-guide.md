@@ -32,10 +32,19 @@ Vercel is the recommended hosting platform for Next.js applications, offering au
 
 ### Step 2: Configure variables
 1. In the **Configure Project** step, expand the **Environment Variables** section.
-2. Enter your production Supabase keys:
-   - `NEXT_PUBLIC_SUPABASE_URL` = *Your live Supabase API URL*
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = *Your live Supabase Anon Key*
-3. *Note: If these variables are not entered, the public pages will default to serving local mock fallback data.*
+2. Enter every variable from `.env.example`, including:
+   - `NEXT_PUBLIC_FIREBASE_*` = *Firebase web app configuration*
+   - `FIREBASE_SERVICE_ACCOUNT_JSON` = *Firebase Admin service account JSON*
+   - `FIREBASE_ADMIN_PROJECT_ID` = `tsiwebsite`
+   - `STRIPE_SECRET_KEY` = *Stripe restricted key for the selected environment*
+   - `STRIPE_WEBHOOK_SECRET` = *Signing secret for the deployed webhook destination*
+   - `CRON_SECRET` = *Random secret for inventory reconciliation*
+   - `NEXT_PUBLIC_APP_URL` = *The canonical deployed origin*
+3. Keep Stripe sandbox/test credentials in Preview until checkout and webhook
+   fulfillment have been verified. Never expose either Stripe secret through a
+   `NEXT_PUBLIC_` variable.
+4. *Note: If Firebase variables are absent, public pages use local mock data.
+   Checkout fails closed if Stripe server credentials are absent.*
 
 ### Step 3: Deploy
 1. Click **Deploy**.
