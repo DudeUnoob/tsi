@@ -11,9 +11,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
+    "test": "npm run test:unit && npm run test:transactions",
+    "test:unit": "vitest run --exclude src/lib/commerce-emulator.test.ts",
+    "test:transactions": "firebase emulators:exec --only firestore \"vitest run src/lib/commerce-emulator.test.ts\"",
     "test:watch": "vitest",
-    "test:emulator": "firebase emulators:exec --only firestore \"vitest run src/lib/commerce-emulator.test.ts\"",
+    "test:emulator": "npm run test:transactions",
     "commerce:migrate": "node scripts/migrate_commerce.js",
     "commerce:migrate:apply": "node scripts/migrate_commerce.js --apply"
   },

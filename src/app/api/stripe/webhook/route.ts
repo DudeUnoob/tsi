@@ -4,6 +4,7 @@ import {
   applySessionTransition,
   markPaymentRefunded,
 } from '@/lib/commerce-server';
+import { getStripe } from '@/lib/stripe-server';
 
 export const runtime = 'nodejs';
 
@@ -16,15 +17,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Webhook is not configured.' }, { status: 400 });
   }
 
-  const stripe = new Stripe(secretKey, { maxNetworkRetries: 2 });
+  const stripe = getStripe();
+  let event: Stripe.Event;
 
   try {
-    const event = stripe.webhooks.constructEvent(
+    event = stripe.webhooks.constructEvent(
       await request.text(),
       signature,
       webhookSecret,
     );
+  } catch {
+    return NextResponse.json({ error: 'Invalid webhook signature.' }, { status: 400 });
+  }
 
+  try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
@@ -32,17 +38,18 @@ export async function POST(request: Request) {
           event.id,
           session,
           session.payment_status === 'paid' ? 'paid' : 'processing',
+          'stripe.webhook',
         );
         break;
       }
       case 'checkout.session.async_payment_succeeded':
-        await applySessionTransition(event.id, event.data.object, 'paid');
+        await applySessionTransition(event.id, event.data.object, 'paid', 'stripe.webhook');
         break;
       case 'checkout.session.async_payment_failed':
-        await applySessionTransition(event.id, event.data.object, 'failed');
+        await applySessionTransition(event.id, event.data.object, 'failed', 'stripe.webhook');
         break;
       case 'checkout.session.expired':
-        await applySessionTransition(event.id, event.data.object, 'expired');
+        await applySessionTransition(event.id, event.data.object, 'expired', 'stripe.webhook');
         break;
       case 'charge.refunded': {
         const charge = event.data.object;
@@ -64,6 +71,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Stripe webhook processing failed:', error);
-    return NextResponse.json({ error: 'Webhook processing failed.' }, { status: 400 });
+    return NextResponse.json({ error: 'Webhook processing failed.' }, { status: 500 });
   }
 }

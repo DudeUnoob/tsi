@@ -35,6 +35,9 @@ application.
 8. Do not enable Stripe Tax for the merchandise Checkout flow until tax
    registrations are confirmed.
 9. Set `NEXT_PUBLIC_APP_URL` to the canonical deployment origin.
+10. Set a separate random `CHECKOUT_TOKEN_SECRET`. It signs the opaque
+    Resume/Cancel capability stored in the customer's browser and must remain
+    server-only.
 
 For local webhook testing:
 
@@ -58,7 +61,10 @@ out with:
 - Any three-digit CVC
 - Any valid United States test shipping address
 
-Before Checkout, `available` falls and `reserved` rises. After the paid webhook,
+Before Checkout, `available` temporarily falls and `reserved` rises while
+physical `on_hand` remains unchanged. Returning through Stripe's cancel action
+expires the Session and releases immediately; closing the tab releases when
+Stripe expires the Session after 30 minutes. After the paid webhook,
 `on_hand` and `reserved` each fall by the purchased quantity while `sold` rises.
 Inspect the resulting production Firestore `orders` and `product_inventory`
 documents in Firebase Console. Although Stripe is in test mode, these Firebase
@@ -108,8 +114,15 @@ imports. The local `backups/` directory is ignored by Git.
 
 Set a strong `CRON_SECRET`. `vercel.json` schedules
 `/api/cron/reconcile-inventory` once daily; Stripe webhooks remain the primary
-reservation-release mechanism. Administrators can also select **Release
-Expired** in Store Orders.
+reservation-release mechanism. Administrators can also select **Reconcile with
+Stripe** in Store Orders. Reconciliation retrieves each Session and never
+releases inventory when Stripe is unavailable or reports payment as paid or
+processing.
+
+`npm test` runs both mandatory unit/route tests and isolated Firestore
+transaction tests. The production runtime still uses the configured real
+Firebase project; the emulator is used only to keep destructive concurrency
+tests away from real merchandise records.
 
 Deploy to Preview first, use only sandbox credentials, perform the dry-run
 migration and acceptance tests, then create equivalent live restricted

@@ -81,12 +81,15 @@ The active backend is the Firebase project `tsiwebsite`. The `supabase/` directo
    NEXT_PUBLIC_FIREBASE_PROJECT_ID=tsiwebsite
    STRIPE_SECRET_KEY=rk_test_...
    STRIPE_WEBHOOK_SECRET=whsec_...
+   CHECKOUT_TOKEN_SECRET=a-long-random-server-only-value
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 3. Follow [docs/firebase-stripe-setup.md](docs/firebase-stripe-setup.md) to deploy
    Firestore rules, migrate catalog data, and configure admin credentials.
 4. Point the Stripe event destination at `/api/stripe/webhook` and subscribe to
    every event listed in the setup guide.
+5. Run `npm test`; the command includes the mandatory Firestore transaction
+   suite and fails if reservation/race-condition tests do not run.
 
 ---
 

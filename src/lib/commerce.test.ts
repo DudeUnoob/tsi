@@ -3,6 +3,8 @@ import {
   calculateQuoteTotals,
   cartRequestSchema,
   commitInventory,
+  commitUnreservedInventory,
+  createCartFingerprint,
   isVariantAllowed,
   legacyPriceToCents,
   releaseInventory,
@@ -47,6 +49,9 @@ describe('commerce inventory transitions', () => {
       sold: 3,
       available: 5,
     });
+    expect(() => releaseInventory(inventory, 2)).toThrow(
+      'Reserved inventory is inconsistent with the released order.',
+    );
   });
 
   it('commits reserved inventory exactly once per transition', () => {
@@ -56,6 +61,21 @@ describe('commerce inventory transitions', () => {
       sold: 4,
       available: 4,
     });
+    expect(() => commitInventory(inventory, 2)).toThrow(
+      'Reserved inventory is inconsistent with the paid order.',
+    );
+  });
+
+  it('allocates a late payment only from unreserved inventory', () => {
+    expect(commitUnreservedInventory(inventory, 2)).toEqual({
+      on_hand: 3,
+      reserved: 1,
+      sold: 5,
+      available: 2,
+    });
+    expect(() => commitUnreservedInventory(inventory, 5)).toThrow(
+      'Only 4 unreserved units are available.',
+    );
   });
 });
 
@@ -74,5 +94,18 @@ describe('cart validation', () => {
     expect(isVariantAllowed('size', 'OS')).toBe(false);
     expect(isVariantAllowed('one_size', 'OS')).toBe(true);
     expect(isVariantAllowed('one_size', 'M')).toBe(false);
+  });
+
+  it('creates an order-independent cart fingerprint', () => {
+    const first = createCartFingerprint([
+      { productId: 2, variant: 'os', quantity: 1 },
+      { productId: 1, variant: 'm', quantity: 2 },
+    ]);
+    const second = createCartFingerprint([
+      { productId: 1, variant: 'M', quantity: 1 },
+      { productId: 2, variant: 'OS', quantity: 1 },
+      { productId: 1, variant: 'm', quantity: 1 },
+    ]);
+    expect(first).toBe(second);
   });
 });

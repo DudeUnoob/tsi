@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { reconcileExpiredReservations } from '@/lib/commerce-server';
+import { getStripe } from '@/lib/stripe-server';
 
 export const runtime = 'nodejs';
 
@@ -10,7 +11,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    return NextResponse.json(await reconcileExpiredReservations());
+    return NextResponse.json(await reconcileExpiredReservations(getStripe()));
   } catch (error) {
     console.error('Inventory reconciliation failed:', error);
     return NextResponse.json({ error: 'Reconciliation failed.' }, { status: 500 });
