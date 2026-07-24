@@ -937,7 +937,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Panel Content */}
-      <main className="flex-grow p-5 md:p-8 lg:p-12 overflow-y-auto lg:h-full">
+      <main className="min-w-0 flex-grow p-5 md:p-8 lg:p-12 overflow-y-auto lg:h-full">
 
         {/* Active Tab render checks */}
         {activeTab === 'overview' && (
@@ -2423,7 +2423,7 @@ export default function AdminDashboard() {
 
         {/* Tab 9: Form Submissions */}
         {activeTab === 'submissions' && (
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <div>
               <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Submissions & Records</h1>
               <p className="text-sm text-warm-black/60">View mailing lists, contact inquiries, store orders, and gathering signups.</p>
@@ -2628,7 +2628,15 @@ export default function AdminDashboard() {
                     });
 
                     return filtered.length > 0 ? (
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full table-fixed text-left border-collapse">
+                        <colgroup>
+                          <col className="w-[18%]" />
+                          <col className="w-[18%]" />
+                          <col className="w-[24%]" />
+                          <col className="w-[9%]" />
+                          <col className="w-[18%]" />
+                          <col className="w-[13%]" />
+                        </colgroup>
                         <thead>
                           <tr className="bg-plum/5 text-plum uppercase text-[9px] font-black tracking-wider border-b border-plum/10">
                             <th className="p-4">Ref / Date</th>
@@ -2649,19 +2657,22 @@ export default function AdminDashboard() {
                                   : 'hover:bg-plum/5/20 transition-colors'
                               }
                             >
-                              <td className="p-4">
-                                <span className="font-bold text-plum block">{ord.order_ref}</span>
+                              <td className="p-4 min-w-0">
+                                <span className="font-bold text-plum block truncate" title={ord.order_ref}>{ord.order_ref}</span>
                                 <span className="text-[10px] text-warm-black/55">{new Date(ord.created_at).toLocaleDateString()}</span>
                               </td>
-                              <td className="p-4">
-                                <span className="font-bold block text-plum">{ord.customer_name}</span>
-                                <span className="text-[10px] text-warm-black/55">{ord.customer_email}</span>
+                              <td className="p-4 min-w-0">
+                                <span className="font-bold block text-plum truncate" title={ord.customer_name}>{ord.customer_name}</span>
+                                <span className="text-[10px] text-warm-black/55 block truncate" title={ord.customer_email}>{ord.customer_email}</span>
                               </td>
-                              <td className="p-4 max-w-xs truncate">
+                              <td
+                                className="p-4 truncate"
+                                title={ord.items.map(i => `${i.product_title} x${i.quantity} (${i.size})`).join(', ')}
+                              >
                                 {ord.items.map(i => `${i.product_title} x${i.quantity} (${i.size})`).join(', ')}
                               </td>
-                              <td className="p-4 font-bold text-[var(--color-pink)]">${ord.total_amount.toFixed(2)}</td>
-                              <td className="p-4">
+                              <td className="p-4 font-bold text-[var(--color-pink)] whitespace-nowrap">${ord.total_amount.toFixed(2)}</td>
+                              <td className="p-4 whitespace-nowrap">
                                 <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black tracking-wide uppercase border ${(ord.payment_status || ord.status) === 'paid' ? 'bg-[#66CC6E]/10 border-[#66CC6E]/20 text-[#66CC6E]' :
                                     (ord.payment_status || ord.status) === 'refunded' ? 'bg-plum/10 border-plum/20 text-plum' :
                                       (ord.payment_status || ord.status) === 'pending' ? 'bg-[var(--color-sunshine)]/10 border-[var(--color-sunshine)]/20 text-[var(--color-sunshine)]' :
@@ -2681,7 +2692,7 @@ export default function AdminDashboard() {
                               <td className="p-4 text-right">
                                 <button
                                   onClick={() => setSelectedOrder(ord)}
-                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[var(--color-linen)] border border-plum/10 text-plum text-[10px] font-bold rounded-xl cursor-pointer transition-colors"
+                                  className="px-3 py-1.5 bg-plum/5 hover:bg-plum hover:text-[var(--color-linen)] border border-plum/10 text-plum text-[10px] font-bold rounded-xl whitespace-nowrap cursor-pointer transition-colors"
                                 >
                                   View Detail
                                 </button>
@@ -2846,13 +2857,17 @@ export default function AdminDashboard() {
         {selectedOrder && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div onClick={() => setSelectedOrder(null)} className="fixed inset-0 bg-[var(--color-warm-black)]/60 backdrop-blur-xs" />
-            <div className="relative w-full max-w-lg bg-[var(--color-linen)] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
-              <div className="flex justify-between items-center pb-3 border-b border-plum/10 flex-shrink-0">
-                <div>
+            <div className="relative w-full max-w-lg overflow-hidden bg-[var(--color-linen)] rounded-3xl border border-plum/15 p-6 shadow-2xl font-sans text-xs text-plum z-10 max-h-[85vh] flex flex-col">
+              <div className="flex min-w-0 items-start gap-3 pb-3 border-b border-plum/10 flex-shrink-0">
+                <div className="min-w-0 flex-1">
                   <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-pink)]">Order Reference</span>
-                  <h4 className="font-display font-black text-lg text-plum leading-tight">{selectedOrder.order_ref}</h4>
+                  <h4 className="font-display font-black text-base text-plum leading-tight [overflow-wrap:anywhere]">{selectedOrder.order_ref}</h4>
                 </div>
-                <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer">
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  aria-label="Close order details"
+                  className="shrink-0 p-2 hover:bg-plum/5 rounded-full text-plum/60 hover:text-plum cursor-pointer"
+                >
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -2862,8 +2877,8 @@ export default function AdminDashboard() {
                 <div className="space-y-1 bg-plum/5 p-4 rounded-2xl border border-plum/5">
                   <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Shipping Destination</h5>
                   <p className="font-bold text-sm text-plum">{selectedOrder.customer_name}</p>
-                  <p className="text-[11px] font-light">{selectedOrder.shipping_address}</p>
-                  <p className="text-[10px] font-light text-plum/60 mt-1">Email: {selectedOrder.customer_email}</p>
+                  <p className="text-[11px] font-light [overflow-wrap:anywhere]">{selectedOrder.shipping_address}</p>
+                  <p className="text-[10px] font-light text-plum/60 mt-1 [overflow-wrap:anywhere]">Email: {selectedOrder.customer_email}</p>
                 </div>
 
                 {/* Payment and fulfillment manager */}
@@ -2911,7 +2926,7 @@ export default function AdminDashboard() {
                       </button>
                     </div>
                   )}
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Stripe Payment</h5>
                       <span className="text-[11px] font-bold uppercase">{selectedOrder.payment_status || selectedOrder.status}</span>
@@ -2936,7 +2951,7 @@ export default function AdminDashboard() {
                         ...selectedOrder,
                         fulfillment_status: e.target.value as NonNullable<Order['fulfillment_status']>,
                       })}
-                      className="px-3 py-1.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
+                      className="w-full sm:w-auto px-3 py-1.5 bg-[var(--color-linen)] rounded-xl border border-plum/15 text-xs font-bold text-plum focus:outline-none"
                     >
                       <option value="unfulfilled">Unfulfilled</option>
                       <option value="processing">Processing</option>
@@ -2945,20 +2960,20 @@ export default function AdminDashboard() {
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       disabled={selectedOrder.inventory_exception}
                       value={selectedOrder.carrier || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, carrier: e.target.value })}
                       placeholder="Carrier"
-                      className="px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
+                      className="min-w-0 px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
                     />
                     <input
                       disabled={selectedOrder.inventory_exception}
                       value={selectedOrder.tracking_number || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, tracking_number: e.target.value })}
                       placeholder="Tracking number"
-                      className="px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
+                      className="min-w-0 px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
                     />
                   </div>
                   <button
@@ -2991,12 +3006,12 @@ export default function AdminDashboard() {
                   <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Cart Items</h5>
                   <div className="border border-plum/10 rounded-2xl overflow-hidden divide-y divide-plum/5">
                     {selectedOrder.items.map((it, idx) => (
-                      <div key={idx} className="p-3 flex justify-between items-center">
-                        <div>
-                          <span className="font-bold text-plum">{it.product_title}</span>
+                      <div key={idx} className="p-3 flex min-w-0 items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <span className="font-bold text-plum [overflow-wrap:anywhere]">{it.product_title}</span>
                           <span className="text-[10px] text-warm-black/55 block">Size: {it.size}</span>
                         </div>
-                        <div className="text-right">
+                        <div className="shrink-0 text-right">
                           <span className="text-[10px] text-warm-black/55 mr-3">x{it.quantity}</span>
                           <span className="font-bold text-[var(--color-pink)]">{it.price}</span>
                         </div>
