@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type Stripe from 'stripe';
 
 export const SHIPPING_CENTS = 500;
 export const RESERVATION_MINUTES = 30;
@@ -17,6 +18,11 @@ export const cartRequestSchema = z.object({
 
 export const checkoutRequestSchema = cartRequestSchema.extend({
   checkoutAttemptId: z.string().uuid(),
+});
+
+export const checkoutManagementSchema = z.object({
+  checkoutAttemptId: z.string().uuid(),
+  token: z.string().min(16).max(256),
 });
 
 export type CartLineInput = z.infer<typeof cartLineSchema>;
@@ -69,6 +75,15 @@ export interface CommerceOrder {
   fulfillment_status: FulfillmentStatus;
   reservation_status: ReservationStatus;
   reservation_expires_at: string;
+  cart_fingerprint: string;
+  inventory_keys?: string[];
+  stripe_session_status?: Stripe.Checkout.Session['status'] | null;
+  stripe_payment_status?: Stripe.Checkout.Session['payment_status'] | null;
+  last_transition_source?: string;
+  reservation_released_at?: string;
+  reservation_release_reason?: string;
+  inventory_exception?: boolean;
+  inventory_exception_details?: string[];
   customer_name: string;
   customer_email: string;
   shipping_address: string;
@@ -100,6 +115,25 @@ export interface CartQuote {
   shipping_cents: number;
   total_cents: number;
   currency: typeof CURRENCY;
+}
+
+export function createCartFingerprint(items: CartLineInput[]) {
+  const consolidated = new Map<string, CartLineInput>();
+  for (const item of items) {
+    const variant = normalizeVariant(item.variant);
+    const key = `${item.productId}_${variant}`;
+    const existing = consolidated.get(key);
+    consolidated.set(key, {
+      productId: item.productId,
+      variant,
+      quantity: (existing?.quantity || 0) + item.quantity,
+    });
+  }
+  return JSON.stringify(
+    [...consolidated.values()].sort((left, right) =>
+      `${left.productId}_${left.variant}`.localeCompare(`${right.productId}_${right.variant}`),
+    ),
+  );
 }
 
 export function legacyPriceToCents(price: unknown): number {
@@ -173,7 +207,10 @@ export function releaseInventory(
   inventory: Pick<CommerceInventory, 'on_hand' | 'reserved' | 'sold'>,
   quantity: number,
 ) {
-  const reserved = Math.max(0, inventory.reserved - quantity);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > inventory.reserved) {
+    throw new Error('Reserved inventory is inconsistent with the released order.');
+  }
+  const reserved = inventory.reserved - quantity;
   return {
     ...inventory,
     reserved,
@@ -185,12 +222,37 @@ export function commitInventory(
   inventory: Pick<CommerceInventory, 'on_hand' | 'reserved' | 'sold'>,
   quantity: number,
 ) {
-  const on_hand = Math.max(0, inventory.on_hand - quantity);
-  const reserved = Math.max(0, inventory.reserved - quantity);
+  if (
+    !Number.isInteger(quantity)
+    || quantity < 1
+    || quantity > inventory.on_hand
+    || quantity > inventory.reserved
+  ) {
+    throw new Error('Reserved inventory is inconsistent with the paid order.');
+  }
+  const on_hand = inventory.on_hand - quantity;
+  const reserved = inventory.reserved - quantity;
   return {
     on_hand,
     reserved,
     sold: inventory.sold + quantity,
     available: getAvailableInventory(on_hand, reserved),
+  };
+}
+
+export function commitUnreservedInventory(
+  inventory: Pick<CommerceInventory, 'on_hand' | 'reserved' | 'sold'>,
+  quantity: number,
+) {
+  const available = getAvailableInventory(inventory.on_hand, inventory.reserved);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > available) {
+    throw new Error(`Only ${available} unreserved units are available.`);
+  }
+  const on_hand = inventory.on_hand - quantity;
+  return {
+    on_hand,
+    reserved: inventory.reserved,
+    sold: inventory.sold + quantity,
+    available: getAvailableInventory(on_hand, inventory.reserved),
   };
 }

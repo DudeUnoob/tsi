@@ -39,7 +39,7 @@ export default async function StorePage() {
               const isAvailable = product.status === 'available';
               const isSoldOut = inventoryByProduct
                 .get(product.id)
-                ?.every(item => (item.available ?? item.stock) < 1) ?? true;
+                ?.every(item => (item.available ?? 0) < 1) ?? true;
               
               // Feature the hoodie, or the first product as fallback
               const isFeatured = product.slug === 'sanga-rebrand-hoodie' || (idx === 0 && !products.some(p => p.slug === 'sanga-rebrand-hoodie'));

@@ -27,6 +27,14 @@ export interface Order {
   payment_status?: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded';
   fulfillment_status?: 'unfulfilled' | 'processing' | 'shipped' | 'completed' | 'cancelled';
   reservation_status?: 'reserved' | 'committed' | 'released';
+  reservation_expires_at?: string;
+  reservation_released_at?: string;
+  reservation_release_reason?: string;
+  stripe_session_status?: 'open' | 'complete' | 'expired' | null;
+  stripe_payment_status?: 'paid' | 'unpaid' | 'no_payment_required' | null;
+  last_transition_source?: string;
+  inventory_exception?: boolean;
+  inventory_exception_details?: string[];
   carrier?: string;
   tracking_number?: string;
   items: Array<{
@@ -213,7 +221,8 @@ export interface ProductInventory {
   id?: number;
   product_id: number;
   size: string;
-  stock: number;
+  /** Legacy mock-data compatibility only. Runtime availability is derived. */
+  stock?: number;
   variant?: string;
   on_hand?: number;
   reserved?: number;
@@ -547,34 +556,27 @@ export async function updateOrderStatus(orderRef: string, status: Order['status'
       setLocalStorageItem('sanga_mock_orders', JSON.stringify(orders));
       if (status === 'paid' && oldStatus !== 'paid') {
         for (const item of orders[idx].items) {
-          await decrementProductInventory(item.id, item.size, item.quantity);
+          const stored = getLocalStorageItem('sanga_mock_inventory');
+          const inventory = stored ? JSON.parse(stored) as ProductInventory[] : defaultMockInventory;
+          const match = inventory.find(
+            record =>
+              record.product_id === item.id
+              && record.size.toUpperCase() === item.size.toUpperCase(),
+          );
+          if (match) {
+            match.stock = Math.max(0, (match.stock ?? match.on_hand ?? 0) - item.quantity);
+          }
+          setLocalStorageItem('sanga_mock_inventory', JSON.stringify(inventory));
         }
       }
       return { success: true };
     }
     return { success: false, message: "Order not found" };
   }
-  try {
-    const docRef = doc(db!, 'orders', orderRef);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return { success: false, message: "Order not found" };
-    
-    const order = docSnap.data() as Order;
-    const oldStatus = order.status;
-    
-    await updateDoc(docRef, { status });
-    
-    if (status === 'paid' && oldStatus !== 'paid' && order.items) {
-      for (const item of order.items) {
-        await decrementProductInventory(item.id, item.size, item.quantity);
-      }
-    }
-    return { success: true };
-  } catch (e) {
-    const err = e as Error;
-    console.error("Firebase updateOrderStatus error:", err);
-    return { success: false, message: err.message };
-  }
+  return {
+    success: false,
+    message: 'Production payment status is controlled by the signed Stripe webhook.',
+  };
 }
 
 export async function getEventRegistrations(eventId?: number): Promise<EventRegistration[]> {
@@ -653,6 +655,17 @@ export async function createEventRegistration(regData: Omit<EventRegistration, '
 // ----------------------------------------------------
 
 export async function getProductInventory(productId: number): Promise<ProductInventory[]> {
+  const normalizeLocalInventory = (item: ProductInventory): ProductInventory => {
+    const onHand = Number(item.on_hand ?? item.stock ?? 0);
+    const reserved = Number(item.reserved ?? 0);
+    return {
+      ...item,
+      on_hand: onHand,
+      reserved,
+      sold: Number(item.sold ?? 0),
+      available: Math.max(0, onHand - reserved),
+    };
+  };
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_inventory');
     let list = defaultMockInventory;
@@ -661,7 +674,9 @@ export async function getProductInventory(productId: number): Promise<ProductInv
     } else {
       setLocalStorageItem('sanga_mock_inventory', JSON.stringify(defaultMockInventory));
     }
-    return list.filter(item => item.product_id === productId);
+    return list
+      .filter(item => item.product_id === productId)
+      .map(normalizeLocalInventory);
   }
   try {
     const colRef = collection(db!, 'product_inventory');
@@ -688,7 +703,9 @@ export async function getProductInventory(productId: number): Promise<ProductInv
     return list;
   } catch (e) {
     console.error("Firebase getProductInventory error:", e);
-    return defaultMockInventory.filter(item => item.product_id === productId);
+    return defaultMockInventory
+      .filter(item => item.product_id === productId)
+      .map(normalizeLocalInventory);
   }
 }
 
@@ -708,63 +725,10 @@ export async function saveProductInventory(productId: number, inventoryItems: { 
     setLocalStorageItem('sanga_mock_inventory', JSON.stringify([...other, ...added]));
     return { success: true };
   }
-  try {
-    const batch = writeBatch(db!);
-    const sizes = ['S', 'M', 'L', 'XL', 'OS'];
-    
-    // Clear old variant records
-    for (const size of sizes) {
-      const docRef = doc(db!, 'product_inventory', `${productId}_${size}`);
-      batch.delete(docRef);
-    }
-    
-    // Set new variants
-    for (const item of inventoryItems) {
-      const sizeKey = item.size.toUpperCase();
-      const docRef = doc(db!, 'product_inventory', `${productId}_${sizeKey}`);
-      batch.set(docRef, {
-        product_id: productId,
-        size: sizeKey,
-        stock: item.stock
-      });
-    }
-    await batch.commit();
-    return { success: true };
-  } catch (e) {
-    const err = e as Error;
-    console.error("Firebase saveProductInventory error:", err);
-    return { success: false, message: err.message };
-  }
-}
-
-export async function decrementProductInventory(productId: number, size: string, quantity: number): Promise<boolean> {
-  const sizeKey = size.toUpperCase();
-  if (!isFirebaseConfigured) {
-    const stored = getLocalStorageItem('sanga_mock_inventory');
-    let list = defaultMockInventory;
-    if (stored) {
-      try { list = JSON.parse(stored); } catch {}
-    }
-    const idx = list.findIndex(item => item.product_id === productId && item.size === sizeKey);
-    if (idx !== -1) {
-      list[idx].stock = Math.max(0, list[idx].stock - quantity);
-      setLocalStorageItem('sanga_mock_inventory', JSON.stringify(list));
-      return true;
-    }
-    return false;
-  }
-  try {
-    const docRef = doc(db!, 'product_inventory', `${productId}_${sizeKey}`);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return false;
-    const currentStock = docSnap.data().stock || 0;
-    const newStock = Math.max(0, currentStock - quantity);
-    await updateDoc(docRef, { stock: newStock });
-    return true;
-  } catch (e) {
-    console.error("Firebase decrementProductInventory error:", e);
-    return false;
-  }
+  return {
+    success: false,
+    message: 'Production inventory must be updated through the authenticated admin API.',
+  };
 }
 
 // ----------------------------------------------------

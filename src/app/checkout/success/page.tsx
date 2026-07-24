@@ -6,6 +6,12 @@ import { useSearchParams } from 'next/navigation';
 import { ArrowRight, CheckCircle2, Loader2, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatMoney } from '@/lib/commerce';
+import {
+  notifyActiveCheckoutChanged,
+  readStoredCheckout,
+  shouldClearCartAfterCheckout,
+  writeStoredCheckout,
+} from '@/lib/checkout-client';
 
 type SessionSummary = {
   id: string;
@@ -15,6 +21,8 @@ type SessionSummary = {
   customerEmail?: string;
   amountTotal?: number;
   currency?: string;
+  reservationStatus?: string;
+  inventoryException?: boolean;
 };
 
 function SuccessContent() {
@@ -33,13 +41,26 @@ function SuccessContent() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Unable to verify payment.');
         setSummary(data);
-        if (data.paymentStatus === 'paid') clearCart();
+        if (data.paymentStatus === 'paid' || data.paymentStatus === 'processing') {
+          try {
+            const activeCheckout = readStoredCheckout(localStorage);
+            if (shouldClearCartAfterCheckout(activeCheckout, data.id)) {
+              writeStoredCheckout(localStorage, null);
+              notifyActiveCheckoutChanged();
+              clearCart();
+            }
+          } catch {
+            // Never discard a different or damaged cart from a delayed success
+            // page. The server has already synchronized the paid order.
+          }
+        }
       })
       .catch(error => console.error('Checkout verification failed:', error))
       .finally(() => setComplete(true));
   }, [sessionId, clearCart]);
 
   const paid = summary?.paymentStatus === 'paid';
+  const processing = summary?.paymentStatus === 'processing';
   return (
     <div className="bg-linen min-h-screen flex items-center py-16 text-warm-black">
       <div className="max-w-xl mx-auto px-6 w-full">
@@ -50,13 +71,25 @@ function SuccessContent() {
             <CheckCircle2 className={`h-12 w-12 mx-auto ${paid ? 'text-pink' : 'text-plum/35'}`} />
           )}
           <h1 className="font-display text-3xl font-black text-plum mt-5">
-            {!complete ? 'Verifying Payment' : paid ? 'Thank You for Your Order!' : 'Payment Not Confirmed'}
+            {!complete
+              ? 'Verifying Payment'
+              : paid
+                ? summary?.inventoryException
+                  ? 'Payment Received — Order Review Required'
+                  : 'Thank You for Your Order!'
+                : processing
+                  ? 'Payment Processing'
+                  : 'Payment Not Confirmed'}
           </h1>
           <p className="text-sm text-warm-black/65 mt-3">
             {!complete
               ? 'Stripe is confirming your secure Checkout Session.'
               : paid
-                ? 'Your payment is confirmed and the order is ready for fulfillment.'
+                ? summary?.inventoryException
+                  ? 'Your payment is confirmed. Our team has been alerted to review merchandise availability before fulfillment.'
+                  : 'Your payment is confirmed and the order is ready for fulfillment.'
+                : processing
+                  ? 'Stripe is still processing your payment. Do not place another order; we will update this order when processing finishes.'
                 : 'Please contact us before placing another order.'}
           </p>
 

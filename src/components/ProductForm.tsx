@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, Check, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import {
+  Check,
+  Loader2,
+  RotateCcw,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+} from 'lucide-react';
 import Link from 'next/link';
 import { getProductInventory, ProductInventory } from '@/lib/firebase';
 import type { StoreProduct } from '@/lib/types';
@@ -18,6 +25,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [added, setAdded] = useState<boolean>(false);
+  const [adding, setAdding] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const isApparel = product.variant_type === 'size';
@@ -37,35 +45,45 @@ export default function ProductForm({ product }: ProductFormProps) {
   const sizes = ['S', 'M', 'L', 'XL'];
   const sizeToUse = isApparel ? selectedSize : 'OS';
 
-  // Get current stock for size
-  const getStockForSize = (sizeName: string) => {
+  const getAvailableForSize = (sizeName: string) => {
     const inv = inventory.find(i => i.size.toUpperCase() === sizeName.toUpperCase());
-    return inv ? inv.stock : 0;
+    return inv?.available ?? Math.max(0, (inv?.on_hand ?? 0) - (inv?.reserved ?? 0));
   };
 
-  const currentStock = getStockForSize(sizeToUse);
+  const currentStock = getAvailableForSize(sizeToUse);
   const isOutOfStock = currentStock <= 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (isApparel && !selectedSize) {
       setErrorMsg('Please select a size');
       return;
     }
 
     if (isOutOfStock) {
-      setErrorMsg('Selected size is out of stock');
+      setErrorMsg('Selected size is temporarily unavailable or sold out');
       return;
     }
 
     if (quantity > currentStock) {
-      setErrorMsg(`Only ${currentStock} item(s) left in stock`);
+      setErrorMsg(`Only ${currentStock} item(s) currently available`);
       return;
     }
 
     setErrorMsg('');
-    addToCart(product, sizeToUse, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2500);
+    setAdding(true);
+    try {
+      const result = await addToCart(product, sizeToUse, quantity);
+      if (!result.applied) {
+        setErrorMsg(result.message || 'The cart could not be updated safely.');
+        return;
+      }
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2500);
+    } catch {
+      setErrorMsg('The cart could not be updated safely.');
+    } finally {
+      setAdding(false);
+    }
   };
 
   return (
@@ -100,7 +118,7 @@ export default function ProductForm({ product }: ProductFormProps) {
               <div className="flex flex-wrap gap-2">
                 {sizes.map((size) => {
                   const isSelected = selectedSize === size;
-                  const stock = getStockForSize(size);
+                  const stock = getAvailableForSize(size);
                   const isSoldOut = stock <= 0;
 
                   return (
@@ -122,7 +140,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                     >
                       <span>{size}</span>
                       <span className={`text-[8px] font-sans ${isSoldOut ? 'text-warm-black/30' : isSelected ? 'text-linen/75' : 'text-plum/60'}`}>
-                        {isSoldOut ? 'Sold' : `${stock} left`}
+                        {isSoldOut ? 'Unavailable' : `${stock} available`}
                       </span>
                     </button>
                   );
@@ -140,7 +158,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                 <div className="text-xs text-plum/50 font-sans italic animate-pulse">Checking stock levels...</div>
               ) : (
                 <span className="inline-block px-3 py-1 bg-plum/5 text-plum border border-plum/10 rounded-lg text-[10px] uppercase font-black tracking-widest">
-                  One Size Fits All ({getStockForSize('OS')} left)
+                  One Size Fits All ({getAvailableForSize('OS')} available)
                 </span>
               )}
             </div>
@@ -176,7 +194,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             </div>
             {!loading && isOutOfStock && (
               <span className="text-xs font-black text-[var(--color-pink)] uppercase tracking-wider">
-                Sold Out
+                Temporarily unavailable or sold out
               </span>
             )}
           </div>
@@ -186,7 +204,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
           <button
             type="button"
-            disabled={isOutOfStock || loading}
+            disabled={isOutOfStock || loading || adding}
             onClick={handleAddToCart}
             className={`flex-grow px-6 py-3.5 font-black uppercase text-[10px] tracking-widest rounded-xl shadow transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 ${
               isOutOfStock
@@ -196,8 +214,12 @@ export default function ProductForm({ product }: ProductFormProps) {
                 : 'bg-plum hover:bg-pink text-linen'
             }`}
           >
-            {isOutOfStock ? (
-              'Sold Out'
+            {adding ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating Cart
+              </>
+            ) : isOutOfStock ? (
+              'Temporarily unavailable'
             ) : added ? (
               <>
                 <Check className="h-3.5 w-3.5" /> Added to Cart!
@@ -216,6 +238,11 @@ export default function ProductForm({ product }: ProductFormProps) {
             View Cart
           </Link>
         </div>
+        {!isApparel && errorMsg && (
+          <p className="text-xs text-[var(--color-pink)] font-bold">
+            {errorMsg}
+          </p>
+        )}
       </div>
 
       {/* Purchase Trust Badges */}

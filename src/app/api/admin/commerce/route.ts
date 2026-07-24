@@ -4,11 +4,13 @@ import {
   archiveCommerceProduct,
   listAdminCommerce,
   reconcileExpiredReservations,
+  retryInventoryAllocation,
   saveCommerceProduct,
   updateOrderFulfillment,
 } from '@/lib/commerce-server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { CURRENCY } from '@/lib/commerce';
+import { getStripe } from '@/lib/stripe-server';
 
 export const runtime = 'nodejs';
 
@@ -49,6 +51,10 @@ const actionSchema = z.discriminatedUnion('action', [
   z.object({
     action: z.literal('reconcile'),
   }),
+  z.object({
+    action: z.literal('resolve_inventory_exception'),
+    orderId: z.string().min(1).max(128),
+  }),
 ]);
 
 function authError(error: unknown) {
@@ -88,8 +94,12 @@ export async function PATCH(request: Request) {
         payload.carrier,
         payload.trackingNumber,
       );
+    } else if (payload.action === 'reconcile') {
+      return NextResponse.json(await reconcileExpiredReservations(getStripe()));
     } else {
-      return NextResponse.json(await reconcileExpiredReservations());
+      return NextResponse.json(
+        await retryInventoryAllocation(getStripe(), payload.orderId, actor),
+      );
     }
 
     return NextResponse.json({ success: true });

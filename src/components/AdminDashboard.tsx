@@ -117,7 +117,7 @@ export default function AdminDashboard() {
   interface ProductInventoryView {
     product_id: number;
     size: string;
-    stock: number;
+    available: number;
     on_hand: number;
     reserved: number;
     sold: number;
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<StoreProduct> | null>(null);
   const [editingResource, setEditingResource] = useState<Partial<Resource> | null>(null);
-  const [editingInventory, setEditingInventory] = useState<{ size: string; stock: number }[]>([]);
+  const [editingInventory, setEditingInventory] = useState<{ size: string; on_hand: number }[]>([]);
 
   useEffect(() => {
     if (editingProduct && editingProduct.id) {
@@ -150,18 +150,20 @@ export default function AdminDashboard() {
         const defaultSizes = ['S', 'M', 'L', 'XL', 'OS'];
         const list = defaultSizes.map(size => {
           const found = data.find(item => item.size.toUpperCase() === size.toUpperCase());
-          return { size, stock: found ? found.stock : 0 };
+          return { size, on_hand: found?.on_hand ?? 0 };
         });
         setEditingInventory(list);
       });
     } else if (editingProduct) {
-      setEditingInventory([
-        { size: 'S', stock: 0 },
-        { size: 'M', stock: 0 },
-        { size: 'L', stock: 0 },
-        { size: 'XL', stock: 0 },
-        { size: 'OS', stock: 0 }
-      ]);
+      queueMicrotask(() => {
+        setEditingInventory([
+          { size: 'S', on_hand: 0 },
+          { size: 'M', on_hand: 0 },
+          { size: 'L', on_hand: 0 },
+          { size: 'XL', on_hand: 0 },
+          { size: 'OS', on_hand: 0 }
+        ]);
+      });
     }
   }, [editingProduct]);
 
@@ -221,7 +223,7 @@ export default function AdminDashboard() {
           (invs[item.product_id] ||= []).push({
             product_id: item.product_id,
             size: item.variant,
-            stock: item.available,
+            available: item.available,
             on_hand: item.on_hand,
             reserved: item.reserved,
             sold: item.sold,
@@ -238,8 +240,8 @@ export default function AdminDashboard() {
           invs[pr.id] = inv.map(item => ({
             product_id: item.product_id,
             size: item.size,
-            stock: item.stock,
-            on_hand: item.on_hand ?? item.stock,
+            available: item.available ?? 0,
+            on_hand: item.on_hand ?? item.stock ?? 0,
             reserved: item.reserved ?? 0,
             sold: item.sold ?? 0,
           }));
@@ -551,7 +553,10 @@ export default function AdminDashboard() {
         setProducts(products.map(pr => pr.id === editingProduct.id ? (editingProduct as StoreProduct) : pr));
       }
       if (savedId) {
-        await saveProductInventory(savedId, editingInventory);
+        await saveProductInventory(
+          savedId,
+          editingInventory.map(item => ({ size: item.size, stock: item.on_hand })),
+        );
       }
       setEditingProduct(null);
       triggerToast('Local Mode: Product and inventory mock-saved!');
@@ -583,7 +588,7 @@ export default function AdminDashboard() {
         product: payload,
         inventory: editingInventory
           .filter(item => payload.variant_type === 'size' ? item.size !== 'OS' : item.size === 'OS')
-          .map(item => ({ variant: item.size, on_hand: item.stock })),
+          .map(item => ({ variant: item.size, on_hand: item.on_hand })),
       });
       const commerce = await commerceAdminRequest('GET');
       setProducts(commerce.products as StoreProduct[]);
@@ -599,7 +604,7 @@ export default function AdminDashboard() {
         (invs[item.product_id] ||= []).push({
           product_id: item.product_id,
           size: item.variant,
-          stock: item.available,
+          available: item.available,
           on_hand: item.on_hand,
           reserved: item.reserved,
           sold: item.sold,
@@ -646,7 +651,8 @@ export default function AdminDashboard() {
       const commerce = await commerceAdminRequest('GET');
       setOrders(commerce.orders as Order[]);
       triggerToast(
-        `Checked ${result.scanned} expired reservations; released ${result.released}.`,
+        `Stripe checked ${result.scanned}: ${result.released} released, `
+        + `${result.finalized} finalized, ${result.processing} processing, ${result.errors} errors.`,
       );
     } catch (err) {
       console.error(err);
@@ -1851,12 +1857,12 @@ export default function AdminDashboard() {
                             {['S', 'M', 'L', 'XL', 'OS'].map(size => {
                               const productInvs = allInventories[pr.id] || [];
                               const match = productInvs.find(inv => inv.size.toUpperCase() === size.toUpperCase());
-                              const left = match ? match.stock : 0;
+                              const left = match ? match.available : 0;
                               const onHand = match ? match.on_hand : 0;
                               const reserved = match ? match.reserved : 0;
                               
                               if (size === 'OS' && onHand === 0 && reserved === 0) return null;
-                              const hasOsOnly = productInvs.some(inv => inv.size.toUpperCase() === 'OS' && inv.stock > 0);
+                              const hasOsOnly = productInvs.some(inv => inv.size.toUpperCase() === 'OS' && inv.available > 0);
                               if (hasOsOnly && ['S', 'M', 'L', 'XL'].includes(size)) return null;
 
                               return (
@@ -2008,11 +2014,11 @@ export default function AdminDashboard() {
                                 <input
                                   type="number"
                                   min="0"
-                                  value={item.stock}
+                                  value={item.on_hand}
                                   onChange={(e) => {
                                     const val = Math.max(0, parseInt(e.target.value) || 0);
                                     const updated = [...editingInventory];
-                                    updated[index] = { size: item.size, stock: val };
+                                    updated[index] = { size: item.size, on_hand: val };
                                     setEditingInventory(updated);
                                   }}
                                   className="w-full text-center py-1 bg-[var(--color-linen)] border border-plum/15 rounded-lg focus:outline-none focus:border-[var(--color-sunshine)] text-xs font-semibold text-plum"
@@ -2562,7 +2568,7 @@ export default function AdminDashboard() {
                       onClick={handleReconcileReservations}
                       className="px-4 py-2.5 bg-[var(--color-linen)] hover:bg-plum/5 text-plum border border-plum/20 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm flex items-center justify-center cursor-pointer transition-all duration-300"
                     >
-                      <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Release Expired
+                      <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Reconcile with Stripe
                     </button>
                     <button
                       onClick={() => exportToCSV('orders')}
@@ -2597,6 +2603,7 @@ export default function AdminDashboard() {
                       <option value="processing">Processing</option>
                       <option value="failed">Failed</option>
                       <option value="refunded">Refunded</option>
+                      <option value="attention">Needs Attention</option>
                     </select>
                   </div>
                 </div>
@@ -2614,6 +2621,7 @@ export default function AdminDashboard() {
 
                       const matchStatus =
                         orderStatusFilter === 'all'
+                        || (orderStatusFilter === 'attention' && o.inventory_exception)
                         || (o.payment_status || o.status) === orderStatusFilter;
 
                       return matchQuery && matchStatus;
@@ -2633,7 +2641,14 @@ export default function AdminDashboard() {
                         </thead>
                         <tbody className="divide-y divide-plum/5">
                           {filtered.map((ord) => (
-                            <tr key={ord.id} className="hover:bg-plum/5/20 transition-colors">
+                            <tr
+                              key={ord.id}
+                              className={
+                                ord.inventory_exception
+                                  ? 'bg-red-500/5 hover:bg-red-500/10 transition-colors'
+                                  : 'hover:bg-plum/5/20 transition-colors'
+                              }
+                            >
                               <td className="p-4">
                                 <span className="font-bold text-plum block">{ord.order_ref}</span>
                                 <span className="text-[10px] text-warm-black/55">{new Date(ord.created_at).toLocaleDateString()}</span>
@@ -2657,6 +2672,11 @@ export default function AdminDashboard() {
                                 <span className="block mt-1 text-[9px] font-bold uppercase text-plum/55">
                                   {ord.fulfillment_status || 'unfulfilled'}
                                 </span>
+                                {ord.inventory_exception && (
+                                  <span className="block mt-1 text-[9px] font-black uppercase text-red-600">
+                                    Needs attention
+                                  </span>
+                                )}
                               </td>
                               <td className="p-4 text-right">
                                 <button
@@ -2848,12 +2868,69 @@ export default function AdminDashboard() {
 
                 {/* Payment and fulfillment manager */}
                 <div className="bg-[var(--color-sunshine)]/5 border border-[var(--color-sunshine)]/20 p-4 rounded-2xl space-y-3">
+                  {selectedOrder.inventory_exception && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-red-700">
+                      <p className="font-black uppercase text-[10px]">Urgent inventory exception</p>
+                      <p className="mt-1 text-[10px]">
+                        Stripe confirmed payment, but the complete order could not be allocated.
+                        Fulfillment is blocked until inventory is corrected and the exception is resolved.
+                      </p>
+                      {selectedOrder.inventory_exception_details?.map(detail => (
+                        <p key={detail} className="mt-1 font-mono text-[9px]">{detail}</p>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const result = await commerceAdminRequest('PATCH', {
+                              action: 'resolve_inventory_exception',
+                              orderId: String(selectedOrder.id),
+                            });
+                            const commerce = await commerceAdminRequest('GET');
+                            const refreshedOrders = commerce.orders as Order[];
+                            setOrders(refreshedOrders);
+                            setSelectedOrder(
+                              refreshedOrders.find(order => order.id === selectedOrder.id) || null,
+                            );
+                            triggerToast(
+                              result.inventoryException
+                                ? 'Inventory is still insufficient; the exception remains open.'
+                                : 'Paid order inventory was allocated successfully.',
+                            );
+                          } catch (error) {
+                            triggerToast(
+                              error instanceof Error
+                                ? error.message
+                                : 'Inventory allocation retry failed.',
+                            );
+                          }
+                        }}
+                        className="mt-3 px-3 py-2 rounded-lg bg-red-600 text-white text-[9px] font-black uppercase tracking-wider"
+                      >
+                        Retry allocation after correcting stock
+                      </button>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center">
                     <div>
                       <h5 className="font-display font-bold uppercase text-[9px] tracking-wider text-plum/60">Stripe Payment</h5>
                       <span className="text-[11px] font-bold uppercase">{selectedOrder.payment_status || selectedOrder.status}</span>
+                      <span className="block text-[9px] text-plum/55 mt-1">
+                        Session: {selectedOrder.stripe_session_status || 'legacy'} · Reservation: {selectedOrder.reservation_status || 'legacy'}
+                      </span>
+                      {selectedOrder.reservation_expires_at && selectedOrder.reservation_status === 'reserved' && (
+                        <span className="block text-[9px] text-plum/55">
+                          Expires: {new Date(selectedOrder.reservation_expires_at).toLocaleString()}
+                        </span>
+                      )}
+                      {selectedOrder.last_transition_source && (
+                        <span className="block text-[9px] text-plum/55">
+                          Last source: {selectedOrder.last_transition_source}
+                        </span>
+                      )}
                     </div>
                     <select
+                      disabled={selectedOrder.inventory_exception}
                       value={selectedOrder.fulfillment_status || (selectedOrder.status === 'completed' ? 'completed' : 'unfulfilled')}
                       onChange={(e) => setSelectedOrder({
                         ...selectedOrder,
@@ -2870,12 +2947,14 @@ export default function AdminDashboard() {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <input
+                      disabled={selectedOrder.inventory_exception}
                       value={selectedOrder.carrier || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, carrier: e.target.value })}
                       placeholder="Carrier"
                       className="px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
                     />
                     <input
+                      disabled={selectedOrder.inventory_exception}
                       value={selectedOrder.tracking_number || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, tracking_number: e.target.value })}
                       placeholder="Tracking number"
@@ -2883,6 +2962,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <button
+                    disabled={selectedOrder.inventory_exception}
                     onClick={async () => {
                       try {
                         await commerceAdminRequest('PATCH', {
@@ -2900,7 +2980,7 @@ export default function AdminDashboard() {
                         triggerToast(error instanceof Error ? error.message : 'Fulfillment update failed.');
                       }
                     }}
-                    className="w-full px-3 py-2 bg-plum text-linen rounded-xl text-[10px] font-black uppercase tracking-wider"
+                    className="w-full px-3 py-2 bg-plum text-linen rounded-xl text-[10px] font-black uppercase tracking-wider disabled:opacity-40"
                   >
                     Save Fulfillment
                   </button>

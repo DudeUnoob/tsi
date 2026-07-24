@@ -5,7 +5,25 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "payment_status",
+          "fieldPath": "reservation_status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reservation_expires_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "inventory_keys",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "reservation_status",
           "order": "ASCENDING"
         },
         {

@@ -8,34 +8,44 @@ import {
 } from '@/lib/commerce';
 import {
   attachStripeSession,
+  applySessionTransition,
+  InventoryUnavailableError,
+  reconcileExpiredReservationsForItems,
   releaseReservation,
   reserveOrder,
+  synchronizeCheckoutOrder,
 } from '@/lib/commerce-server';
 import { getAdminDb } from '@/lib/firebase-admin';
+import { createCheckoutManagementToken } from '@/lib/checkout-token';
+import { getStripe } from '@/lib/stripe-server';
 
 export const runtime = 'nodejs';
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return null;
-  return new Stripe(key, { maxNetworkRetries: 2 });
-}
-
 function getAppUrl(request: Request) {
-  return process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const configured = process.env.NEXT_PUBLIC_APP_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
+  if (configured) {
+    const url = new URL(configured);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      throw new Error('The application URL must use HTTP or HTTPS.');
+    }
+    return url.origin;
+  }
+
+  const localUrl = new URL(request.url);
+  if (
+    !process.env.VERCEL
+    && ['localhost', '127.0.0.1', '::1'].includes(localUrl.hostname)
+  ) {
+    return localUrl.origin;
+  }
+  throw new Error('NEXT_PUBLIC_APP_URL is required for Checkout.');
 }
 
 export async function POST(request: Request) {
-  const stripe = getStripe();
-  if (!stripe) {
-    return NextResponse.json(
-      { error: 'Stripe test checkout is not configured on the server.' },
-      { status: 503 },
-    );
-  }
-
   let orderId = '';
   let stripeSessionCreated = false;
+  let reservationReached = false;
   try {
     const parsed = checkoutRequestSchema.safeParse(await request.json());
     if (!parsed.success) {
@@ -46,25 +56,66 @@ export async function POST(request: Request) {
     }
 
     orderId = parsed.data.checkoutAttemptId;
-    const order = await reserveOrder(orderId, parsed.data.items);
+    const stripe = getStripe();
+    let order: Awaited<ReturnType<typeof reserveOrder>>;
+    try {
+      order = await reserveOrder(orderId, parsed.data.items);
+    } catch (error) {
+      if (!(error instanceof InventoryUnavailableError)) throw error;
+      // Only ask Stripe to repair expired holds after the atomic reservation
+      // reports a shortage, then retry the exact reservation once.
+      try {
+        await reconcileExpiredReservationsForItems(stripe, parsed.data.items);
+      } catch (reconciliationError) {
+        console.error('Relevant reservation reconciliation failed:', reconciliationError);
+        throw error;
+      }
+      order = await reserveOrder(orderId, parsed.data.items);
+    }
+    reservationReached = true;
     if (order.payment_status === 'paid') {
-      return NextResponse.json({ error: 'This checkout was already paid.' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'This checkout was already paid.', attemptTerminal: true },
+        { status: 409 },
+      );
     }
     if (order.reservation_status !== 'reserved') {
       return NextResponse.json(
-        { error: 'This checkout attempt expired. Please try again.' },
+        {
+          error: 'This checkout attempt expired. Please try again.',
+          attemptTerminal: true,
+        },
         { status: 409 },
       );
     }
     if (order.stripe_checkout_url) {
+      const state = await synchronizeCheckoutOrder(stripe, orderId, 'status');
+      if (state.paymentStatus === 'paid' || state.paymentStatus === 'refunded') {
+        return NextResponse.json(
+          { error: 'This checkout was already paid.', attemptTerminal: true },
+          { status: 409 },
+        );
+      }
+      if (state.reservationStatus !== 'reserved' || state.sessionStatus !== 'open') {
+        return NextResponse.json(
+          {
+            error: 'This checkout attempt expired. Please refresh your cart.',
+            attemptTerminal: true,
+          },
+          { status: 409 },
+        );
+      }
       return NextResponse.json({
         orderId,
-        sessionId: order.stripe_checkout_session_id,
-        url: order.stripe_checkout_url,
+        sessionId: state.sessionId,
+        url: state.url,
+        reservationExpiresAt: state.expiresAt,
+        managementToken: createCheckoutManagementToken(orderId),
       });
     }
 
     const appUrl = getAppUrl(request);
+    const managementToken = createCheckoutManagementToken(orderId);
     const session = await stripe.checkout.sessions.create({
       integration_identifier: 'tsi_web_qkrtmzpa',
       client_reference_id: orderId,
@@ -96,7 +147,9 @@ export async function POST(request: Request) {
       }],
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/cart`,
+      cancel_url:
+        `${appUrl}/cart?cancel_attempt=${encodeURIComponent(orderId)}`
+        + `&cancel_token=${encodeURIComponent(managementToken)}`,
     }, {
       idempotencyKey: `checkout-${orderId}`,
     });
@@ -107,26 +160,39 @@ export async function POST(request: Request) {
       orderId,
       sessionId: session.id,
       url: session.url,
+      reservationExpiresAt: new Date(session.expires_at * 1000).toISOString(),
+      managementToken,
     });
   } catch (error) {
     // Once Stripe has created a Session, keep the reservation. A retry with the
     // same checkout attempt and idempotency key will recover the same Session.
-    if (orderId && !stripeSessionCreated) {
-      await releaseReservation(orderId).catch(releaseError => {
+    let attemptTerminal = !reservationReached;
+    if (orderId && reservationReached && !stripeSessionCreated) {
+      try {
+        attemptTerminal = await releaseReservation(orderId, {
+          source: 'checkout.create',
+          reason: 'stripe_session_creation_failed',
+        });
+      } catch (releaseError) {
         console.error('Failed to release checkout reservation:', releaseError);
-      });
+      }
     }
     console.error('Stripe Checkout API route error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unable to start checkout.' },
-      { status: 500 },
+      {
+        error: error instanceof Error ? error.message : 'Unable to start checkout.',
+        attemptTerminal,
+      },
+      { status: error instanceof InventoryUnavailableError ? 409 : 500 },
     );
   }
 }
 
 export async function GET(request: Request) {
-  const stripe = getStripe();
-  if (!stripe) {
+  let stripe: Stripe;
+  try {
+    stripe = getStripe();
+  } catch {
     return NextResponse.json({ error: 'Stripe is not configured.' }, { status: 503 });
   }
 
@@ -148,9 +214,28 @@ export async function GET(request: Request) {
     ) {
       return NextResponse.json({ error: 'Checkout Session not found.' }, { status: 404 });
     }
+    const transition = session.payment_status === 'paid'
+      ? 'paid'
+      : session.status === 'complete'
+        ? 'processing'
+        : session.status === 'expired'
+          ? 'expired'
+          : null;
+    if (transition) {
+      await applySessionTransition(
+        `success_${session.id}_${transition}`,
+        session,
+        transition,
+        'checkout.success',
+      );
+    }
+    const synchronized = await getAdminDb().collection('orders').doc(orderId).get();
+    const synchronizedOrder = synchronized.data();
     return NextResponse.json({
       id: orderId,
-      paymentStatus: session.payment_status,
+      paymentStatus: synchronizedOrder?.payment_status || session.payment_status,
+      reservationStatus: synchronizedOrder?.reservation_status,
+      inventoryException: Boolean(synchronizedOrder?.inventory_exception),
       status: session.status,
       customerName:
         session.collected_information?.shipping_details?.name

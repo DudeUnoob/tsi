@@ -23,7 +23,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const isAvailable = product.status === 'available';
   const inventory = await getProductInventory(product.id);
-  const isSoldOut = inventory.every(item => (item.available ?? item.stock) < 1);
+  const isSoldOut = inventory.every(item => (item.available ?? 0) < 1);
 
   return (
     <div className="bg-linen min-h-screen py-6 font-sans text-warm-black flex flex-col justify-center">

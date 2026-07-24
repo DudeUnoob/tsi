@@ -38,6 +38,7 @@ Vercel is the recommended hosting platform for Next.js applications, offering au
    - `FIREBASE_ADMIN_PROJECT_ID` = `tsiwebsite`
    - `STRIPE_SECRET_KEY` = *Stripe restricted key for the selected environment*
    - `STRIPE_WEBHOOK_SECRET` = *Signing secret for the deployed webhook destination*
+   - `CHECKOUT_TOKEN_SECRET` = *Separate random HMAC secret for Checkout Resume/Cancel*
    - `CRON_SECRET` = *Random secret for inventory reconciliation*
    - `NEXT_PUBLIC_APP_URL` = *The canonical deployed origin*
 3. Keep Stripe sandbox/test credentials in Preview until checkout and webhook
