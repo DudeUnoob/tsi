@@ -19,7 +19,10 @@ export async function POST(request: Request) {
     const state = await synchronizeCheckoutOrder(getStripe(), checkoutAttemptId, 'cancel');
     if (state.reservationStatus === 'reserved') {
       return NextResponse.json(
-        { error: 'This payment is already processing and cannot be cancelled.' },
+        {
+          ...state,
+          error: 'This payment is already processing and cannot be cancelled.',
+        },
         { status: 409 },
       );
     }

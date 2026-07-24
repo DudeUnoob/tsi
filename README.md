@@ -49,7 +49,10 @@ Admins can change the site's palette on the fly from the staff portal. We define
 
 Merchandise Checkout is server-created from trusted Firebase prices and inventory.
 The browser submits only product, variant, quantity, and a checkout-attempt ID.
-Secrets are never stored in Firebase or exposed in the admin panel.
+Stripe opens in a separate tab. If a customer edits the original cart while its
+Session is still open, the app expires that Session and confirms inventory was
+released before applying the edit. Secrets are never stored in Firebase or
+exposed in the admin panel.
 
 ---
 

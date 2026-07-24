@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
-import { ShoppingCart, Check, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import {
+  Check,
+  Loader2,
+  RotateCcw,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+} from 'lucide-react';
 import Link from 'next/link';
 import { getProductInventory, ProductInventory } from '@/lib/firebase';
 import type { StoreProduct } from '@/lib/types';
@@ -18,6 +25,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [added, setAdded] = useState<boolean>(false);
+  const [adding, setAdding] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const isApparel = product.variant_type === 'size';
@@ -45,7 +53,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const currentStock = getAvailableForSize(sizeToUse);
   const isOutOfStock = currentStock <= 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (isApparel && !selectedSize) {
       setErrorMsg('Please select a size');
       return;
@@ -62,9 +70,20 @@ export default function ProductForm({ product }: ProductFormProps) {
     }
 
     setErrorMsg('');
-    addToCart(product, sizeToUse, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2500);
+    setAdding(true);
+    try {
+      const result = await addToCart(product, sizeToUse, quantity);
+      if (!result.applied) {
+        setErrorMsg(result.message || 'The cart could not be updated safely.');
+        return;
+      }
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2500);
+    } catch {
+      setErrorMsg('The cart could not be updated safely.');
+    } finally {
+      setAdding(false);
+    }
   };
 
   return (
@@ -185,7 +204,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
           <button
             type="button"
-            disabled={isOutOfStock || loading}
+            disabled={isOutOfStock || loading || adding}
             onClick={handleAddToCart}
             className={`flex-grow px-6 py-3.5 font-black uppercase text-[10px] tracking-widest rounded-xl shadow transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 ${
               isOutOfStock
@@ -195,7 +214,11 @@ export default function ProductForm({ product }: ProductFormProps) {
                 : 'bg-plum hover:bg-pink text-linen'
             }`}
           >
-            {isOutOfStock ? (
+            {adding ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating Cart
+              </>
+            ) : isOutOfStock ? (
               'Temporarily unavailable'
             ) : added ? (
               <>
@@ -215,6 +238,11 @@ export default function ProductForm({ product }: ProductFormProps) {
             View Cart
           </Link>
         </div>
+        {!isApparel && errorMsg && (
+          <p className="text-xs text-[var(--color-pink)] font-bold">
+            {errorMsg}
+          </p>
+        )}
       </div>
 
       {/* Purchase Trust Badges */}

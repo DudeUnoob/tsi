@@ -107,5 +107,10 @@ describe('checkout management routes', () => {
       createCheckoutManagementToken(attemptId),
     ));
     expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      paymentStatus: 'processing',
+      reservationStatus: 'reserved',
+      error: 'This payment is already processing and cannot be cancelled.',
+    });
   });
 });

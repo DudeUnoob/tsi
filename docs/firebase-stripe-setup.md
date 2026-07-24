@@ -62,9 +62,12 @@ out with:
 - Any valid United States test shipping address
 
 Before Checkout, `available` temporarily falls and `reserved` rises while
-physical `on_hand` remains unchanged. Returning through Stripe's cancel action
-expires the Session and releases immediately; closing the tab releases when
-Stripe expires the Session after 30 minutes. After the paid webhook,
+physical `on_hand` remains unchanged. Stripe Checkout opens in a separate tab,
+leaving the original cart available. Editing or removing an item first expires
+the open Stripe Session and waits for Firebase to confirm the reservation was
+released; if payment already won that race, the edit is rejected. Returning
+through Stripe's cancel action expires the Session and releases immediately;
+closing the tab releases when Stripe expires the Session after 30 minutes. After the paid webhook,
 `on_hand` and `reserved` each fall by the purchased quantity while `sold` rises.
 Inspect the resulting production Firestore `orders` and `product_inventory`
 documents in Firebase Console. Although Stripe is in test mode, these Firebase

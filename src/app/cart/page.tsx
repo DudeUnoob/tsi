@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -15,43 +15,43 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { CartQuote, formatMoney } from '@/lib/commerce';
+import {
+  ACTIVE_CHECKOUT_CHANGED_EVENT,
+  ACTIVE_CHECKOUT_KEY,
+  CART_STORAGE_KEY,
+  checkoutAttemptMatchesCurrentCart,
+  createStoredCartRequestKey,
+  notifyActiveCheckoutChanged,
+  readStoredCheckout,
+  withCommerceBrowserLock,
+  writeStoredCheckout,
+  type ActiveCheckout,
+  type CheckoutClientState as CheckoutState,
+} from '@/lib/checkout-client';
 
-const ACTIVE_CHECKOUT_KEY = 'sanga_active_checkout';
-
-type ActiveCheckout = {
-  id: string;
-  cartKey: string;
-  token?: string;
-  expiresAt?: string;
-  quote: CartQuote;
-};
-
-type CheckoutState = {
-  orderId: string;
-  sessionId: string | null;
-  sessionStatus: 'open' | 'complete' | 'expired' | null;
-  paymentStatus: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded';
-  reservationStatus: 'reserved' | 'committed' | 'released';
-  expiresAt: string;
-  url: string | null;
-  inventoryException: boolean;
-};
-
-function readStoredCheckout(): ActiveCheckout | null {
-  const stored = localStorage.getItem(ACTIVE_CHECKOUT_KEY);
-  if (!stored) return null;
-  const value = JSON.parse(stored) as Partial<ActiveCheckout>;
-  if (
-    typeof value.id !== 'string'
-    || typeof value.cartKey !== 'string'
-    || !value.quote
-    || !Array.isArray(value.quote.items)
-    || (value.token !== undefined && typeof value.token !== 'string')
-    || (value.expiresAt !== undefined && typeof value.expiresAt !== 'string')
-  ) {
-    throw new Error('Invalid stored checkout attempt.');
+function createCheckoutWindow() {
+  const checkoutWindow = window.open('', '_blank');
+  if (!checkoutWindow) return null;
+  try {
+    checkoutWindow.opener = null;
+    checkoutWindow.document.title = 'Opening secure Checkout';
+    checkoutWindow.document.body.textContent = 'Opening secure Stripe Checkout…';
+  } catch {
+    // The placeholder is optional; navigation still works if a browser blocks
+    // access to its initial about:blank document.
   }
-  return value as ActiveCheckout;
+  return checkoutWindow;
+}
+
+function navigateCheckoutWindow(checkoutWindow: Window, url: string) {
+  if (checkoutWindow.closed) return false;
+  try {
+    checkoutWindow.location.replace(url);
+    checkoutWindow.focus();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default function CartPage() {
@@ -65,6 +65,11 @@ export default function CartPage() {
   const [checkoutState, setCheckoutState] = useState<CheckoutState | null>(null);
   const [checkoutStateLoading, setCheckoutStateLoading] = useState(false);
   const [quoteRefresh, setQuoteRefresh] = useState(0);
+  const [checkoutStatusRefresh, setCheckoutStatusRefresh] = useState(0);
+  const [cartMutationLoading, setCartMutationLoading] = useState(false);
+  const cartMutationRunning = useRef(false);
+  const checkoutLaunchRunning = useRef(false);
+  const checkoutWindowRef = useRef<Window | null>(null);
 
   const requestItems = useMemo(
     () => cartItems.map(item => ({
@@ -75,37 +80,57 @@ export default function CartPage() {
     [cartItems],
   );
   const requestKey = JSON.stringify(requestItems);
-  const checkoutLocked = Boolean(
-    activeCheckout
-    && (
-      checkoutStateLoading
-      || !checkoutState
-      || (
-        checkoutState.reservationStatus === 'reserved'
-        && checkoutState.sessionStatus === 'open'
-      )
-    ),
+  const cartControlsLocked = Boolean(
+    isSubmitting
+    || cartMutationLoading
+    || (activeCheckout && !activeCheckout.token),
   );
 
   const storeActiveCheckout = (value: ActiveCheckout | null) => {
     setActiveCheckout(value);
-    if (value) localStorage.setItem(ACTIVE_CHECKOUT_KEY, JSON.stringify(value));
-    else localStorage.removeItem(ACTIVE_CHECKOUT_KEY);
+    writeStoredCheckout(localStorage, value);
+    notifyActiveCheckoutChanged();
   };
 
   useEffect(() => {
-    const restore = () => {
+    const restore = (event?: Event) => {
+      if (
+        event instanceof StorageEvent
+        && event.key !== ACTIVE_CHECKOUT_KEY
+      ) {
+        return;
+      }
       try {
-        setActiveCheckout(readStoredCheckout());
+        setActiveCheckout(readStoredCheckout(localStorage));
       } catch {
-        localStorage.removeItem(ACTIVE_CHECKOUT_KEY);
         setActiveCheckout(null);
+        setCheckoutError(
+          'Checkout recovery data is invalid. Reload before editing so an active payment is not left behind.',
+        );
       }
     };
     restore();
     window.addEventListener('storage', restore);
-    return () => window.removeEventListener('storage', restore);
+    window.addEventListener(ACTIVE_CHECKOUT_CHANGED_EVENT, restore);
+    return () => {
+      window.removeEventListener('storage', restore);
+      window.removeEventListener(ACTIVE_CHECKOUT_CHANGED_EVENT, restore);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!activeCheckout?.token) return undefined;
+    const refreshOnFocus = () => setCheckoutStatusRefresh(value => value + 1);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') refreshOnFocus();
+    };
+    window.addEventListener('focus', refreshOnFocus);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => {
+      window.removeEventListener('focus', refreshOnFocus);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [activeCheckout?.token]);
 
   useEffect(() => {
     if (!activeCheckout?.token) {
@@ -128,6 +153,8 @@ export default function CartPage() {
     })
       .then(async response => {
         const data = await response.json();
+        const latestCheckout = readStoredCheckout(localStorage);
+        if (latestCheckout?.id !== activeCheckout.id) return;
         if (!response.ok) throw new Error(data.error || 'Unable to retrieve checkout status.');
         const state = data as CheckoutState;
         setCheckoutState(state);
@@ -145,12 +172,20 @@ export default function CartPage() {
       })
       .catch(error => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
-        setQuoteError(error instanceof Error ? error.message : 'Unable to retrieve checkout status.');
+        try {
+          const latestCheckout = readStoredCheckout(localStorage);
+          if (latestCheckout?.id !== activeCheckout.id) return;
+        } catch {
+          return;
+        }
+        setCheckoutError(
+          error instanceof Error ? error.message : 'Unable to retrieve checkout status.',
+        );
       })
       .finally(() => setCheckoutStateLoading(false));
     return () => controller.abort();
     // The token and attempt ID fully identify the active Checkout Session.
-  }, [activeCheckout?.id, activeCheckout?.token, clearCart]);
+  }, [activeCheckout?.id, activeCheckout?.token, checkoutStatusRefresh, clearCart]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -167,6 +202,8 @@ export default function CartPage() {
     })
       .then(async response => {
         const data = await response.json();
+        const latestCheckout = readStoredCheckout(localStorage);
+        if (latestCheckout?.id !== checkoutAttemptId) return;
         if (!response.ok) throw new Error(data.error || 'Unable to cancel checkout.');
         const state = data as CheckoutState;
         setCheckoutState(state);
@@ -176,6 +213,12 @@ export default function CartPage() {
         }
       })
       .catch(error => {
+        try {
+          const latestCheckout = readStoredCheckout(localStorage);
+          if (latestCheckout?.id !== checkoutAttemptId) return;
+        } catch {
+          return;
+        }
         setQuoteError(
           error instanceof Error
             ? error.message
@@ -242,6 +285,21 @@ export default function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey, quoteRefresh, activeCheckout]);
 
+  const openCheckoutInNewTab = (url: string) => {
+    const checkoutWindow = createCheckoutWindow();
+    if (!checkoutWindow) {
+      setCheckoutError('Allow pop-ups for this site, then open Checkout again.');
+      return false;
+    }
+    checkoutWindowRef.current = checkoutWindow;
+    if (!navigateCheckoutWindow(checkoutWindow, url)) {
+      checkoutWindow.close();
+      setCheckoutError('The Checkout tab could not be opened. Please try again.');
+      return false;
+    }
+    return true;
+  };
+
   const handleCancelCheckout = async () => {
     if (!activeCheckout?.token) return;
     setCheckoutStateLoading(true);
@@ -257,15 +315,28 @@ export default function CartPage() {
         }),
       });
       const data = await response.json();
+      const latestCheckout = readStoredCheckout(localStorage);
+      const stillCurrent = latestCheckout?.id === activeCheckout.id;
+      if (data.orderId && stillCurrent) setCheckoutState(data as CheckoutState);
       if (!response.ok) throw new Error(data.error || 'Unable to cancel checkout.');
+      if (!stillCurrent) return;
       const state = data as CheckoutState;
-      setCheckoutState(state);
       if (state.reservationStatus === 'released') {
+        if (checkoutWindowRef.current && !checkoutWindowRef.current.closed) {
+          checkoutWindowRef.current.close();
+        }
         storeActiveCheckout(null);
         setQuoteRefresh(value => value + 1);
+      } else if (
+        state.paymentStatus === 'paid'
+        || state.paymentStatus === 'refunded'
+        || state.reservationStatus === 'committed'
+      ) {
+        storeActiveCheckout(null);
+        clearCart();
       }
     } catch (error) {
-      setQuoteError(
+      setCheckoutError(
         error instanceof Error
           ? error.message
           : 'Unable to cancel Checkout safely. The reservation remains active.',
@@ -278,7 +349,7 @@ export default function CartPage() {
   const submitCheckoutAttempt = async (
     attempt: ActiveCheckout,
     items: Array<{ productId: number; variant: string; quantity: number }>,
-    navigateToStripe: boolean,
+    checkoutWindow: Window,
   ) => {
     setIsSubmitting(true);
     setCheckoutError('');
@@ -299,74 +370,207 @@ export default function CartPage() {
       if (!data.url || !data.managementToken || !data.reservationExpiresAt) {
         throw new Error('Stripe did not return a complete Checkout Session.');
       }
+      const latestCheckout = readStoredCheckout(localStorage);
+      const latestCartKey = createStoredCartRequestKey(
+        localStorage.getItem(CART_STORAGE_KEY),
+      );
+      if (!checkoutAttemptMatchesCurrentCart(latestCheckout, latestCartKey, attempt)) {
+        let cancellationResponse: Response;
+        let cancellationState: Partial<CheckoutState> & { error?: string };
+        try {
+          cancellationResponse = await fetch('/api/checkout/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              checkoutAttemptId: attempt.id,
+              token: data.managementToken,
+            }),
+          });
+          cancellationState = await cancellationResponse.json();
+        } catch {
+          if (latestCheckout?.id === attempt.id) {
+            storeActiveCheckout({
+              ...attempt,
+              token: data.managementToken,
+              expiresAt: data.reservationExpiresAt,
+            });
+          }
+          throw new Error(
+            'The cart changed while Checkout was opening, but cancellation could not be verified. Use Cancel Checkout before editing or paying.',
+          );
+        }
+        if (
+          latestCheckout?.id === attempt.id
+          && cancellationState.reservationStatus !== 'released'
+        ) {
+          storeActiveCheckout({
+            ...attempt,
+            token: data.managementToken,
+            expiresAt: data.reservationExpiresAt,
+          });
+        } else if (
+          latestCheckout?.id === attempt.id
+          && cancellationState.reservationStatus === 'released'
+        ) {
+          storeActiveCheckout(null);
+        }
+        if (
+          !cancellationResponse.ok
+          || cancellationState.reservationStatus !== 'released'
+        ) {
+          throw new Error(
+            'The cart changed while Checkout was opening. Stripe has not confirmed cancellation, so this cart remains locked until you cancel the active Session.',
+          );
+        }
+        throw new Error(
+          'The cart changed in another tab while Checkout was opening. The stale Session was cancelled.',
+        );
+      }
       storeActiveCheckout({
         ...attempt,
         token: data.managementToken,
         expiresAt: data.reservationExpiresAt,
       });
-      if (navigateToStripe) {
-        window.location.assign(data.url);
-      } else {
-        setIsSubmitting(false);
+      checkoutWindowRef.current = checkoutWindow;
+      if (!navigateCheckoutWindow(checkoutWindow, data.url)) {
+        throw new Error(
+          'Checkout was reserved, but the new tab was closed. Use Resume Checkout to continue.',
+        );
       }
     } catch (error) {
-      setIsSubmitting(false);
+      if (!checkoutWindow.closed) checkoutWindow.close();
       setCheckoutError(error instanceof Error ? error.message : 'Unable to start checkout.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleCheckout = async () => {
-    if (!quote || quoteLoading || quoteError) return;
     if (
-      activeCheckout?.token
-      && activeCheckout.cartKey === requestKey
-      && checkoutState?.sessionStatus === 'open'
-      && checkoutState.url
-    ) {
-      window.location.assign(checkoutState.url);
-      return;
-    }
-    if (activeCheckout?.token) {
-      setCheckoutError('Cancel the active Checkout reservation before starting another one.');
-      return;
-    }
+      checkoutLaunchRunning.current
+      || !quote
+      || quoteLoading
+      || quoteError
+    ) return;
 
-    const startOrRecover = async () => {
-      let storedCheckout: ActiveCheckout | null = null;
-      try {
-        storedCheckout = readStoredCheckout();
-      } catch {
-        localStorage.removeItem(ACTIVE_CHECKOUT_KEY);
+    checkoutLaunchRunning.current = true;
+    let checkoutWindow: Window | null = null;
+    try {
+      if (
+        activeCheckout?.token
+        && activeCheckout.cartKey === requestKey
+        && checkoutState?.sessionStatus === 'open'
+        && checkoutState.url
+      ) {
+        openCheckoutInNewTab(checkoutState.url);
+        return;
       }
-      const existingAttempt = storedCheckout || activeCheckout;
-      if (existingAttempt?.token) {
-        setActiveCheckout(existingAttempt);
-        setCheckoutError('Another tab already started Checkout. Resume or cancel that Session.');
+      if (activeCheckout?.token) {
+        setCheckoutError('Cancel the active Checkout reservation before starting another one.');
         return;
       }
 
-      const attempt = existingAttempt || {
-        id: crypto.randomUUID(),
-        cartKey: requestKey,
-        quote,
+      const openedCheckoutWindow = createCheckoutWindow();
+      checkoutWindow = openedCheckoutWindow;
+      if (!openedCheckoutWindow) {
+        setCheckoutError('Allow pop-ups for this site, then start Checkout again.');
+        return;
+      }
+
+      const startOrRecover = async () => {
+        try {
+          if (
+            createStoredCartRequestKey(localStorage.getItem(CART_STORAGE_KEY))
+            !== requestKey
+          ) {
+            openedCheckoutWindow.close();
+            setCheckoutError(
+              'The cart changed in another tab. Its latest contents are loading; review them before Checkout.',
+            );
+            return;
+          }
+        } catch {
+          openedCheckoutWindow.close();
+          setCheckoutError('The stored cart is invalid. Reload it before starting Checkout.');
+          return;
+        }
+        let storedCheckout: ActiveCheckout | null = null;
+        try {
+          storedCheckout = readStoredCheckout(localStorage);
+        } catch {
+          openedCheckoutWindow.close();
+          setCheckoutError(
+            'Checkout recovery data is invalid. Reload before starting another payment.',
+          );
+          return;
+        }
+        const existingAttempt = storedCheckout || activeCheckout;
+        if (existingAttempt?.token) {
+          setActiveCheckout(existingAttempt);
+          openedCheckoutWindow.close();
+          setCheckoutError('Another tab already started Checkout. Resume or cancel that Session.');
+          return;
+        }
+        if (existingAttempt && existingAttempt.cartKey !== requestKey) {
+          openedCheckoutWindow.close();
+          setActiveCheckout(existingAttempt);
+          setCheckoutError(
+            'Another tab is recovering Checkout for a different cart. Recover or cancel it first.',
+          );
+          return;
+        }
+
+        const attempt = existingAttempt || {
+          id: crypto.randomUUID(),
+          cartKey: requestKey,
+          quote,
+        };
+        if (!existingAttempt) storeActiveCheckout(attempt);
+
+        await submitCheckoutAttempt(attempt, requestItems, openedCheckoutWindow);
       };
-      if (!existingAttempt) storeActiveCheckout(attempt);
 
-      const sameCart = attempt.cartKey === requestKey;
-      const attemptItems = sameCart
-        ? requestItems
-        : attempt.quote.items.map(item => ({
-            productId: item.product_id,
-            variant: item.variant,
-            quantity: item.quantity,
-          }));
-      await submitCheckoutAttempt(attempt, attemptItems, sameCart);
-    };
+      await withCommerceBrowserLock(startOrRecover);
+    } catch (error) {
+      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : 'Checkout could not be coordinated safely. Please try again.',
+      );
+    } finally {
+      checkoutLaunchRunning.current = false;
+    }
+  };
 
-    if (navigator.locks) {
-      await navigator.locks.request('sanga-checkout-start', startOrRecover);
-    } else {
-      await startOrRecover();
+  const handleCartMutation = async (
+    mutation: () => ReturnType<typeof updateQuantity>,
+  ) => {
+    if (cartMutationRunning.current) return;
+    cartMutationRunning.current = true;
+    setCartMutationLoading(true);
+    setQuoteError('');
+    setCheckoutError('');
+    try {
+      const result = await mutation();
+      if (!result.applied) {
+        setCheckoutError(result.message || 'The cart could not be updated safely.');
+        return;
+      }
+      if (result.cancelledCheckout) {
+        if (checkoutWindowRef.current && !checkoutWindowRef.current.closed) {
+          checkoutWindowRef.current.close();
+        }
+        setCheckoutState(null);
+        setQuoteRefresh(value => value + 1);
+      }
+    } catch {
+      setCheckoutError(
+        'The cart update could not be coordinated across tabs. Nothing was changed.',
+      );
+    } finally {
+      cartMutationRunning.current = false;
+      setCartMutationLoading(false);
     }
   };
 
@@ -391,14 +595,6 @@ export default function CartPage() {
 
   return (
     <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
-      {isSubmitting && (
-        <div className="fixed inset-0 bg-plum/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-linen">
-          <Loader2 className="h-12 w-12 text-sunshine animate-spin" />
-          <h2 className="font-display text-2xl font-black text-sunshine mt-5">Opening Secure Checkout</h2>
-          <p className="text-sm text-linen/75 mt-2">Your merchandise is reserved for 30 minutes.</p>
-        </div>
-      )}
-
       <div className="max-w-6xl mx-auto px-6">
         <div className="border-b border-plum/10 pb-8 mb-10">
           <h1 className="font-display text-4xl sm:text-5xl font-black text-plum">Shopping Cart</h1>
@@ -419,7 +615,8 @@ export default function CartPage() {
                 {activeCheckout.token && activeCheckout.expiresAt
                   ? (
                     <>
-                      Resume the existing Stripe Checkout or cancel it before editing this cart.
+                      Stripe Checkout is open in a separate tab. Editing this cart safely
+                      cancels that Session first, then refreshes price and availability.
                       The hold expires at {new Date(activeCheckout.expiresAt).toLocaleTimeString()}.
                     </>
                   )
@@ -432,7 +629,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     disabled={checkoutStateLoading || !checkoutState?.url}
-                    onClick={() => checkoutState?.url && window.location.assign(checkoutState.url)}
+                    onClick={() => checkoutState?.url && openCheckoutInNewTab(checkoutState.url)}
                     className="px-4 py-2.5 rounded-xl bg-plum text-linen text-xs font-black uppercase tracking-wider disabled:opacity-40 flex items-center gap-2"
                   >
                     <RotateCcw className="h-3.5 w-3.5" /> Resume
@@ -488,8 +685,10 @@ export default function CartPage() {
                         <p className="text-xs text-warm-black/60 mt-1">Variant: {item.size}</p>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id, item.size)}
-                        disabled={checkoutLocked}
+                        onClick={() => handleCartMutation(
+                          () => removeFromCart(item.id, item.size),
+                        )}
+                        disabled={cartControlsLocked}
                         aria-label="Remove item"
                         className="text-warm-black/35 hover:text-pink disabled:opacity-30"
                       >
@@ -499,16 +698,20 @@ export default function CartPage() {
                     <div className="flex items-center justify-between mt-5">
                       <div className="flex items-center bg-plum/5 border border-plum/10 rounded-xl overflow-hidden">
                         <button
-                          onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                          disabled={checkoutLocked}
+                          onClick={() => handleCartMutation(
+                            () => updateQuantity(item.id, item.size, item.quantity - 1),
+                          )}
+                          disabled={cartControlsLocked}
                           className="px-3 py-1.5 font-black text-plum disabled:opacity-30"
                         >
                           −
                         </button>
                         <span className="w-9 text-center text-xs font-bold text-plum">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                          disabled={checkoutLocked || item.quantity >= maxQuantity}
+                          onClick={() => handleCartMutation(
+                            () => updateQuantity(item.id, item.size, item.quantity + 1),
+                          )}
+                          disabled={cartControlsLocked || item.quantity >= maxQuantity}
                           className="px-3 py-1.5 font-black text-plum disabled:opacity-30"
                         >
                           +
@@ -570,7 +773,9 @@ export default function CartPage() {
                 ? 'Resume Stripe Checkout'
                 : activeCheckout
                   ? 'Recover Stripe Checkout'
-                  : 'Continue to Stripe'}
+                  : isSubmitting
+                    ? 'Opening Stripe Checkout'
+                    : 'Open Stripe Checkout'}
             </button>
 
             <div className="flex gap-2 text-[11px] text-warm-black/60 border-t border-plum/10 pt-4">

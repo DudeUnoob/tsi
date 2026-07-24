@@ -6,6 +6,12 @@ import { useSearchParams } from 'next/navigation';
 import { ArrowRight, CheckCircle2, Loader2, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatMoney } from '@/lib/commerce';
+import {
+  notifyActiveCheckoutChanged,
+  readStoredCheckout,
+  shouldClearCartAfterCheckout,
+  writeStoredCheckout,
+} from '@/lib/checkout-client';
 
 type SessionSummary = {
   id: string;
@@ -36,8 +42,17 @@ function SuccessContent() {
         if (!response.ok) throw new Error(data.error || 'Unable to verify payment.');
         setSummary(data);
         if (data.paymentStatus === 'paid' || data.paymentStatus === 'processing') {
-          localStorage.removeItem('sanga_active_checkout');
-          clearCart();
+          try {
+            const activeCheckout = readStoredCheckout(localStorage);
+            if (shouldClearCartAfterCheckout(activeCheckout, data.id)) {
+              writeStoredCheckout(localStorage, null);
+              notifyActiveCheckoutChanged();
+              clearCart();
+            }
+          } catch {
+            // Never discard a different or damaged cart from a delayed success
+            // page. The server has already synchronized the paid order.
+          }
         }
       })
       .catch(error => console.error('Checkout verification failed:', error))

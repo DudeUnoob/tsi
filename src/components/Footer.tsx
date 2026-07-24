@@ -9,12 +9,12 @@ import { Mail, ArrowRight, Loader2, Heart } from 'lucide-react';
 export default function Footer() {
   const pathname = usePathname();
   const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
 
   if (pathname?.startsWith('/admin')) {
     return null;
   }
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();

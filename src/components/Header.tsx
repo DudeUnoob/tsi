@@ -22,10 +22,6 @@ export default function Header() {
   const pathname = usePathname();
   const { cartCount } = useCart();
 
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -40,6 +36,10 @@ export default function Header() {
 
   const { currentPaletteKey } = useTheme();
   const isDefaultTheme = currentPaletteKey === 'default';
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className={`sticky top-0 z-40 w-full transition-all duration-300 py-4 relative ${
