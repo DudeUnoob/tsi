@@ -1,4 +1,4 @@
-Gexport default function BrandRibbon() {
+export default function BrandRibbon() {
   return (
     <div className="brand-swirls brand-swirls--ribbon" aria-hidden="true">
       <span className="brand-swirl brand-swirl--plum" />
