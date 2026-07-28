@@ -11,13 +11,13 @@
  * Usage:
  * 1. Ensure you have enabled Firestore Database in your Firebase Console.
  * 2. Create a local .env.local file with your Firebase configuration variables.
- * 3. Run: node scripts/seed_firestore.js
+ * 3. Run: node scripts/seed_firestore.mjs
  */
 
-const fs = require('fs');
-const path = require('path');
-const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, setDoc, deleteDoc, writeBatch } = require('firebase/firestore');
+import fs from 'node:fs';
+import path from 'node:path';
+import { initializeApp } from 'firebase/app';
+import { deleteDoc, doc, getFirestore, setDoc } from 'firebase/firestore';
 
 // Load environment variables from .env.local if present
 const envPath = path.resolve(process.cwd(), '.env.local');

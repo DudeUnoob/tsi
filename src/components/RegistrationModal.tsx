@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, AlertTriangle, ShieldCheck, CreditCard, ArrowRight, ArrowLeft, Lock } from 'lucide-react';
 import { createEventRegistration, createOrder } from '@/lib/firebase';
@@ -16,7 +16,6 @@ export default function RegistrationModal({
   eventId,
   eventTitle,
   eventPrice,
-  paymentUrl,
   liabilityFormUrl
 }: RegistrationModalProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,12 +23,6 @@ export default function RegistrationModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
 
   // Info form state
   const [formData, setFormData] = useState({
@@ -702,9 +695,9 @@ export default function RegistrationModal({
         Register for Event
       </button>
 
-      {mounted && typeof document !== 'undefined'
+      {typeof document !== 'undefined'
         ? createPortal(modalContent, document.body)
-        : modalContent}
+        : null}
     </>
   );
 }

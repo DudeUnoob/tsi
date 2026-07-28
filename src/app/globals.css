@@ -38,11 +38,13 @@
   --color-ultramarine: var(--color-ultramarine);
   --color-warm-black: var(--color-warm-black);
 
-  --font-display: var(--font-display), "Fraunces", Georgia, serif;
-  --font-sans: var(--font-body), "Outfit", "Inter", sans-serif;
-  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+}
+
+@theme inline {
+  --font-display: var(--font-visby), Arial, sans-serif;
+  --font-sans: var(--font-visby), Arial, sans-serif;
 }
 
 body {
@@ -129,5 +131,4 @@ h1, h2, h3, h4, h5, h6 {
 .arch-header {
   border-radius: 0 0 50% 50% / 0 0 20px 20px;
 }
-
 

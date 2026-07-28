@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { subscribeNewsletter } from '@/lib/firebase';
-import { Mail, ArrowRight, Loader2, Heart } from 'lucide-react';
+import { Mail, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Footer() {
   const pathname = usePathname();

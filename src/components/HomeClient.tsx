@@ -4,9 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ArrowRight, Play, Heart, Users, MessageCircle, Calendar, X } from 'lucide-react';
+import { ArrowRight, Play, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/types';
-import { useTheme } from '@/context/ThemeContext';
 
 interface HomeClientProps {
   settings: SiteSettings;
@@ -27,6 +26,14 @@ const DEFAULT_HERO_IMAGES = [
     label: "Friendship & Growth"
   }
 ];
+
+function shouldBypassImageOptimization(src: string): boolean {
+  try {
+    return new URL(src).hostname === 'firebasestorage.googleapis.com';
+  } catch {
+    return false;
+  }
+}
 
 export default function HomeClient({ settings, events }: HomeClientProps) {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -74,8 +81,6 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     }
   } as const;
 
-  const { currentPaletteKey } = useTheme();
-  const isDefaultTheme = false;
   const isBerryTheme = false;
   const isMintTheme = false;
   const isSunsetTheme = true;
@@ -111,7 +116,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           <svg className={`absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] transition-opacity duration-300 ${
             (isBerryTheme || isMintTheme) ? 'opacity-80' : isSunsetTheme ? 'opacity-30' : 'opacity-60'
           }`} viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,−40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
+            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,-40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
           </svg>
           {/* Small top-right accent */}
           <svg className="absolute top-0 right-0 w-[20vw] h-[35vh] opacity-50" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
@@ -205,6 +210,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                   src={heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src}
                   alt="Previous gathering"
                   fill
+                  sizes="(min-width: 768px) 40vw, 100vw"
+                  unoptimized={shouldBypassImageOptimization(heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src)}
                   className="object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-plum/20" />
@@ -225,6 +232,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                       src={heroImages[slideIndex].src}
                       alt={heroImages[slideIndex].label}
                       fill
+                      sizes="(min-width: 768px) 40vw, 100vw"
+                      unoptimized={shouldBypassImageOptimization(heroImages[slideIndex].src)}
                       className="object-cover object-center"
                       priority={slideIndex === 0}
                     />
@@ -359,6 +368,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     src={retreatsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png"}
                     alt={retreatsEvent.title}
                     fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    unoptimized={shouldBypassImageOptimization(retreatsEvent.hero_image)}
                     className="object-cover group-hover:scale-103 transition-transform duration-500"
                   />
                 </div>
@@ -406,6 +417,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     src={talksEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"}
                     alt={talksEvent.title}
                     fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    unoptimized={shouldBypassImageOptimization(talksEvent.hero_image)}
                     className="object-cover group-hover:scale-103 transition-transform duration-500"
                   />
                 </div>
@@ -453,6 +466,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     src={tripsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515990475221-G6PMK88KDKEZBVPTKG5Q/20449208_1382154528538531_900680314886261379_o.jpg"}
                     alt={tripsEvent.title}
                     fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    unoptimized={shouldBypassImageOptimization(tripsEvent.hero_image)}
                     className="object-cover group-hover:scale-103 transition-transform duration-500"
                   />
                 </div>
@@ -512,6 +527,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
                 alt="Sanga Friendship"
                 fill
+                sizes="256px"
                 className="object-cover"
               />
             </div>
@@ -522,6 +538,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg"
                 alt="Sanga Laughs"
                 fill
+                sizes="176px"
                 className="object-cover"
               />
             </div>
@@ -532,6 +549,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                 src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png"
                 alt="Sanga Association"
                 fill
+                sizes="192px"
                 className="object-cover"
               />
             </div>
@@ -564,6 +582,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               src={settings.promo_video_cover_url || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1772131613598-JI7G8HEMBQWNK1Y32ADD/DSC_0022.jpg"} 
               alt="Sanga Video Cover" 
               fill
+              sizes="(min-width: 768px) 768px, 100vw"
+              unoptimized={shouldBypassImageOptimization(settings.promo_video_cover_url || '')}
               className="object-cover opacity-60 group-hover:scale-101 transition-transform duration-700"
             />
             {/* Play Button Overlay */}

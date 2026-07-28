@@ -492,7 +492,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-plum/80"></span> Men's Sanga
+                  <span className="w-2.5 h-2.5 rounded-full bg-plum/80"></span> Men&apos;s Sanga
                 </span>
               </label>
 
@@ -505,7 +505,7 @@ export default function GatheringsCatalog({ events }: GatheringsCatalogProps) {
                   className="h-4 w-4 rounded text-plum border-plum/20 focus:ring-sunshine"
                 />
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-pink"></span> Ladies' Sanga
+                  <span className="w-2.5 h-2.5 rounded-full bg-pink"></span> Ladies&apos; Sanga
                 </span>
               </label>
 

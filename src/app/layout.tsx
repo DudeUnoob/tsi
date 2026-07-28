@@ -1,24 +1,99 @@
 import type { Metadata } from "next";
-import { Fredoka, Outfit } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/firebase";
-import { THEME_PALETTES } from "@/lib/types";
 import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
-const displayFont = Fredoka({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const bodyFont = Outfit({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+const visby = localFont({
+  src: [
+    {
+      path: "./fonts/Visby-Thin.woff2",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-ThinOblique.woff2",
+      weight: "100",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-LightOblique.woff2",
+      weight: "300",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-RegularOblique.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-MediumOblique.woff2",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-DemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-DemiBoldOblique.woff2",
+      weight: "600",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-BoldOblique.woff2",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-ExtraBoldOblique.woff2",
+      weight: "800",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Visby-Heavy.woff2",
+      weight: "900",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Visby-HeavyOblique.woff2",
+      weight: "900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-visby",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -60,7 +135,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
+      className={`${visby.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
         <ThemeProvider initialPaletteKey={paletteKey}>
