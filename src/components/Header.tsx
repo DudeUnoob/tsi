@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingBag } from 'lucide-react';
@@ -17,22 +17,10 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const [openMenuPath, setOpenMenuPath] = useState<string | null>(null);
+  const isOpen = openMenuPath === pathname;
   const { cartCount } = useCart();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
 
   const { currentPaletteKey } = useTheme();
   const isDefaultTheme = currentPaletteKey === 'default';
@@ -120,7 +108,7 @@ export default function Header() {
             </Link>
 
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setOpenMenuPath(isOpen ? null : pathname)}
               className="p-2 text-plum hover:text-pink focus:outline-none cursor-pointer"
               aria-label="Toggle navigation menu"
             >
@@ -151,6 +139,7 @@ export default function Header() {
                 <Link
                   key={link.path}
                   href={link.path}
+                  onClick={() => setOpenMenuPath(null)}
                   className={`text-sm uppercase font-black tracking-widest py-2 border-b border-plum/10 ${
                     isActive ? 'text-plum pl-2 border-l-4 border-l-plum' : 'text-plum/80'
                   }`}

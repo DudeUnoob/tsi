@@ -1,6 +1,5 @@
 import React from 'react';
 import { getSiteSettings } from '@/lib/firebase';
-import ContactForm from '@/components/ContactForm';
 import { Mail, MessageCircle, Heart, Sparkles } from 'lucide-react';
 
 export const revalidate = 0;

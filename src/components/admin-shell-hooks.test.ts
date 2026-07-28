@@ -17,10 +17,9 @@ function expectAdminReturnAfterHooks(source: string, hooks: string[]) {
 describe('admin route public chrome', () => {
   it('keeps the Header hook order stable before hiding it on admin routes', () => {
     expectAdminReturnAfterHooks(readComponent('Header.tsx'), [
-      'useState(false)',
       'usePathname()',
+      'useState<string | null>(null)',
       'useCart()',
-      'useEffect(',
       'useTheme()',
     ]);
   });

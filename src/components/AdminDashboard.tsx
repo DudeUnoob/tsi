@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   isFirebaseConfigured as isSupabaseConfigured, getSiteSettings, getEvents, getProducts, getResources,
   getLocalSubscribers, getLocalMessages, Order, EventRegistration, getOrders, getEventRegistrations, 
-  getProductInventory, saveProductInventory, saveEvent, deleteEvent, saveProduct,
-  deleteProduct, saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers,
+  getProductInventory, saveProductInventory, saveEvent, deleteEvent,
+  saveResource, deleteResource, saveSiteSettings, getNewsletterSubscribers,
   getContactMessages, loginAdmin, logoutAdmin, onAdminAuthStateChange, uploadFile, deleteFile,
-  getAdminIdToken,
+  getAdminIdToken, type AdminSession,
 } from '@/lib/firebase';
 import {
   SiteSettings, Event, StoreProduct, Resource
@@ -16,9 +16,8 @@ import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
   MessageCircle, FileText, Image as ImageIcon, LogOut,
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
-  Video, Eye, Lock, FileUp, ExternalLink, Search, Info, X, Upload
+  ExternalLink, Search, X, Upload
 } from 'lucide-react';
-type Session = any;
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -36,6 +35,150 @@ interface ContactMessage {
   message: string;
   reviewed: boolean;
   submitted_at: string;
+}
+
+interface ImageUploaderProps {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  onToast: (message: string) => void;
+  folder?: string;
+}
+
+function ImageUploader({
+  label,
+  value,
+  onChange,
+  onToast,
+  folder = 'general',
+}: ImageUploaderProps) {
+  const [uploading, setUploading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const result = await uploadFile(folder, file);
+      if (result.success && result.url) {
+        onChange(result.url);
+        onToast('Image uploaded successfully!');
+      } else {
+        alert(result.message || 'Failed to upload image.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred during upload.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!value || !confirm('Are you sure you want to delete this image?')) return;
+
+    try {
+      setUploading(true);
+      await deleteFile(value);
+      onChange('');
+      onToast('Image deleted!');
+    } catch (error) {
+      console.error(error);
+      onToast('Error deleting image.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2 text-left">
+      {label && <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">{label}</label>}
+
+      {value ? (
+        <div className="relative group rounded-2xl overflow-hidden border border-plum/15 bg-plum/5 p-2 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src={value}
+              alt="Preview"
+              width={64}
+              height={64}
+              unoptimized
+              className="w-16 h-16 object-cover rounded-xl border border-plum/10 shadow-sm"
+            />
+            <div className="space-y-1 overflow-hidden">
+              <span className="text-[10px] text-plum/60 font-semibold block truncate max-w-[200px]">{value.split('/').pop()}</span>
+              <span className="text-[8px] font-mono text-warm-black/40 block truncate max-w-[200px]">{value}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 bg-white hover:bg-[var(--color-sunshine)] text-plum hover:text-plum border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
+              title="Change Image"
+            >
+              <Upload className="h-4.5 w-4.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="p-2 bg-white hover:bg-[var(--color-pink)] hover:text-white text-[var(--color-pink)] border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
+              title="Delete Image"
+            >
+              <Trash2 className="h-4.5 w-4.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-plum/15 hover:border-[var(--color-sunshine)] bg-plum/5/20 hover:bg-plum/5 transition-all rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-2 group"
+        >
+          {uploading ? (
+            <div className="w-6 h-6 border-2 border-plum border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Upload className="h-6 w-6 text-plum/40 group-hover:text-plum transition-colors" />
+          )}
+          <span className="text-xs font-semibold text-plum/60 group-hover:text-plum transition-colors">
+            {uploading ? 'Uploading image...' : 'Click to upload image'}
+          </span>
+          <span className="text-[9px] text-warm-black/40">PNG, JPG, or WEBP</span>
+        </div>
+      )}
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+
+      <div className="text-right">
+        <button
+          type="button"
+          onClick={() => setShowUrlInput(current => !current)}
+          className="text-[9px] font-semibold text-plum/50 hover:text-plum transition-colors underline"
+        >
+          {showUrlInput ? 'Hide manual URL input' : 'Or paste an image URL instead'}
+        </button>
+      </div>
+
+      {showUrlInput && (
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Paste image URL here..."
+          className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl focus:outline-none focus:border-[var(--color-sunshine)] text-xs text-plum font-mono"
+        />
+      )}
+    </div>
+  );
 }
 
 async function commerceAdminRequest(method: 'GET' | 'PATCH', body?: unknown) {
@@ -56,9 +199,7 @@ async function commerceAdminRequest(method: 'GET' | 'PATCH', body?: unknown) {
 export default function AdminDashboard() {
   const router = useRouter();
   // Authentication state
-  const [session, setSession] = useState<Session | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [session, setSession] = useState<AdminSession | null>(null);
   const [authLoading, setAuthLoading] = useState(isSupabaseConfigured);
   const [authError, setAuthError] = useState('');
 
@@ -123,21 +264,6 @@ export default function AdminDashboard() {
     sold: number;
   }
 
-  // Helper to count how many items were sold for a product & size
-  const getSoldQuantity = (productId: number, size: string): number => {
-    let count = 0;
-    orders.forEach(o => {
-      if (o.status === 'paid' || o.status === 'completed') {
-        o.items?.forEach(item => {
-          if (item.id === productId && item.size?.toUpperCase() === size.toUpperCase()) {
-            count += item.quantity || 0;
-          }
-        });
-      }
-    });
-    return count;
-  };
-
   // Form edit states (for Gatherings, Store, and Resources edit modals)
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<StoreProduct> | null>(null);
@@ -185,7 +311,6 @@ export default function AdminDashboard() {
   // Firebase Auth listener
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setAuthLoading(false);
       return;
     }
 
@@ -294,7 +419,7 @@ export default function AdminDashboard() {
       setAuthLoading(true);
       const res = await loginAdmin();
       setAuthLoading(false);
-      if (!res.success) throw new Error(res.message);
+      if (!res.success || !res.session) throw new Error(res.message || 'Google Sign-In failed.');
       setSession(res.session);
     } catch (err) {
       setAuthLoading(false);
@@ -314,141 +439,6 @@ export default function AdminDashboard() {
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3000);
-  };
-
-  // Reusable Image Uploader component
-  const ImageUploader = ({
-    label,
-    value,
-    onChange,
-    folder = 'general'
-  }: {
-    label: string;
-    value: string;
-    onChange: (url: string) => void;
-    folder?: string;
-  }) => {
-    const [uploading, setUploading] = useState(false);
-    const [showUrlInput, setShowUrlInput] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      try {
-        setUploading(true);
-        const res = await uploadFile(folder, file);
-        setUploading(false);
-        if (res.success && res.url) {
-          onChange(res.url);
-          triggerToast('Image uploaded successfully!');
-        } else {
-          alert(res.message || 'Failed to upload image.');
-        }
-      } catch (err) {
-        setUploading(false);
-        console.error(err);
-        alert('An error occurred during upload.');
-      }
-    };
-
-    const handleDelete = async () => {
-      if (!value) return;
-      if (!confirm('Are you sure you want to delete this image?')) return;
-      
-      try {
-        setUploading(true);
-        await deleteFile(value);
-        setUploading(false);
-        onChange('');
-        triggerToast('Image deleted!');
-      } catch (err) {
-        setUploading(false);
-        console.error(err);
-        triggerToast('Error deleting image.');
-      }
-    };
-
-    return (
-      <div className="space-y-2 text-left">
-        {label && <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">{label}</label>}
-        
-        {value ? (
-          <div className="relative group rounded-2xl overflow-hidden border border-plum/15 bg-plum/5 p-2 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img src={value} alt="Preview" className="w-16 h-16 object-cover rounded-xl border border-plum/10 shadow-sm" />
-              <div className="space-y-1 overflow-hidden">
-                <span className="text-[10px] text-plum/60 font-semibold block truncate max-w-[200px]">{value.split('/').pop()}</span>
-                <span className="text-[8px] font-mono text-warm-black/40 block truncate max-w-[200px]">{value}</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 bg-white hover:bg-[var(--color-sunshine)] text-plum hover:text-plum border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
-                title="Change Image"
-              >
-                <Upload className="h-4.5 w-4.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="p-2 bg-white hover:bg-[var(--color-pink)] hover:text-white text-[var(--color-pink)] border border-plum/10 rounded-xl transition-all shadow-sm cursor-pointer"
-                title="Delete Image"
-              >
-                <Trash2 className="h-4.5 w-4.5" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div 
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-plum/15 hover:border-[var(--color-sunshine)] bg-plum/5/20 hover:bg-plum/5 transition-all rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-2 group"
-          >
-            {uploading ? (
-              <div className="w-6 h-6 border-2 border-plum border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Upload className="h-6 w-6 text-plum/40 group-hover:text-plum transition-colors" />
-            )}
-            <span className="text-xs font-semibold text-plum/60 group-hover:text-plum transition-colors">
-              {uploading ? 'Uploading image...' : 'Click to upload image'}
-            </span>
-            <span className="text-[9px] text-warm-black/40">PNG, JPG, or WEBP</span>
-          </div>
-        )}
-
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-          accept="image/*" 
-          className="hidden" 
-        />
-
-        <div className="text-right">
-          <button
-            type="button"
-            onClick={() => setShowUrlInput(!showUrlInput)}
-            className="text-[9px] font-semibold text-plum/50 hover:text-plum transition-colors underline"
-          >
-            {showUrlInput ? 'Hide manual URL input' : 'Or paste an image URL instead'}
-          </button>
-        </div>
-
-        {showUrlInput && (
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Paste image URL here..."
-            className="w-full px-4 py-2.5 bg-[var(--color-linen)] border border-plum/15 rounded-xl focus:outline-none focus:border-[var(--color-sunshine)] text-xs text-plum font-mono"
-          />
-        )}
-      </div>
-    );
   };
 
   // Settings Save
@@ -1109,6 +1099,7 @@ export default function AdminDashboard() {
                                 setSlideshowUrls(updated);
                                 handleSaveSettings('hero', { hero_slideshow_images: updated.filter(Boolean) });
                               }}
+                              onToast={triggerToast}
                               folder="homepage/slideshow"
                             />
                           </div>
@@ -1455,6 +1446,7 @@ export default function AdminDashboard() {
                             label="Cover/Hero Image"
                             value={editingEvent.hero_image || ''}
                             onChange={(url) => setEditingEvent({ ...editingEvent, hero_image: url })}
+                            onToast={triggerToast}
                             folder="events"
                           />
                         </div>
@@ -1724,6 +1716,7 @@ export default function AdminDashboard() {
                             label="Avatar Image"
                             value={newPersonImage}
                             onChange={(url) => setNewPersonImage(url)}
+                            onToast={triggerToast}
                             folder="events/people"
                           />
                         </div>
@@ -1959,6 +1952,7 @@ export default function AdminDashboard() {
                         label="Product Image"
                         value={editingProduct.image || ''}
                         onChange={(url) => setEditingProduct({ ...editingProduct, image: url })}
+                        onToast={triggerToast}
                         folder="merchandise"
                       />
 

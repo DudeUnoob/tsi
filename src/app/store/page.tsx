@@ -48,7 +48,7 @@ export default async function StorePage() {
                 return (
                   <div 
                     key={product.id}
-                    className="col-span-12 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative"
+                    className="col-span-1 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative"
                   >
                     {/* Featured label tag */}
                     <span className="absolute top-4 right-4 z-20 px-3.5 py-1 text-[8px] font-black uppercase tracking-widest bg-plum text-linen rounded-full shadow-sm select-none">
@@ -131,7 +131,7 @@ export default async function StorePage() {
               return (
                 <div 
                   key={product.id}
-                  className="col-span-12 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="col-span-1 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
                   {/* Image wrapper */}
                   <Link 

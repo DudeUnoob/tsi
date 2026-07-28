@@ -1,11 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
-  getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, 
-  deleteDoc, query, orderBy, where, writeBatch,
+  getFirestore, doc, collection, getDoc, getDocs, setDoc,
+  deleteDoc, query, where, writeBatch,
 } from 'firebase/firestore';
 import { 
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, User,
-  GoogleAuthProvider, signInWithPopup,
+  getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+  type User,
 } from 'firebase/auth';
 import { 
   getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
@@ -155,13 +155,13 @@ export const db = app ? getFirestore(app) : null;
 export const auth = app ? getAuth(app) : null;
 export const storage = app ? getStorage(app) : null;
 
-function sanitizeObject(obj: any): any {
-  if (obj === null || obj === undefined) return null;
+function sanitizeObject<T>(obj: T): T {
+  if (obj === null || obj === undefined) return null as T;
   if (Array.isArray(obj)) {
-    return obj.map(sanitizeObject);
+    return obj.map(item => sanitizeObject(item)) as T;
   }
   if (typeof obj === 'object') {
-    const clean: any = {};
+    const clean: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(obj)) {
       if (val === undefined) {
         clean[key] = null;
@@ -169,7 +169,7 @@ function sanitizeObject(obj: any): any {
         clean[key] = sanitizeObject(val);
       }
     }
-    return clean;
+    return clean as T;
   }
   return obj;
 }
@@ -268,7 +268,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       const key = docSnap.id;
       const val = docSnap.data().value;
       if (key in settings) {
-        (settings as any)[key] = val;
+        const settingsRecord = settings as unknown as Record<string, unknown>;
+        settingsRecord[key] = val;
       }
     });
     return settings;
@@ -318,7 +319,7 @@ export async function getEvents(options?: { featuredOnly?: boolean; all?: boolea
 
 export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   try {
-    const events = await getEvents({ all: true });
+    const events = await getEvents();
     return events.find(e => e.slug === slug);
   } catch {
     return undefined;
@@ -432,11 +433,11 @@ export async function getResources(options?: { publishedOnly?: boolean }): Promi
 export async function subscribeNewsletter(email: string): Promise<{ success: boolean; message: string }> {
   if (!isFirebaseConfigured) {
     const stored = getLocalStorageItem('sanga_mock_subscribers');
-    let list = [];
+    let list: Array<{ email: string; subscribed_at: string }> = [];
     if (stored) {
       try { list = JSON.parse(stored); } catch {}
     }
-    if (list.some((s: any) => s.email === email)) {
+    if (list.some(subscriber => subscriber.email === email)) {
       return { success: true, message: "Already subscribed (Local Mode)" };
     }
     list.push({ email, subscribed_at: new Date().toISOString() });
@@ -533,12 +534,13 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'created_at'>): 
   }
   try {
     const docRef = doc(db!, 'orders', orderData.order_ref);
-    const newOrder = {
+    const newOrder: Order = {
       ...orderData,
+      id: Date.now(),
       created_at: new Date().toISOString()
     };
     await setDoc(docRef, newOrder);
-    return { success: true, order: { ...newOrder, id: Date.now() } as any };
+    return { success: true, order: newOrder };
   } catch (e) {
     const err = e as Error;
     console.error("Firebase createOrder error:", err);
@@ -637,12 +639,13 @@ export async function createEventRegistration(regData: Omit<EventRegistration, '
   try {
     const colRef = collection(db!, 'registrations');
     const docRef = doc(colRef);
-    const newReg = {
+    const newReg: EventRegistration = {
       ...regData,
+      id: Date.now(),
       created_at: new Date().toISOString()
     };
     await setDoc(docRef, newReg);
-    return { success: true, registration: { ...newReg, id: Date.now() } as any };
+    return { success: true, registration: newReg };
   } catch (e) {
     const err = e as Error;
     console.error("Firebase createEventRegistration error:", err);
@@ -994,7 +997,9 @@ export const isEmailAllowed = (email: string | null): boolean => {
   );
 };
 
-export async function loginAdmin(): Promise<{ success: boolean; session?: any; message?: string }> {
+export type AdminSession = Pick<User, 'email'>;
+
+export async function loginAdmin(): Promise<{ success: boolean; session?: AdminSession; message?: string }> {
   if (!isFirebaseConfigured) {
     // Local mock login logic (accept any email/password locally)
     return { success: true, session: { email: 'mock-admin@example.com' } };
@@ -1041,7 +1046,7 @@ export async function getAdminIdToken(): Promise<string> {
   return auth.currentUser.getIdToken();
 }
 
-export function onAdminAuthStateChange(callback: (session: any | null) => void): () => void {
+export function onAdminAuthStateChange(callback: (session: AdminSession | null) => void): () => void {
   if (!isFirebaseConfigured) {
     // Mock subscription
     callback({ email: 'mock-admin@example.com' });
