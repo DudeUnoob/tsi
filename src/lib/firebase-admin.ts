@@ -33,6 +33,12 @@ function getAdminApp() {
     });
   }
 
+  if (process.env.VERCEL) {
+    throw new Error(
+      'Firebase Admin is not configured for this deployment. Add FIREBASE_SERVICE_ACCOUNT_JSON in Vercel.',
+    );
+  }
+
   return initializeApp({
     credential: applicationDefault(),
     projectId,

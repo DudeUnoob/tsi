@@ -22,6 +22,7 @@ import {
   checkoutAttemptMatchesCurrentCart,
   createStoredCartRequestKey,
   notifyActiveCheckoutChanged,
+  readApiJson,
   readStoredCheckout,
   withCommerceBrowserLock,
   writeStoredCheckout,
@@ -152,7 +153,7 @@ export default function CartPage() {
       signal: controller.signal,
     })
       .then(async response => {
-        const data = await response.json();
+        const data = await readApiJson<{ error?: string } & CheckoutState>(response);
         const latestCheckout = readStoredCheckout(localStorage);
         if (latestCheckout?.id !== activeCheckout.id) return;
         if (!response.ok) throw new Error(data.error || 'Unable to retrieve checkout status.');
@@ -201,7 +202,7 @@ export default function CartPage() {
       body: JSON.stringify({ checkoutAttemptId, token }),
     })
       .then(async response => {
-        const data = await response.json();
+        const data = await readApiJson<{ error?: string } & CheckoutState>(response);
         const latestCheckout = readStoredCheckout(localStorage);
         if (latestCheckout?.id !== checkoutAttemptId) return;
         if (!response.ok) throw new Error(data.error || 'Unable to cancel checkout.');
@@ -266,7 +267,7 @@ export default function CartPage() {
       signal: controller.signal,
     })
       .then(async response => {
-        const data = await response.json();
+        const data = await readApiJson<{ error?: string } & CartQuote>(response);
         if (!response.ok) throw new Error(data.error || 'Unable to refresh the cart.');
         setQuote(data as CartQuote);
       })
@@ -314,7 +315,7 @@ export default function CartPage() {
           token: activeCheckout.token,
         }),
       });
-      const data = await response.json();
+      const data = await readApiJson<{ error?: string } & CheckoutState>(response);
       const latestCheckout = readStoredCheckout(localStorage);
       const stillCurrent = latestCheckout?.id === activeCheckout.id;
       if (data.orderId && stillCurrent) setCheckoutState(data as CheckoutState);
@@ -362,7 +363,15 @@ export default function CartPage() {
           items,
         }),
       });
-      const data = await response.json();
+      const data = await readApiJson<{
+        error?: string;
+        orderId?: string;
+        sessionId?: string;
+        url?: string;
+        reservationExpiresAt?: string;
+        managementToken?: string;
+        attemptTerminal?: boolean;
+      }>(response);
       if (!response.ok) {
         if (data.attemptTerminal) storeActiveCheckout(null);
         throw new Error(data.error || 'Unable to start checkout.');

@@ -24,6 +24,23 @@ export type CheckoutClientState = {
   inventoryException: boolean;
 };
 
+export async function readApiJson<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw new Error(
+      response.ok
+        ? 'The server returned an invalid response.'
+        : 'This deployment could not reach its store backend. Check its Vercel environment variables.',
+    );
+  }
+
+  try {
+    return await response.json() as T;
+  } catch {
+    throw new Error('The server returned invalid JSON.');
+  }
+}
+
 export function parseStoredCheckout(raw: string | null): ActiveCheckout | null {
   if (!raw) return null;
   const value = JSON.parse(raw) as Partial<ActiveCheckout>;

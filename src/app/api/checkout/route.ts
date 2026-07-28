@@ -22,8 +22,12 @@ import { getStripe } from '@/lib/stripe-server';
 export const runtime = 'nodejs';
 
 function getAppUrl(request: Request) {
-  const configured = process.env.NEXT_PUBLIC_APP_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
+  // Every Vercel deployment gets its own URL. Prefer it over a configured
+  // canonical URL so forks and previews return customers to the deployment
+  // where they began Checkout.
+  const configured = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_APP_URL || '';
   if (configured) {
     const url = new URL(configured);
     if (url.protocol !== 'https:' && url.protocol !== 'http:') {

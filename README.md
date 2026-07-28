@@ -12,7 +12,8 @@ Welcome to the production-quality, custom-built web platform for **Sanga** (a Va
 - **Database, Auth & Storage**: [Firebase](https://firebase.google.com/) (Firestore, Firebase Auth, and Cloud Storage)
 - **Motion & Interactions**: Framer Motion
 - **Form Handling**: React Hook Form + Zod validation
-- **Deployment**: Vercel-ready with zero additional configuration
+- **Deployment**: Vercel-ready; encrypted Firebase and Stripe credentials are
+  configured once per Vercel project
 
 ---
 
@@ -101,8 +102,20 @@ The active backend is the Firebase project `tsiwebsite`. The `supabase/` directo
 1. Push this code repository to your GitHub account.
 2. Go to the [Vercel Dashboard](https://vercel.com) and click **Add New** -> **Project**.
 3. Import your Sanga repository.
-4. Add every variable listed in `.env.example`, using sandbox/test Stripe credentials until end-to-end verification is complete.
-5. Click **Deploy**. Vercel will bundle the optimized site and publish it.
+4. Add every variable listed in `.env.example` to both **Production** and
+   **Preview**, using sandbox/test Stripe credentials until end-to-end
+   verification is complete. Do not add `GOOGLE_APPLICATION_CREDENTIALS`;
+   that variable is only for local development.
+5. Leave `NEXT_PUBLIC_APP_URL` unset on Vercel. Checkout automatically uses
+   the URL of the current fork, Preview, or Production deployment.
+6. Click **Deploy**. Vercel will bundle the optimized site and publish it.
+
+Vercel projects do not inherit encrypted variables from the upstream repository
+or from another Vercel project. Every fork therefore needs its own values for
+`FIREBASE_SERVICE_ACCOUNT_JSON`, `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `CHECKOUT_TOKEN_SECRET`, and `CRON_SECRET`. The
+remaining Firebase web variables identify the Firebase project but should still
+be configured in both environments.
 
 ### Routing your custom domain
 In your Vercel project panel:

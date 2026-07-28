@@ -4,6 +4,7 @@ import {
   checkoutAttemptMatchesCurrentCart,
   createStoredCartRequestKey,
   parseStoredCheckout,
+  readApiJson,
   shouldClearCartAfterCheckout,
   withCommerceBrowserLock,
   type CheckoutClientState,
@@ -28,6 +29,24 @@ function state(
 describe('checkout client coordination', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it('reports a deployment configuration error instead of parsing an HTML error page', async () => {
+    const response = new Response('<!DOCTYPE html><title>Server Error</title>', {
+      status: 500,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+    });
+
+    await expect(readApiJson(response)).rejects.toThrow(
+      'Check its Vercel environment variables',
+    );
+  });
+
+  it('reads JSON API responses', async () => {
+    const response = Response.json({ total: 14000 });
+    await expect(readApiJson<{ total: number }>(response)).resolves.toEqual({
+      total: 14000,
+    });
   });
 
   it('parses a complete stored checkout attempt', () => {
