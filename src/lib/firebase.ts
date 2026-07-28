@@ -188,6 +188,8 @@ const defaultSiteSettings: SiteSettings = {
   support_headline: "Support Sanga",
   support_text: "",
   whatsapp_url: "",
+  mighty_networks_url: "",
+  heartspace_url: "",
   instagram_url: "",
   facebook_url: "",
   contact_email: "",

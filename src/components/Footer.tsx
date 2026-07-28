@@ -99,28 +99,38 @@ export default function Footer() {
           <h3 className="font-display text-lg font-bold text-[var(--color-linen)] mb-4 uppercase tracking-widest text-xs">Quick Links</h3>
           <ul className="space-y-3 text-sm">
             <li>
-              <Link href="/gatherings" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
-                Gatherings & Retreats
+              <Link href="/" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link href="/events" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
+                Events
+              </Link>
+            </li>
+            <li>
+              <Link href="/education" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
+                Education
+              </Link>
+            </li>
+            <li>
+              <Link href="/calendar" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
+                Calendar
               </Link>
             </li>
             <li>
               <Link href="/store" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
-                Merch Store
-              </Link>
-            </li>
-            <li>
-              <Link href="/resources" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
-                Reading Resources
+                Store
               </Link>
             </li>
             <li>
               <Link href="/support" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
-                Support / Donate
+                Support
               </Link>
             </li>
             <li>
               <Link href="/contact" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
-                Get in Touch
+                Contact
               </Link>
             </li>
           </ul>
@@ -130,7 +140,7 @@ export default function Footer() {
         <div className="col-span-1 md:col-span-5 flex flex-col space-y-4">
           <h3 className="font-display text-lg font-bold text-[var(--color-linen)] uppercase tracking-widest text-xs">Join our newsletter</h3>
           <p className="text-sm text-[var(--color-linen)]/70 leading-relaxed font-light">
-            Stay updated on upcoming retreats, local regionals, and digital gatherings.
+            Stay updated on upcoming retreats, local events, and online programs.
           </p>
           
           <form onSubmit={handleSubscribe} className="relative flex items-center mt-2 max-w-md">

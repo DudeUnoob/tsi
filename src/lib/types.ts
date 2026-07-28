@@ -47,6 +47,7 @@ export interface Event {
   liability_form_url?: string;
   application_url?: string;
   scholarship_contact_url?: string;
+  community_registration_url?: string;
   hero_image: string;
   gallery_images: string[];
   featured_on_homepage: boolean;
@@ -153,6 +154,8 @@ export interface SiteSettings {
   support_headline: string;
   support_text: string;
   whatsapp_url: string;
+  mighty_networks_url: string;
+  heartspace_url: string;
   instagram_url: string;
   facebook_url: string;
   contact_email: string;

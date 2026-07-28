@@ -10,9 +10,10 @@ import { useTheme } from '@/context/ThemeContext';
 
 const navLinks = [
   { name: 'Home', path: '/' },
-  { name: 'Gatherings', path: '/gatherings' },
+  { name: 'Events', path: '/events' },
+  { name: 'Education', path: '/education' },
+  { name: 'Calendar', path: '/calendar' },
   { name: 'Store', path: '/store' },
-  { name: 'Resources', path: '/resources' },
   { name: 'Support', path: '/support' },
   { name: 'Contact', path: '/contact' }
 ];
@@ -50,7 +51,7 @@ export default function Header() {
             />
           </Link>
           {/* Navigation Links */}
-          <nav className="flex items-center space-x-8">
+          <nav className="flex items-center gap-x-6 lg:gap-x-8">
             {navLinks.map((link) => {
               const isActive = link.path === '/' 
                 ? pathname === '/' 
@@ -70,7 +71,7 @@ export default function Header() {
               );
             })}
 
-            {/* Desktop Cart Indicator inline with navigation links */}
+            {/* Desktop cart remains separate from the ordered text links. */}
             <Link
               href="/cart"
               className={`relative p-1.5 text-plum hover:text-pink transition-all flex items-center justify-center cursor-pointer ml-2 ${

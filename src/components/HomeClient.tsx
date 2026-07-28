@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/types';
+import { formatEventDate } from '@/lib/event-dates';
 
 interface HomeClientProps {
   settings: SiteSettings;
@@ -49,6 +50,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
   // Show slideshow only if not hidden by admin AND there is at least one image
   const showSlideshow = !settings.hero_slideshow_hidden && heroImages.length > 0;
+  const primaryCtaLabel = /gatherings?/i.test(settings.primary_cta_label)
+    ? 'Explore Events'
+    : settings.primary_cta_label;
+  const primaryCtaUrl = settings.primary_cta_url.replace(/^\/gatherings(?=\/|$)/, '/events');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -58,10 +63,17 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
   }, [heroImages.length]);
 
 
-  // Group events by category for the showcase cards
+  // Events have already been eligibility-filtered by the server page.
   const retreatsEvent = events.find(e => e.category === 'retreat' || e.slug === 'tsi-summit') || events[0];
-  const talksEvent = events.find(e => e.category === 'online' || e.category === 'talk' || e.slug === 'heartspace') || events[1];
-  const tripsEvent = events.find(e => e.category === 'trip' || e.slug === 'vrindavana-yatra') || events[2];
+  const talksEvent = events.find(e =>
+    e.id !== retreatsEvent?.id
+    && (e.category === 'online' || e.category === 'talk' || e.slug === 'heartspace')
+  ) || events.find(e => e.id !== retreatsEvent?.id);
+  const tripsEvent = events.find(e =>
+    e.id !== retreatsEvent?.id
+    && e.id !== talksEvent?.id
+    && (e.category === 'trip' || e.slug === 'vrindavana-yatra')
+  ) || events.find(e => e.id !== retreatsEvent?.id && e.id !== talksEvent?.id);
 
   // Animation presets
   const containerVariants = {
@@ -98,30 +110,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
         } : undefined}
         className={`relative min-h-[90vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden pt-4 pb-24 md:pt-14 md:pb-32 px-6 transition-all duration-500 bg-plum text-linen`}
       >
-        {/* Flat organic blob shapes — graphic background */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
-          {/* Top-left large blob */}
-          <svg className={`absolute -top-16 -left-20 w-[55vw] h-[75vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-15' : isSunsetTheme ? 'opacity-30' : 'opacity-90'
-          }`} viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M60,20 C180,-30 380,60 440,180 C500,300 460,460 340,520 C220,580 40,520 10,380 C-20,240 -60,70 60,20 Z" fill="var(--color-pink)" opacity="0.85"/>
-          </svg>
-          {/* Bottom-left accent blob */}
-          <svg className={`absolute -bottom-20 -left-16 w-[40vw] h-[55vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-15' : isSunsetTheme ? 'opacity-30' : 'opacity-75'
-          }`} viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M80,60 C180,0 360,40 380,180 C400,320 280,460 140,460 C0,460 -40,320 20,180 C40,120 0,120 80,60 Z" fill="var(--color-plum)" opacity="0.9"/>
-          </svg>
-          {/* Right-side wavy blob */}
-          <svg className={`absolute -right-24 top-1/2 -translate-y-1/2 w-[35vw] h-[90vh] transition-opacity duration-300 ${
-            (isBerryTheme || isMintTheme) ? 'opacity-80' : isSunsetTheme ? 'opacity-30' : 'opacity-60'
-          }`} viewBox="0 0 350 700" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M200,0 C320,40 400,200 350,380 C300,560 180,680 80,620 C-20,560 0,400 40,260 C80,120 80,-40 200,0 Z" fill="var(--color-pink)" opacity="0.7"/>
-          </svg>
-          {/* Small top-right accent */}
-          <svg className="absolute top-0 right-0 w-[20vw] h-[35vh] opacity-50" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <path d="M160,0 C220,60 220,200 140,260 C60,320 -20,220 10,120 C40,20 100,-60 160,0 Z" fill="var(--color-sunshine)" opacity="0.6"/>
-          </svg>
+        <div className="brand-swirls z-0" aria-hidden="true">
+          <span className="brand-swirl brand-swirl--plum" />
+          <span className="brand-swirl brand-swirl--fuchsia" />
+          <span className="brand-swirl brand-swirl--sunshine" />
         </div>
 
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
@@ -176,10 +168,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
             >
               <Link
-                href={settings.primary_cta_url}
+                href={primaryCtaUrl}
                 className={`w-full sm:w-auto px-8 py-4 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 text-center shadow-lg hover:shadow-xl active:scale-98 bg-white text-plum hover:bg-white/90`}
               >
-                {settings.primary_cta_label}
+                {primaryCtaLabel}
               </Link>
               <a
                 href={settings.secondary_cta_url}
@@ -208,7 +200,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-linen/30 shadow-xl transform -rotate-3 scale-97">
                 <Image
                   src={heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src}
-                  alt="Previous gathering"
+                  alt="Previous Sanga event"
                   fill
                   sizes="(min-width: 768px) 40vw, 100vw"
                   unoptimized={shouldBypassImageOptimization(heroImages[(slideIndex + heroImages.length - 1) % heroImages.length].src)}
@@ -261,6 +253,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                       <button
                         key={i}
                         onClick={() => setSlideIndex(i)}
+                        aria-label={`Show ${heroImages[i].label}`}
+                        aria-current={i === slideIndex ? 'true' : undefined}
                         className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
                           i === slideIndex ? 'bg-sunshine w-5' : 'bg-linen/40 w-1.5'
                         }`}
@@ -311,38 +305,38 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           </p>
           <div className="h-1 w-24 bg-sunshine mx-auto rounded-full" />
           <p className="font-sans text-lg sm:text-xl text-warm-black/80 leading-relaxed max-w-2xl mx-auto font-light">
-            Through retreats, gatherings, and ongoing connection, members build relationships that carry into everyday life.
+            Through retreats, events, and ongoing connection, members build relationships that carry into everyday life.
           </p>
         </div>
       </section>
 
       {/* 3. UPCOMING EXPERIENCES (ARCHED CARDS) */}
-      <section className="bg-linen py-24 px-6 relative">
-        <div className="max-w-7xl mx-auto">
+      {events.length > 0 && (
+        <section className="bg-linen py-24 px-6 relative">
+          <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
             <div className="space-y-2">
               <span className="text-xs uppercase tracking-wider text-pink font-black font-sans">
-                Gatherings
+                Events
               </span>
               <h2 className="font-display text-4xl sm:text-5xl font-black text-plum">
-                Upcoming Experiences
+                Upcoming Events
               </h2>
             </div>
             <Link 
-              href="/gatherings"
+              href="/events"
               className="inline-flex items-center text-sm font-black uppercase tracking-wider text-plum hover:text-pink transition-colors mt-4 md:mt-0 gap-1.5"
             >
-              View All Gatherings <ArrowRight className="h-4 w-4" />
+              View All Events <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           {/* Cards Grid */}
           <motion.div 
             variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
+            initial={false}
+            animate="visible"
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {/* Card 1: Retreats */}
@@ -365,7 +359,7 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
                 <div className="relative h-64 w-full overflow-hidden bg-plum/5">
                   <Image 
-                    src={retreatsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/3da960ee-0e14-4ffa-9e31-2808e5e925ee/Summit26+Reg+Open+1x1.png"}
+                    src={retreatsEvent.hero_image || "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1752071425850-I8MCAXI0LAW4EPAVB1Y9/IMG_8842.jpg"}
                     alt={retreatsEvent.title}
                     fill
                     sizes="(min-width: 768px) 33vw, 100vw"
@@ -381,11 +375,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     </h3>
                     <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
                       <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
-                      {new Date(retreatsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {retreatsEvent.location}
+                      {formatEventDate(retreatsEvent.start_date, { month: 'short', day: 'numeric' })} &bull; {retreatsEvent.location}
                     </p>
                   </div>
                   <Link 
-                    href={`/gatherings/${retreatsEvent.slug}`}
+                    href={`/events/${retreatsEvent.slug}`}
                     className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Retreat Details &rarr;
@@ -430,11 +424,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     </h3>
                     <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
                       <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
-                      {new Date(talksEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {talksEvent.location}
+                      {formatEventDate(talksEvent.start_date, { month: 'short', day: 'numeric' })} &bull; {talksEvent.location}
                     </p>
                   </div>
                   <Link 
-                    href={`/gatherings/${talksEvent.slug}`}
+                    href={`/events/${talksEvent.slug}`}
                     className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Session Details &rarr;
@@ -479,11 +473,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     </h3>
                     <p className="text-xs text-warm-black/60 font-sans font-bold uppercase tracking-wider flex items-center">
                       <Calendar className="mr-1.5 h-3.5 w-3.5 text-pink" />
-                      {new Date(tripsEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} &bull; {tripsEvent.location}
+                      {formatEventDate(tripsEvent.start_date, { month: 'short', day: 'numeric' })} &bull; {tripsEvent.location}
                     </p>
                   </div>
                   <Link 
-                    href={`/gatherings/${tripsEvent.slug}`}
+                    href={`/events/${tripsEvent.slug}`}
                     className="inline-flex items-center text-xs font-black uppercase tracking-widest text-plum group-hover:text-pink transition-colors"
                   >
                     View Trip Details &rarr;
@@ -492,12 +486,18 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               </motion.div>
             )}
           </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* 4. THE CONNECTION CONTINUES (OVERLAPPING CIRCLES GRID) */}
       <section className="bg-linen py-24 px-6 relative border-t border-plum/5 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+        <div className="brand-swirls brand-swirls--soft brand-swirls--photo" aria-hidden="true">
+          <span className="brand-swirl brand-swirl--plum" />
+          <span className="brand-swirl brand-swirl--fuchsia" />
+          <span className="brand-swirl brand-swirl--sunshine" />
+        </div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
           {/* Left Side: Copy and Button */}
           <div className="md:col-span-6 space-y-8 text-left">
             <span className="text-xs uppercase tracking-wider text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
@@ -507,11 +507,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               More than just retreats
             </h2>
             <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans font-light">
-              Sanga doesn&apos;t begin and end with major events. Smaller gatherings, conversations, online sessions, and ongoing friendships continue throughout the year and across different stages of life.
+              Sanga doesn&apos;t begin and end with major events. Smaller events, conversations, online sessions, and ongoing friendships continue throughout the year and across different stages of life.
             </p>
             <div>
               <Link 
-                href="/gatherings"
+                href="/events"
                 className="inline-flex px-8 py-4 bg-plum hover:opacity-90 text-linen rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 See What&apos;s Happening
@@ -546,8 +546,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {/* Top Right Circle */}
             <div className="absolute top-4 right-4 sm:right-12 w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-sunshine overflow-hidden shadow-lg z-10 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
               <Image 
-                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/cb2418ed-47e3-4cc4-80db-e0f26530aaa1/MW26+Reg+Open+Post+45.png"
-                alt="Sanga Association"
+                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"
+                alt="Friends sharing time together at Sanga"
                 fill
                 sizes="192px"
                 className="object-cover"
@@ -604,22 +604,29 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
       </section>
 
       {/* 6. SUPPORT SECTION */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center space-y-8">
-        <span className="text-xs uppercase tracking-wider text-pink font-black font-sans">
-          Support Sanga
-        </span>
-        <h2 className="font-display text-4xl sm:text-5xl font-black text-plum">
-          {settings.support_headline}
-        </h2>
-        <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans max-w-2xl mx-auto font-light">
-          {settings.support_text}
-        </p>
-        <Link 
-          href="/support"
-          className="inline-flex items-center px-8 py-4 bg-plum text-linen hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
-        >
-          Become a Supporter <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+      <section className="relative overflow-hidden px-6 py-24">
+        <div className="brand-swirls brand-swirls--soft" aria-hidden="true">
+          <span className="brand-swirl brand-swirl--plum" />
+          <span className="brand-swirl brand-swirl--fuchsia" />
+          <span className="brand-swirl brand-swirl--sunshine" />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
+          <span className="text-xs uppercase tracking-wider text-pink font-black font-sans">
+            Support Sanga
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl font-black text-plum">
+            Support the future of Sanga
+          </h2>
+          <p className="text-base sm:text-lg text-warm-black/80 leading-relaxed font-sans max-w-2xl mx-auto font-light">
+            {settings.support_text || 'Help create spaces where friendship, growth, and shared spiritual experience can flourish.'}
+          </p>
+          <Link
+            href="/support"
+            className="inline-flex items-center px-8 py-4 bg-plum text-linen hover:opacity-90 rounded-full font-black text-sm tracking-widest uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          >
+            Become a Supporter <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </div>
       </section>
 
       {/* Video Modal Overlay */}

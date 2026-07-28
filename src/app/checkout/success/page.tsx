@@ -96,7 +96,7 @@ function SuccessContent() {
           {paid && summary && (
             <div className="text-left rounded-2xl bg-plum/5 border border-plum/10 p-5 mt-6 text-sm space-y-2">
               <div className="flex justify-between"><span>Order</span><strong>{summary.id.slice(0, 16)}…</strong></div>
-              {summary.customerEmail && <div className="flex justify-between gap-4"><span>Receipt</span><strong className="truncate">{summary.customerEmail}</strong></div>}
+              {summary.customerEmail && <div className="flex justify-between gap-4"><span>Checkout email</span><strong className="truncate">{summary.customerEmail}</strong></div>}
               {typeof summary.amountTotal === 'number' && (
                 <div className="flex justify-between"><span>Total paid</span><strong>{formatMoney(summary.amountTotal, summary.currency)}</strong></div>
               )}

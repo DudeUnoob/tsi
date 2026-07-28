@@ -34,7 +34,7 @@ export default async function SupportPage() {
               </div>
               <h2 className="font-display text-2xl font-bold text-[var(--color-plum)]">One-Time Gift</h2>
               <p className="text-sm text-[var(--color-warm-black)]/80 leading-relaxed font-sans font-light">
-                Support a specific retreat, sponsor a speaker, or help fund supplies. A one-time donation provides immediate resources for our active gatherings.
+                Support a specific retreat, sponsor a speaker, or help fund supplies. A one-time donation provides immediate resources for our active events.
               </p>
             </div>
             

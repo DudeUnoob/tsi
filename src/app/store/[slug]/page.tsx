@@ -97,7 +97,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     Item Currently Unavailable
                   </h3>
                   <p className="text-sm text-warm-black/70 font-sans font-light leading-relaxed">
-                    This item has sold out or is temporarily inactive in the shop. Keep an eye out for upcoming merch drops or announcements on our WhatsApp dashboard.
+                    This item has sold out or is temporarily inactive in the shop. Keep an eye out for upcoming merch drops and community announcements.
                   </p>
                   <Link
                     href="/store"

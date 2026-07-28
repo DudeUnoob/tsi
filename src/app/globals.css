@@ -19,6 +19,15 @@
   --color-forest-green: #003329;
   --color-ultramarine: #171C73;
   --color-warm-black: #1E1D1B;
+
+  /* Brand-packet accents: intentionally separate from the existing sunset
+     semantic tokens so the established orange/amber theme remains intact. */
+  --brand-plum: #6E0B64;
+  --brand-fuchsia: #BF3078;
+  --brand-pink: #FF7DB4;
+  --brand-sunshine: #FFA526;
+  --brand-mint: #66CC6E;
+  --brand-vivid-blue: #2660FF;
 }
 
 @theme {
@@ -37,6 +46,12 @@
   --color-forest-green: var(--color-forest-green);
   --color-ultramarine: var(--color-ultramarine);
   --color-warm-black: var(--color-warm-black);
+  --color-brand-plum: var(--brand-plum);
+  --color-brand-fuchsia: var(--brand-fuchsia);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-sunshine: var(--brand-sunshine);
+  --color-brand-mint: var(--brand-mint);
+  --color-brand-vivid-blue: var(--brand-vivid-blue);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -132,3 +147,156 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 0 50% 50% / 0 0 20px 20px;
 }
 
+/* Broad organic layers inspired by the Sanga brand packet. These are
+   decorative only; each usage is also marked aria-hidden in the component. */
+.brand-swirls {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.brand-swirl {
+  position: absolute;
+  display: block;
+  border-radius: 44% 56% 65% 35% / 38% 46% 54% 62%;
+  opacity: 0.22;
+  transform: rotate(var(--swirl-rotate, 0deg));
+  animation: brand-swirl-drift 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.brand-swirl--plum {
+  width: min(62rem, 72vw);
+  height: min(54rem, 78vh);
+  top: -40%;
+  right: -20%;
+  background: var(--brand-plum);
+  --swirl-rotate: 14deg;
+}
+
+.brand-swirl--fuchsia {
+  width: min(48rem, 62vw);
+  height: min(46rem, 68vh);
+  left: -18%;
+  bottom: -42%;
+  background: var(--brand-fuchsia);
+  --swirl-rotate: -18deg;
+  animation-delay: -6s;
+}
+
+.brand-swirl--sunshine {
+  width: min(38rem, 48vw);
+  height: min(34rem, 48vh);
+  right: 20%;
+  bottom: -34%;
+  background: var(--brand-sunshine);
+  opacity: 0.2;
+  --swirl-rotate: 32deg;
+  animation-delay: -11s;
+}
+
+.brand-swirls--soft .brand-swirl {
+  opacity: 0.09;
+}
+
+.brand-swirls--soft .brand-swirl--sunshine {
+  opacity: 0.18;
+}
+
+.brand-swirls--photo .brand-swirl--plum {
+  top: -30%;
+  right: -28%;
+}
+
+.brand-swirls--photo .brand-swirl--fuchsia {
+  bottom: -50%;
+}
+
+.brand-swirls--ribbon .brand-swirl {
+  border-radius: 48% 52% 42% 58% / 62% 38% 62% 38%;
+  opacity: 0.16;
+}
+
+.brand-swirls--ribbon .brand-swirl--plum {
+  width: 92vw;
+  height: 28rem;
+  top: -20rem;
+  right: -16vw;
+}
+
+.brand-swirls--ribbon .brand-swirl--fuchsia {
+  width: 72vw;
+  height: 24rem;
+  left: -28vw;
+  bottom: -17rem;
+}
+
+.brand-swirls--ribbon .brand-swirl--sunshine {
+  width: 42vw;
+  height: 22rem;
+  right: -10vw;
+  bottom: -15rem;
+  opacity: 0.22;
+}
+
+@keyframes brand-swirl-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) rotate(var(--swirl-rotate, 0deg)) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 1.5%, 0) rotate(calc(var(--swirl-rotate, 0deg) + 3deg)) scale(1.035);
+  }
+}
+
+@media (max-width: 767px) {
+  .brand-swirl--plum {
+    width: 110vw;
+    height: 58vh;
+    top: -26%;
+    right: -48%;
+  }
+
+  .brand-swirl--fuchsia {
+    width: 100vw;
+    height: 50vh;
+    left: -44%;
+    bottom: -28%;
+  }
+
+  .brand-swirl--sunshine {
+    width: 76vw;
+    height: 36vh;
+    right: -16%;
+    bottom: -20%;
+  }
+
+  .brand-swirls--ribbon .brand-swirl--plum {
+    width: 140vw;
+    height: 20rem;
+    top: -14rem;
+    right: -60vw;
+  }
+
+  .brand-swirls--ribbon .brand-swirl--fuchsia {
+    width: 125vw;
+    height: 18rem;
+    left: -70vw;
+    bottom: -13rem;
+  }
+
+  .brand-swirls--ribbon .brand-swirl--sunshine {
+    width: 90vw;
+    height: 16rem;
+    right: -42vw;
+    bottom: -11rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-swirl {
+    animation: none;
+    will-change: auto;
+  }
+}

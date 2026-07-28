@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getEventBySlug } from '@/lib/firebase';
 import { Calendar, MapPin, Users, AlertCircle, HelpCircle, ArrowLeft } from 'lucide-react';
-import RegistrationModal from '@/components/RegistrationModal';
+import { formatEventDate } from '@/lib/event-dates';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -12,7 +12,7 @@ interface PageProps {
 
 export const revalidate = 0;
 
-export default async function GatheringDetailPage({ params }: PageProps) {
+export default async function EventDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
 
@@ -48,10 +48,10 @@ export default async function GatheringDetailPage({ params }: PageProps) {
         {/* Top Breadcrumb Overlay */}
         <div className="absolute top-6 left-6 md:left-12 z-10">
           <Link 
-            href="/gatherings"
+            href="/events"
             className="inline-flex items-center px-5 py-2.5 bg-linen hover:bg-sunshine text-plum text-xs font-black uppercase tracking-widest rounded-full shadow-md transition-all active:scale-97 cursor-pointer"
           >
-            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to Catalog
+            <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to Events
           </Link>
         </div>
 
@@ -67,7 +67,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
           <div className="flex flex-wrap gap-6 text-sm text-[var(--color-linen)]/95 font-bold uppercase tracking-wider">
             <div className="flex items-center bg-[var(--color-plum)]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-linen)]/10">
               <Calendar className="h-4 w-4 mr-2 text-[var(--color-sunshine)]" />
-              {new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              {formatEventDate(event.start_date, { month: 'short', day: 'numeric' })} - {formatEventDate(event.end_date, { month: 'short', day: 'numeric', year: 'numeric' })}
             </div>
             <div className="flex items-center bg-[var(--color-plum)]/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[var(--color-linen)]/10">
               <MapPin className="h-4 w-4 mr-2 text-[var(--color-sunshine)]" />
@@ -243,7 +243,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
             <div className="border-t border-[var(--color-plum)]/10 pt-4 space-y-4 font-sans text-sm">
               <div>
                 <span className="font-black text-[var(--color-warm-black)]/50 text-[10px] block uppercase tracking-widest mb-1">Date</span>
-                <span className="font-bold text-[var(--color-warm-black)]/80">{new Date(event.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(event.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span className="font-bold text-[var(--color-warm-black)]/80">{formatEventDate(event.start_date, { month: 'short', day: 'numeric' })} - {formatEventDate(event.end_date, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div>
                 <span className="font-black text-[var(--color-warm-black)]/50 text-[10px] block uppercase tracking-widest mb-1">Location</span>
@@ -260,13 +260,12 @@ export default async function GatheringDetailPage({ params }: PageProps) {
             {/* CTAs */}
             <div className="flex flex-col gap-3 pt-4 border-t border-[var(--color-plum)]/10">
               {isOpen && (
-                <RegistrationModal
-                  eventId={Number(event.id)}
-                  eventTitle={event.title}
-                  eventPrice={event.price}
-                  paymentUrl={event.payment_url || event.external_checkout_url}
-                  liabilityFormUrl={event.liability_form_url}
-                />
+                <Link
+                  href={`/community?source=event&event=${encodeURIComponent(event.slug)}`}
+                  className="w-full text-center px-6 py-4 bg-[var(--color-plum)] hover:bg-[var(--color-pink)] text-[var(--color-linen)] rounded-full font-black text-xs tracking-widest uppercase shadow-sm transition-colors"
+                >
+                  Register in the Community
+                </Link>
               )}
 
               {isComingSoon && (
@@ -309,7 +308,7 @@ export default async function GatheringDetailPage({ params }: PageProps) {
             </div>
             
             <p className="text-[10px] text-[var(--color-warm-black)]/50 text-center font-sans leading-normal font-light">
-              By registering, you agree to Sanga&apos;s community rules. Refunds are permitted up to 30 days prior to start date.
+              Event registration and sign-in continue through the Sanga community.
             </p>
           </div>
         </div>

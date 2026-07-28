@@ -220,6 +220,8 @@ export default function AdminDashboard() {
     support_headline: "Support Sanga",
     support_text: "",
     whatsapp_url: "",
+    mighty_networks_url: "",
+    heartspace_url: "",
     instagram_url: "",
     facebook_url: "",
     contact_email: "",
@@ -1442,6 +1444,17 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="md:col-span-3 space-y-2">
+                          <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Mighty Networks Event Page URL</label>
+                          <input
+                            type="url"
+                            placeholder="https://..."
+                            value={editingEvent.community_registration_url || ''}
+                            onChange={(e) => setEditingEvent({ ...editingEvent, community_registration_url: e.target.value })}
+                            className="w-full px-4 py-3 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none font-mono text-xs"
+                          />
+                          <p className="text-[11px] text-warm-black/55">Registration CTAs use this event-specific community page before the global Mighty Networks URL.</p>
+                        </div>
+                        <div className="md:col-span-3 space-y-2">
                           <ImageUploader
                             label="Cover/Hero Image"
                             value={editingEvent.hero_image || ''}
@@ -2110,20 +2123,30 @@ export default function AdminDashboard() {
           <div className="space-y-8 max-w-4xl">
             <div>
               <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Community Connections</h1>
-              <p className="text-sm text-warm-black/60">Configure public URLs for community WhatsApp, Instagram, Facebook, and mail endpoints.</p>
+              <p className="text-sm text-warm-black/60">Configure Mighty Networks, Heartspace, social, and email destinations.</p>
             </div>
 
             <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-8 space-y-6 shadow-md">
               <h2 className="font-display text-2xl font-bold text-plum border-b border-plum/5 pb-3">Social Connections</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">WhatsApp Community Invite URL</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Mighty Networks Community URL</label>
                   <input
-                    type="text"
-                    defaultValue={siteSettings.whatsapp_url}
-                    onBlur={(e) => handleSaveSettings('comms', { whatsapp_url: e.target.value })}
+                    type="url"
+                    defaultValue={siteSettings.mighty_networks_url}
+                    onBlur={(e) => handleSaveSettings('comms', { mighty_networks_url: e.target.value })}
                     className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
                   />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Heartspace Community URL</label>
+                  <input
+                    type="url"
+                    defaultValue={siteSettings.heartspace_url}
+                    onBlur={(e) => handleSaveSettings('comms', { heartspace_url: e.target.value })}
+                    className="w-full px-4 py-3.5 bg-[var(--color-linen)] border border-plum/15 rounded-2xl focus:outline-none focus:border-[var(--color-sunshine)] font-mono text-xs"
+                  />
+                  <p className="text-[11px] text-warm-black/55">Falls back to the global Mighty Networks URL when left blank.</p>
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-plum/60">Instagram Link</label>
