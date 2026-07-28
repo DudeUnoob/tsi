@@ -8,6 +8,94 @@ import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
+const nichrome = localFont({
+  src: [
+    {
+      path: "./fonts/MDNichrome-Infra.woff2",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-InfraOblique.woff2",
+      weight: "100",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Thin.woff2",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-ThinOblique.woff2",
+      weight: "200",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-LightOblique.woff2",
+      weight: "300",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-RegularOblique.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Dark.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-DarkOblique.woff2",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-BoldOblique.woff2",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Black.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-BlackOblique.woff2",
+      weight: "800",
+      style: "italic",
+    },
+    {
+      path: "./fonts/MDNichrome-Ultra.woff2",
+      weight: "900",
+      style: "normal",
+    },
+    {
+      path: "./fonts/MDNichrome-UltraOblique.woff2",
+      weight: "900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-nichrome",
+  display: "swap",
+  preload: false,
+});
+
 const visby = localFont({
   src: [
     {
@@ -135,7 +223,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${visby.variable} h-full antialiased`}
+      className={`${nichrome.variable} ${visby.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
         <ThemeProvider initialPaletteKey={paletteKey}>

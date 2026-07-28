@@ -58,7 +58,7 @@
 }
 
 @theme inline {
-  --font-display: var(--font-visby), Arial, sans-serif;
+  --font-display: var(--font-nichrome), var(--font-visby), Arial, sans-serif;
   --font-sans: var(--font-visby), Arial, sans-serif;
 }
 
