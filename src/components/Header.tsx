@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingBag } from 'lucide-react';
@@ -39,9 +40,14 @@ export default function Header() {
         <div className="hidden md:flex flex-col items-center space-y-4">
           {/* Logo Section */}
           <Link href="/" className="flex flex-col items-center group">
-            <span className="font-display text-4xl font-black tracking-tight text-plum lowercase select-none leading-none group-hover:opacity-90 transition-opacity">
-              sanga
-            </span>
+            <Image
+              src="/sanga-wordmark-1.svg"
+              alt="Sanga"
+              width={172}
+              height={56}
+              priority
+              className="h-auto w-[172px] select-none transition-opacity group-hover:opacity-90"
+            />
           </Link>
           {/* Navigation Links */}
           <nav className="flex items-center space-x-8">
@@ -85,9 +91,14 @@ export default function Header() {
         {/* Mobile Header: Row Layout */}
         <div className="flex md:hidden items-center justify-between">
           <Link href="/" className="flex flex-col group">
-            <span className="font-display text-3xl font-black tracking-tight text-plum lowercase select-none leading-none">
-              sanga
-            </span>
+            <Image
+              src="/sanga-wordmark-1.svg"
+              alt="Sanga"
+              width={129}
+              height={42}
+              priority
+              className="h-auto w-[129px] select-none transition-opacity group-hover:opacity-90"
+            />
           </Link>
 
           <div className="flex items-center space-x-3">

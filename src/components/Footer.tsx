@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { subscribeNewsletter } from '@/lib/firebase';
@@ -43,13 +44,17 @@ export default function Footer() {
         
         {/* Brand Column */}
         <div className="col-span-1 md:col-span-4 flex flex-col space-y-4">
-          <Link href="/" className="flex flex-col group w-fit">
-            <span className="font-display text-4xl font-black tracking-tight text-linen lowercase leading-none select-none">
-              sanga
-            </span>
-            <span className="text-[10px] tracking-widest uppercase text-linen/60 font-black mt-1">
-              A Vaishnava Youth Collective
-            </span>
+          <Link
+            href="/"
+            className="group w-fit transition-transform hover:-translate-y-0.5"
+          >
+            <Image
+              src="/sanga-wordmark-2.svg"
+              alt="Sanga - A Vaishnava Youth Collective"
+              width={172}
+              height={76}
+              className="h-auto w-[172px] select-none"
+            />
           </Link>
           <p className="text-sm text-linen/70 leading-relaxed max-w-sm font-light">
             Creating spaces for friendship, growth, and shared experience in Krishna consciousness. Built through people, not programmes.
