@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingBag } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
 
 const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Events', path: '/events' },
+  { name: 'Gallery', path: '/gallery' },
   { name: 'Education', path: '/education' },
   { name: 'Calendar', path: '/calendar' },
   { name: 'Store', path: '/store' },
@@ -123,6 +123,8 @@ export default function Header() {
               onClick={() => setOpenMenuPath(isOpen ? null : pathname)}
               className="p-2 text-plum hover:text-pink focus:outline-none cursor-pointer"
               aria-label="Toggle navigation menu"
+              aria-expanded={isOpen}
+              aria-controls="mobile-nav"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -132,37 +134,35 @@ export default function Header() {
       </div>
 
       {/* Mobile Drawer Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className={`absolute top-full left-0 w-full border-t border-plum/10 shadow-lg px-6 py-6 md:hidden flex flex-col space-y-4 z-50 overflow-hidden ${
-              isDefaultTheme ? 'bg-sunshine' : 'bg-linen'
-            }`}
-          >
-            {navLinks.map((link) => {
-              const isActive = link.path === '/' 
-                ? pathname === '/' 
-                : pathname === link.path || pathname.startsWith(link.path + '/');
-              return (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  onClick={() => setOpenMenuPath(null)}
-                  className={`text-sm uppercase font-black tracking-widest py-2 border-b border-plum/10 ${
-                    isActive ? 'text-plum pl-2 border-l-4 border-l-plum' : 'text-plum/80'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        id="mobile-nav"
+        data-open={isOpen}
+        aria-hidden={!isOpen}
+        className={`nav-drawer absolute top-full left-0 w-full border-t border-plum/10 shadow-lg md:hidden z-50 ${
+          isOpen ? '' : 'pointer-events-none'
+        } ${isDefaultTheme ? 'bg-sunshine' : 'bg-linen'}`}
+      >
+        <div className="flex flex-col space-y-4 px-6 py-6">
+          {navLinks.map((link) => {
+            const isActive = link.path === '/'
+              ? pathname === '/'
+              : pathname === link.path || pathname.startsWith(link.path + '/');
+            return (
+              <Link
+                key={link.path}
+                href={link.path}
+                tabIndex={isOpen ? undefined : -1}
+                onClick={() => setOpenMenuPath(null)}
+                className={`text-sm uppercase font-black tracking-widest py-2 border-b border-plum/10 ${
+                  isActive ? 'text-plum pl-2 border-l-4 border-l-plum' : 'text-plum/80'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Organic Curved Bottom Divider */}
       <div 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getEventBySlug } from '@/lib/firebase';
+import { getCachedEventBySlug as getEventBySlug, getCachedEvents } from '@/lib/cached-data';
 import { Calendar, MapPin, Users, AlertCircle, HelpCircle, ArrowLeft } from 'lucide-react';
 import { formatEventDate } from '@/lib/event-dates';
 
@@ -11,7 +11,19 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
+
+/**
+ * Prerenders the known event pages at build time so they are served from the
+ * static cache. `dynamicParams` stays at its default of `true`, so an event
+ * published after the build still renders on demand.
+ */
+export async function generateStaticParams() {
+  const events = await getCachedEvents();
+  return events
+    .filter(event => Boolean(event.slug))
+    .map(event => ({ slug: event.slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

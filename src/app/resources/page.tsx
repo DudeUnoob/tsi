@@ -1,8 +1,8 @@
 import React from 'react';
-import { getResources } from '@/lib/firebase';
+import { getCachedResources as getResources } from '@/lib/cached-data';
 import { FileText, ExternalLink, Download, BookOpen, Sparkles } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 
 export default async function ResourcesPage() {
   const resources = await getResources();

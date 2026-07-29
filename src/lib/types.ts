@@ -170,3 +170,19 @@ export interface SiteSettings {
   hero_slideshow_labels?: string[];
   hero_slideshow_hidden?: boolean;
 }
+
+// ----------------------------------------------------
+// Custom Store Product Inventory Model
+// ----------------------------------------------------
+export interface ProductInventory {
+  id?: number;
+  product_id: number;
+  size: string;
+  /** Legacy mock-data compatibility only. Runtime availability is derived. */
+  stock?: number;
+  variant?: string;
+  on_hand?: number;
+  reserved?: number;
+  sold?: number;
+  available?: number;
+}

@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowRight, Heart, LockKeyhole, Sparkles, Users } from 'lucide-react';
-import { getEventBySlug, getSiteSettings } from '@/lib/firebase';
+import { getCachedEventBySlug as getEventBySlug, getCachedSiteSettings as getSiteSettings } from '@/lib/cached-data';
 import { resolveCommunityDestination } from '@/lib/community-links';
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 export const metadata: Metadata = {
   title: 'Community',
   description: 'Join Sanga community spaces for retreats, courses, friendships, and ongoing connection.',

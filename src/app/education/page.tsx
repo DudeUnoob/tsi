@@ -10,10 +10,10 @@ import {
   Heart,
   Sparkles,
 } from 'lucide-react';
-import { getResources } from '@/lib/firebase';
+import { getCachedResources as getResources } from '@/lib/cached-data';
 import BrandRibbon from '@/components/BrandRibbon';
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 export const metadata: Metadata = {
   title: 'Education',
   description: 'Study, reflect, and grow through Sanga learning experiences and thoughtful bhakti resources.',

@@ -113,6 +113,73 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
+/* Entrance animations. These replace framer-motion on the hero and nav so the
+   markup paints from the server response instead of waiting for hydration.
+   The LCP heading deliberately has no entrance animation. */
+@keyframes enter-rise {
+  from { opacity: 0; transform: translate3d(0, 1.75rem, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes enter-pop {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.enter-rise {
+  animation: enter-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.enter-pop {
+  animation: enter-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.enter-fade {
+  animation: enter-fade 0.5s ease-out both;
+}
+
+.enter-delay-1 { animation-delay: 0.1s; }
+.enter-delay-2 { animation-delay: 0.2s; }
+.enter-delay-3 { animation-delay: 0.3s; }
+.enter-delay-4 { animation-delay: 0.45s; }
+.enter-delay-5 { animation-delay: 0.6s; }
+
+/* Mobile navigation drawer: a CSS grid-template-rows transition gives the same
+   auto-height collapse framer-motion provided, with no JS animation runtime. */
+.nav-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+}
+
+.nav-drawer[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.nav-drawer > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter-rise,
+  .enter-pop,
+  .enter-fade {
+    animation: none;
+  }
+
+  .nav-drawer {
+    transition: none;
+  }
+}
+
 /* Custom Marquee Animations for moving images showcase */
 @keyframes marquee {
   0% { transform: translateX(0); }

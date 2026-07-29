@@ -22,6 +22,7 @@ export function getDeploymentUrl() {
 export const primaryPages = [
   '/',
   '/events',
+  '/gallery',
   '/education',
   '/education/heartspace',
   '/calendar',

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { subscribeNewsletter } from '@/lib/firebase';
+import { subscribeNewsletterAction } from '@/app/actions/public';
 import { Mail, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Footer() {
@@ -23,7 +23,7 @@ export default function Footer() {
 
     setStatus('loading');
     try {
-      const res = await subscribeNewsletter(email);
+      const res = await subscribeNewsletterAction(email);
       if (res.success) {
         setStatus('success');
         setEmail('');
@@ -106,6 +106,11 @@ export default function Footer() {
             <li>
               <Link href="/events" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Events
+              </Link>
+            </li>
+            <li>
+              <Link href="/gallery" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
+                Gallery
               </Link>
             </li>
             <li>

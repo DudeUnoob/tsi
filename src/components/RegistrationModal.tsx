@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, AlertTriangle, ShieldCheck, CreditCard, ArrowRight, ArrowLeft, Lock } from 'lucide-react';
-import { createEventRegistration, createOrder } from '@/lib/firebase';
+import { createEventRegistrationAction, createOrderAction } from '@/app/actions/public';
 
 interface RegistrationModalProps {
   eventId: number;
@@ -154,7 +154,7 @@ export default function RegistrationModal({
 
     try {
       // 1. Submit Registration Record
-      const regRes = await createEventRegistration({
+      const regRes = await createEventRegistrationAction({
         event_id: eventId,
         full_name: formData.fullName,
         email: formData.email,
@@ -182,7 +182,7 @@ export default function RegistrationModal({
         const orderRef = `event_${eventId}_${Date.now()}`;
         const numericPrice = parsePrice(eventPrice);
 
-        const orderRes = await createOrder({
+        const orderRes = await createOrderAction({
           order_ref: orderRef,
           customer_name: formData.fullName,
           customer_email: formData.email,

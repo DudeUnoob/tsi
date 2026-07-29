@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { ExternalLink, Heart, Mail, Sparkles, Users } from 'lucide-react';
-import { getSiteSettings } from '@/lib/firebase';
+import { getCachedSiteSettings as getSiteSettings } from '@/lib/cached-data';
 import BrandRibbon from '@/components/BrandRibbon';
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Contact Sanga, join the community, and connect through email and social channels.',

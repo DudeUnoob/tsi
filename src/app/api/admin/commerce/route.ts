@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 import {
   archiveCommerceProduct,
   listAdminCommerce,
@@ -57,6 +59,22 @@ const actionSchema = z.discriminatedUnion('action', [
   }),
 ]);
 
+/**
+ * The store pages read products and stock from the tagged ISR cache, so any
+ * write here has to invalidate those tags or the catalogue shows stale stock.
+ * `expire: 0` makes the next request re-read rather than serving stale data.
+ */
+function bustCommerceCache() {
+  // Non-fatal: the write already succeeded, so a cache hiccup must not turn a
+  // completed admin action into a 500 that invites a duplicate retry.
+  try {
+    revalidateTag(CACHE_TAGS.products, { expire: 0 });
+    revalidateTag(CACHE_TAGS.inventory, { expire: 0 });
+  } catch (error) {
+    console.warn('Commerce cache revalidation failed:', error);
+  }
+}
+
 function authError(error: unknown) {
   const message = error instanceof Error ? error.message : '';
   if (message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
@@ -95,13 +113,16 @@ export async function PATCH(request: Request) {
         payload.trackingNumber,
       );
     } else if (payload.action === 'reconcile') {
-      return NextResponse.json(await reconcileExpiredReservations(getStripe()));
+      const result = await reconcileExpiredReservations(getStripe());
+      bustCommerceCache();
+      return NextResponse.json(result);
     } else {
-      return NextResponse.json(
-        await retryInventoryAllocation(getStripe(), payload.orderId, actor),
-      );
+      const result = await retryInventoryAllocation(getStripe(), payload.orderId, actor);
+      bustCommerceCache();
+      return NextResponse.json(result);
     }
 
+    bustCommerceCache();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Admin commerce update failed:', error);

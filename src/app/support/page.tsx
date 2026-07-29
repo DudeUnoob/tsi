@@ -1,9 +1,9 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { getSiteSettings } from '@/lib/firebase';
+import { getCachedSiteSettings as getSiteSettings } from '@/lib/cached-data';
 import { Heart, ShieldCheck, DollarSign, Calendar, ArrowUpRight } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 export const metadata: Metadata = {
   title: 'Support Sanga',
   description: 'Help Sanga create welcoming spaces for friendship, growth, and shared spiritual experience.',

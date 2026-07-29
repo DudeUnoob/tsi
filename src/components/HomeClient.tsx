@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowRight, Play, Calendar, X } from 'lucide-react';
 import { SiteSettings, Event } from '@/lib/types';
@@ -75,24 +74,6 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
     && (e.category === 'trip' || e.slug === 'vrindavana-yatra')
   ) || events.find(e => e.id !== retreatsEvent?.id && e.id !== talksEvent?.id);
 
-  // Animation presets
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
-  } as const;
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 35 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring' as const, stiffness: 80, damping: 20 }
-    }
-  } as const;
-
   const isBerryTheme = false;
   const isMintTheme = false;
   const isSunsetTheme = true;
@@ -119,11 +100,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-12 items-center relative z-10">
           {/* Left Column: Heading and CTAs — expands to full width if slideshow is hidden */}
           <div className={`${showSlideshow ? 'md:col-span-7' : 'md:col-span-12'} space-y-8 flex flex-col items-start text-left`}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className={`flex items-center space-x-2 px-4 py-1.5 rounded-full border ${
+            <div
+              className={`enter-pop flex items-center space-x-2 px-4 py-1.5 rounded-full border ${
                 (isBerryTheme || isMintTheme) ? 'bg-plum/10 border-plum/20' : 'bg-white/15 border-white/25'
               }`}
             >
@@ -135,12 +113,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               }`}>
                 Welcome to Sanga
               </span>
-            </motion.div>
+            </div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.6 }}
+            {/* No entrance animation: this is the LCP element, so it must be
+                painted and opaque in the very first frame of the server HTML. */}
+            <h1
               className={`font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.05] ${
                 (isBerryTheme || isMintTheme) ? 'text-plum' : isSunsetTheme ? 'text-white drop-shadow-sm' : 'text-sunshine'
               }`}
@@ -148,24 +125,18 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               Sanga is a <br className="hidden sm:inline" />
               Vaishnava Youth <br className="hidden sm:inline" />
               Collective
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+            <p
               className={`text-lg sm:text-2xl leading-relaxed font-light font-sans max-w-xl ${
                 (isBerryTheme || isMintTheme) ? 'text-plum/80' : isSunsetTheme ? 'text-white/95' : 'text-linen/90'
               }`}
             >
               For friendship, growth, and shared experience
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.6 }}
-              className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
+            <div
+              className="enter-rise enter-delay-3 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
             >
               <Link
                 href={primaryCtaUrl}
@@ -181,17 +152,14 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
               >
                 {settings.secondary_cta_label}
               </a>
-            </motion.div>
+            </div>
           </div>
 
           {/* Right Column: Stacked polaroid photo stack — hidden if admin disables */}
           {showSlideshow && (
           <div className="md:col-span-5 flex justify-center items-center relative">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.7 }}
-              className="relative w-[480px] h-[310px] sm:w-[600px] sm:h-[385px]"
+            <div
+              className="enter-rise enter-delay-2 relative w-[480px] h-[310px] sm:w-[600px] sm:h-[385px]"
             >
               {/* Back card — decorative, slightly more rotated */}
               <div className="absolute inset-0 rounded-3xl bg-sunshine/60 border-4 border-sunshine/40 shadow-xl transform rotate-6 scale-95 translate-y-2" />
@@ -211,14 +179,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
 
               {/* Top card — current image, straight on */}
               <div className="absolute inset-0 rounded-3xl overflow-hidden border-4 border-linen/50 shadow-2xl">
-                <AnimatePresence mode="sync">
-                  <motion.div
+                  <div
                     key={slideIndex}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.9, ease: 'easeInOut' }}
-                    className="absolute inset-0"
+                    className="enter-fade absolute inset-0"
                   >
                     <Image
                       src={heroImages[slideIndex].src}
@@ -229,23 +192,16 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                       className="object-cover object-center"
                       priority={slideIndex === 0}
                     />
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
 
                 {/* Caption strip at bottom of top card */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-plum/80 to-transparent px-4 pb-4 pt-10">
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={`caption-${slideIndex}`}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.35 }}
-                      className="text-linen text-xs font-black uppercase tracking-widest"
-                    >
-                      {heroImages[slideIndex].label}
-                    </motion.p>
-                  </AnimatePresence>
+                  <p
+                    key={`caption-${slideIndex}`}
+                    className="enter-fade text-linen text-xs font-black uppercase tracking-widest"
+                  >
+                    {heroImages[slideIndex].label}
+                  </p>
 
                   {/* Dots inside the card at bottom */}
                   <div className="flex gap-1.5 mt-2">
@@ -263,27 +219,23 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Floating badge — top right */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotate: 8 }}
-              animate={{ opacity: 1, scale: 1, rotate: 12 }}
-              transition={{ delay: 0.6, duration: 0.5, type: 'spring' }}
-              className="absolute -top-6 -right-2 sm:-right-6 bg-pink text-warm-black text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+            <div
+              style={{ transform: 'rotate(12deg)' }}
+              className="enter-fade enter-delay-5 absolute -top-6 -right-2 sm:-right-6 bg-pink text-warm-black text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
             >
               Since 2014 🌿
-            </motion.div>
+            </div>
 
             {/* Floating badge — bottom left */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={{ opacity: 1, scale: 1, rotate: -6 }}
-              transition={{ delay: 0.75, duration: 0.5, type: 'spring' }}
-              className="absolute -bottom-6 -left-2 sm:-left-6 bg-sunshine text-plum text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
+            <div
+              style={{ transform: 'rotate(-6deg)' }}
+              className="enter-fade enter-delay-5 absolute -bottom-6 -left-2 sm:-left-6 bg-sunshine text-plum text-xs font-black py-2 px-4 rounded-full shadow-lg select-none pointer-events-none"
             >
               Friendship &amp; Growth
-            </motion.div>
+            </div>
           </div>
           )}
         </div>
@@ -333,16 +285,10 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
           </div>
 
           {/* Cards Grid */}
-          <motion.div 
-            variants={containerVariants}
-            initial={false}
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1: Retreats */}
             {retreatsEvent && (
-              <motion.div 
-                variants={itemVariants}
+              <div
                 className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
@@ -385,13 +331,12 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     View Retreat Details &rarr;
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Card 2: Talks */}
             {talksEvent && (
-              <motion.div 
-                variants={itemVariants}
+              <div
                 className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
@@ -434,13 +379,12 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     View Session Details &rarr;
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Card 3: Trips */}
             {tripsEvent && (
-              <motion.div 
-                variants={itemVariants}
+              <div
                 className="flex flex-col bg-linen rounded-3xl overflow-hidden border border-plum/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 {/* Wavy Arched Label */}
@@ -483,9 +427,9 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
                     View Trip Details &rarr;
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
           </div>
         </section>
       )}
@@ -524,8 +468,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {/* Center Main Circle */}
             <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full border-8 border-sunshine overflow-hidden shadow-xl z-20 hover:scale-102 transition-transform duration-300">
               <Image 
-                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105062504-DL0ISKN110VIOHCM4RPP/image-asset.jpeg"
-                alt="Sanga Friendship"
+                src="/KED09169.jpg"
+                alt="A full retreat group standing together on the beach at sunset"
                 fill
                 sizes="256px"
                 className="object-cover"
@@ -535,8 +479,8 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {/* Bottom Left Circle */}
             <div className="absolute bottom-4 left-4 sm:left-12 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-6 border-pink overflow-hidden shadow-lg z-30 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
               <Image 
-                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1583105188234-XCZMXLUCMMPFYV4F7GBN/image-asset.jpeg"
-                alt="Sanga Laughs"
+                src="/DSCF0839.JPG"
+                alt="Retreat participants sitting together on the floor during a morning class"
                 fill
                 sizes="176px"
                 className="object-cover"
@@ -546,11 +490,11 @@ export default function HomeClient({ settings, events }: HomeClientProps) {
             {/* Top Right Circle */}
             <div className="absolute top-4 right-4 sm:right-12 w-40 h-40 sm:w-48 sm:h-48 rounded-full border-4 border-sunshine overflow-hidden shadow-lg z-10 hover:scale-103 transition-transform duration-300 bg-[#1e1d1b]">
               <Image 
-                src="https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1710889601569-YHJE3TDYRAEEVD2F4MNS/DSC01696.jpg"
-                alt="Friends sharing time together at Sanga"
+                src="/KED09179.jpg"
+                alt="A small group talking on a blanket on the beach at dusk"
                 fill
                 sizes="192px"
-                className="object-cover"
+                className="object-cover brightness-110"
               />
             </div>
           </div>

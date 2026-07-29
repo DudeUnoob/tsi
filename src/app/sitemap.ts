@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getEvents, getProducts } from '@/lib/firebase';
+import { getCachedEvents as getEvents, getCachedProducts as getProducts } from '@/lib/cached-data';
 import { CANONICAL_SITE_URL, primaryPages } from '@/lib/seo';
 
 export const revalidate = 3600;

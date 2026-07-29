@@ -12,6 +12,7 @@ import {
 import {
   SiteSettings, Event, StoreProduct, Resource
 } from '@/lib/types';
+import { formatBytes } from '@/lib/image-compression';
 import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
   MessageCircle, FileText, Image as ImageIcon, LogOut,
@@ -62,10 +63,17 @@ function ImageUploader({
 
     try {
       setUploading(true);
+      const originalBytes = file.size;
       const result = await uploadFile(folder, file);
       if (result.success && result.url) {
         onChange(result.url);
-        onToast('Image uploaded successfully!');
+        // Surface the resize so a coordinator uploading a camera original can
+        // see it was handled, rather than wondering why the file looks smaller.
+        onToast(
+          originalBytes > 400 * 1024
+            ? `Image uploaded and optimised (was ${formatBytes(originalBytes)}).`
+            : 'Image uploaded successfully!',
+        );
       } else {
         alert(result.message || 'Failed to upload image.');
       }
@@ -179,6 +187,31 @@ function ImageUploader({
       )}
     </div>
   );
+}
+
+/**
+ * Public pages are served from the ISR cache, so an edit here has to explicitly
+ * invalidate the matching tags for the change to show up right away. Failures
+ * are logged rather than thrown: the save itself already succeeded, and the
+ * cache would expire on its own shortly regardless.
+ */
+async function revalidatePublicCache(tags: string[]) {
+  try {
+    const token = await getAdminIdToken();
+    const response = await fetch('/api/revalidate', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tags }),
+    });
+    if (!response.ok) {
+      console.warn('Cache revalidation failed', await response.text());
+    }
+  } catch (error) {
+    console.warn('Cache revalidation request failed', error);
+  }
 }
 
 async function commerceAdminRequest(method: 'GET' | 'PATCH', body?: unknown) {
@@ -462,6 +495,7 @@ export default function AdminDashboard() {
 
     try {
       await saveSiteSettings(updatedSettings);
+      await revalidatePublicCache(['site-settings']);
       triggerToast('Settings updated successfully!');
       router.refresh();
     } catch (err) {
@@ -498,6 +532,7 @@ export default function AdminDashboard() {
     try {
       const res = await saveEvent(finalEvent);
       if (!res.success) throw new Error(res.message);
+      await revalidatePublicCache(['events']);
 
       // Reload
       const e = await getEvents({ all: true });
@@ -521,6 +556,7 @@ export default function AdminDashboard() {
 
     try {
       await deleteEvent(id);
+      await revalidatePublicCache(['events']);
       setEvents(events.filter(e => e.id !== id));
       triggerToast('Gathering deleted successfully.');
     } catch {
@@ -683,6 +719,7 @@ export default function AdminDashboard() {
 
       const res = await saveResource({ ...payload, id: editingResource.id });
       if (!res.success) throw new Error(res.message);
+      await revalidatePublicCache(['resources']);
 
       const r = await getResources({ publishedOnly: false });
       setResources(r);
@@ -705,6 +742,7 @@ export default function AdminDashboard() {
 
     try {
       await deleteResource(id);
+      await revalidatePublicCache(['resources']);
       setResources(resources.filter(r => r.id !== id));
       triggerToast('Resource deleted.');
     } catch {

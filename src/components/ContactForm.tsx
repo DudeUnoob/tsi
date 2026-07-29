@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { submitContactForm } from '@/lib/firebase';
+import { submitContactFormAction } from '@/app/actions/public';
 import { Loader2, CheckCircle2, AlertTriangle, Send } from 'lucide-react';
 
 const contactSchema = z.object({
@@ -52,7 +52,7 @@ export default function ContactForm() {
 
     setFormState('loading');
     try {
-      const res = await submitContactForm(
+      const res = await submitContactFormAction(
         values.name || 'Anonymous User',
         values.email,
         values.message

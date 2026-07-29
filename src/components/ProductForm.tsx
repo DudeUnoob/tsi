@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import {
   Check,
@@ -11,17 +11,19 @@ import {
   Truck,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getProductInventory, ProductInventory } from '@/lib/firebase';
-import type { StoreProduct } from '@/lib/types';
+import type { ProductInventory, StoreProduct } from '@/lib/types';
 
 interface ProductFormProps {
   product: StoreProduct;
+  /**
+   * Fetched on the server by the product page. Passing it down avoids a second
+   * client round trip and keeps the Firebase Web SDK out of this bundle.
+   */
+  inventory: ProductInventory[];
 }
 
-export default function ProductForm({ product }: ProductFormProps) {
+export default function ProductForm({ product, inventory }: ProductFormProps) {
   const { addToCart } = useCart();
-  const [inventory, setInventory] = useState<ProductInventory[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [added, setAdded] = useState<boolean>(false);
@@ -29,18 +31,6 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const isApparel = product.variant_type === 'size';
-
-  useEffect(() => {
-    getProductInventory(product.id)
-      .then((data) => {
-        setInventory(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching product inventory:', err);
-        setLoading(false);
-      });
-  }, [product.id]);
 
   const sizes = ['S', 'M', 'L', 'XL'];
   const sizeToUse = isApparel ? selectedSize : 'OS';
@@ -112,11 +102,8 @@ export default function ProductForm({ product }: ProductFormProps) {
                 </span>
               )}
             </div>
-            {loading ? (
-              <div className="text-xs text-plum/50 font-sans italic animate-pulse">Checking stock levels...</div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => {
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((size) => {
                   const isSelected = selectedSize === size;
                   const stock = getAvailableForSize(size);
                   const isSoldOut = stock <= 0;
@@ -145,8 +132,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                     </button>
                   );
                 })}
-              </div>
-            )}
+            </div>
           </div>
         ) : (
           <div className="space-y-1.5">
@@ -154,13 +140,9 @@ export default function ProductForm({ product }: ProductFormProps) {
               Size
             </label>
             <div>
-              {loading ? (
-                <div className="text-xs text-plum/50 font-sans italic animate-pulse">Checking stock levels...</div>
-              ) : (
-                <span className="inline-block px-3 py-1 bg-plum/5 text-plum border border-plum/10 rounded-lg text-[10px] uppercase font-black tracking-widest">
-                  One Size Fits All ({getAvailableForSize('OS')} available)
-                </span>
-              )}
+              <span className="inline-block px-3 py-1 bg-plum/5 text-plum border border-plum/10 rounded-lg text-[10px] uppercase font-black tracking-widest">
+                One Size Fits All ({getAvailableForSize('OS')} available)
+              </span>
             </div>
           </div>
         )}
@@ -192,7 +174,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                 +
               </button>
             </div>
-            {!loading && isOutOfStock && (
+            {isOutOfStock && (
               <span className="text-xs font-black text-[var(--color-pink)] uppercase tracking-wider">
                 Temporarily unavailable or sold out
               </span>
@@ -204,7 +186,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
           <button
             type="button"
-            disabled={isOutOfStock || loading || adding}
+            disabled={isOutOfStock || adding}
             onClick={handleAddToCart}
             className={`flex-grow px-6 py-3.5 font-black uppercase text-[10px] tracking-widest rounded-xl shadow transition-all duration-300 transform active:scale-97 cursor-pointer flex items-center justify-center gap-2 ${
               isOutOfStock

@@ -3,14 +3,25 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProductInventory, getProducts } from '@/lib/firebase';
+import { getCachedProductInventory as getProductInventory, getCachedProducts as getProducts } from '@/lib/cached-data';
 import ProductForm from '@/components/ProductForm';
 import { ArrowLeft, Tag } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 60; // Shorter: reflects stock counts
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+/**
+ * Prerenders the published product pages. `dynamicParams` stays at its default
+ * of `true`, so a product added after the build still renders on demand.
+ */
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products
+    .filter(product => Boolean(product.slug))
+    .map(product => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -106,7 +117,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             <div className="pt-4 border-t border-plum/10">
               {isAvailable ? (
-                <ProductForm product={product} />
+                <ProductForm product={product} inventory={inventory} />
               ) : (
                 <div className="space-y-4 bg-plum/5 p-6 rounded-2xl border border-plum/10">
                   <h3 className="font-display text-xl font-bold text-plum">

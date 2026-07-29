@@ -2,10 +2,10 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductInventory, getProducts } from '@/lib/firebase';
+import { getCachedProductInventory as getProductInventory, getCachedProducts as getProducts } from '@/lib/cached-data';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
-export const revalidate = 0;
+export const revalidate = 60; // Shorter: reflects stock counts
 export const metadata: Metadata = {
   title: 'Store',
   description: 'Shop official Sanga apparel and merchandise supporting the Vaishnava youth community.',

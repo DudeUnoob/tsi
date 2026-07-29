@@ -10,10 +10,11 @@ import {
 import { 
   getStorage, ref, uploadBytes, getDownloadURL, deleteObject 
 } from 'firebase/storage';
-import { 
-  SiteSettings, Event, StoreProduct, Resource
+import {
+  SiteSettings, Event, StoreProduct, Resource, ProductInventory
 } from './types';
 import { formatMoney, legacyPriceToCents } from './commerce';
+import { compressImageForUpload } from './image-compression';
 export type { SiteSettings, Event, StoreProduct, Resource };
 
 export interface Order {
@@ -219,18 +220,7 @@ function setLocalStorageItem(key: string, value: string): void {
 // ----------------------------------------------------
 // Custom Store Product Inventory Model
 // ----------------------------------------------------
-export interface ProductInventory {
-  id?: number;
-  product_id: number;
-  size: string;
-  /** Legacy mock-data compatibility only. Runtime availability is derived. */
-  stock?: number;
-  variant?: string;
-  on_hand?: number;
-  reserved?: number;
-  sold?: number;
-  available?: number;
-}
+export type { ProductInventory };
 
 const defaultMockInventory: ProductInventory[] = [
   // Product ID 1 (Hoodie)
@@ -1082,15 +1072,21 @@ export function getLocalMessages(): Array<{ id: string; name: string; email: str
 // ----------------------------------------------------
 
 export async function uploadFile(folderPath: string, file: File): Promise<{ success: boolean; url?: string; message?: string }> {
+  // Downscale before upload rather than at any call site, so no upload path can
+  // put a camera original into Storage. A 16 MB hero image previously made up
+  // 99% of the homepage weight and was too large for Next's image optimizer to
+  // fetch, which is what forced the `unoptimized` bypass on Storage URLs.
+  const { file: uploadCandidate } = await compressImageForUpload(file);
+
   if (!isFirebaseConfigured || !storage) {
     // Local mock fallback: create a local object URL
-    const mockUrl = URL.createObjectURL(file);
+    const mockUrl = URL.createObjectURL(uploadCandidate);
     return { success: true, url: mockUrl };
   }
   try {
-    const filename = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const filename = `${Date.now()}_${uploadCandidate.name.replace(/\s+/g, '_')}`;
     const fileRef = ref(storage, `${folderPath}/${filename}`);
-    const snapshot = await uploadBytes(fileRef, file);
+    const snapshot = await uploadBytes(fileRef, uploadCandidate);
     const url = await getDownloadURL(snapshot.ref);
     return { success: true, url };
   } catch (e) {
