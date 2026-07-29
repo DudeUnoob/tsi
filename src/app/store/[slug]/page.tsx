@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -10,6 +11,21 @@ export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const products = await getProducts();
+  const product = products.find(item => item.slug === slug);
+  if (!product) return { title: 'Product Not Found' };
+
+  return {
+    title: product.product_title,
+    description: product.description,
+    alternates: {
+      canonical: `https://www.sangainitiative.org/store/${product.slug}`,
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {

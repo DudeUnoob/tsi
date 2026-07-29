@@ -7,6 +7,13 @@ import { getSiteSettings } from "@/lib/firebase";
 import { cookies } from "next/headers";
 import { CartProvider } from "@/context/CartContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import {
+  CANONICAL_SITE_URL,
+  getDeploymentUrl,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/seo";
 
 const nichrome = localFont({
   src: [
@@ -185,26 +192,49 @@ const visby = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.sangainitiative.org"),
-  title: "Sanga | A Vaishnava Youth Collective",
-  description: "Sanga is a Vaishnava Youth Collective for friendship, growth, and shared experience in Krishna consciousness.",
-  keywords: ["Sanga", "Vaishnava", "Youth Collective", "Krishna consciousness", "Bhakti Yoga", "Retreats", "Camp Ignite"],
+  metadataBase: new URL(getDeploymentUrl()),
+  title: {
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: "The Sanga Initiative", url: CANONICAL_SITE_URL }],
+  creator: "The Sanga Initiative",
+  publisher: "The Sanga Initiative",
+  category: "community",
+  keywords: [
+    "Sanga",
+    "The Sanga Initiative",
+    "Vaishnava youth",
+    "Krishna consciousness",
+    "Bhakti yoga",
+    "Kirtan",
+    "Vaishnava retreats",
+    "Youth spiritual community",
+  ],
   alternates: {
-    canonical: "/",
+    canonical: CANONICAL_SITE_URL,
   },
   openGraph: {
-    title: "Sanga | A Vaishnava Youth Collective",
-    description: "Creating spaces for friendship, growth, and shared experience in Krishna consciousness.",
-    url: "https://www.sangainitiative.org",
-    siteName: "Sanga",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: CANONICAL_SITE_URL,
+    siteName: SITE_NAME,
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sanga | A Vaishnava Youth Collective",
-    description: "Creating spaces for friendship, growth, and shared experience in Krishna consciousness.",
-  }
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  referrer: "origin-when-cross-origin",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 };
 
 export default async function RootLayout({
@@ -216,6 +246,21 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get('sanga_palette')?.value;
   const paletteKey = themeCookie || settings.color_palette || 'default';
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NonprofitOrganization',
+    name: 'The Sanga Initiative',
+    alternateName: SITE_NAME,
+    url: CANONICAL_SITE_URL,
+    logo: `${CANONICAL_SITE_URL}/sanga-wordmark-2.svg`,
+    description: SITE_DESCRIPTION,
+    email: 'info@sangainitiative.org',
+    nonprofitStatus: 'Nonprofit501c3',
+    sameAs: [
+      'https://www.instagram.com/thesangainitiative/',
+      'https://www.facebook.com/sangainitiative',
+    ],
+  };
 
   return (
     <html
@@ -223,6 +268,10 @@ export default async function RootLayout({
       className={`${nichrome.variable} ${visby.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-linen text-warm-black selection:bg-pink/30 selection:text-plum">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <ThemeProvider initialPaletteKey={paletteKey}>
           <CartProvider>
             <Header />

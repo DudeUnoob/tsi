@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -11,6 +12,20 @@ interface PageProps {
 }
 
 export const revalidate = 0;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+  if (!event) return { title: 'Event Not Found' };
+
+  return {
+    title: event.seo_title || event.title,
+    description: event.seo_description || event.short_description,
+    alternates: {
+      canonical: `https://www.sangainitiative.org/events/${event.slug}`,
+    },
+  };
+}
 
 export default async function EventDetailPage({ params }: PageProps) {
   const { slug } = await params;

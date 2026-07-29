@@ -1,5 +1,12 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ArrowRight, CalendarDays, Sparkles } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Calendar',
+  description: 'See upcoming Sanga gatherings, programs, retreats, and community dates.',
+  alternates: { canonical: 'https://www.sangainitiative.org/calendar' },
+};
 
 export default function CalendarPage() {
   return (

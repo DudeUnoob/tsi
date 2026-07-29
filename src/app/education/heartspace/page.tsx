@@ -1,5 +1,14 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ArrowRight, BookHeart, MessageCircleHeart, Sparkles, Users } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Heartspace',
+  description: 'Explore Heartspace with Vraja Bihari Prabhu, a Sanga learning space for reflection and meaningful bhakti conversation.',
+  alternates: {
+    canonical: 'https://www.sangainitiative.org/education/heartspace',
+  },
+};
 
 export default function HeartspacePage() {
   return (

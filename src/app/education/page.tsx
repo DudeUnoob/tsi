@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import {
   ArrowRight,
   BookOpen,
@@ -13,6 +14,11 @@ import { getResources } from '@/lib/firebase';
 import BrandRibbon from '@/components/BrandRibbon';
 
 export const revalidate = 0;
+export const metadata: Metadata = {
+  title: 'Education',
+  description: 'Study, reflect, and grow through Sanga learning experiences and thoughtful bhakti resources.',
+  alternates: { canonical: 'https://www.sangainitiative.org/education' },
+};
 
 export default async function EducationPage() {
   const resources = (await getResources()).sort(

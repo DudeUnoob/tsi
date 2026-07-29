@@ -1,8 +1,14 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { getSiteSettings } from '@/lib/firebase';
 import { Heart, ShieldCheck, DollarSign, Calendar, ArrowUpRight } from 'lucide-react';
 
 export const revalidate = 0;
+export const metadata: Metadata = {
+  title: 'Support Sanga',
+  description: 'Help Sanga create welcoming spaces for friendship, growth, and shared spiritual experience.',
+  alternates: { canonical: 'https://www.sangainitiative.org/support' },
+};
 
 export default async function SupportPage() {
   const settings = await getSiteSettings();

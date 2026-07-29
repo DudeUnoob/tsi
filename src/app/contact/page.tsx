@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
 import { ExternalLink, Heart, Mail, Sparkles, Users } from 'lucide-react';
 import { getSiteSettings } from '@/lib/firebase';
 import BrandRibbon from '@/components/BrandRibbon';
 
 export const revalidate = 0;
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Contact Sanga, join the community, and connect through email and social channels.',
+  alternates: { canonical: 'https://www.sangainitiative.org/contact' },
+};
 
 export default async function ContactPage() {
   const settings = await getSiteSettings();

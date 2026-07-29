@@ -1,10 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getProductInventory, getProducts } from '@/lib/firebase';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
 
 export const revalidate = 0;
+export const metadata: Metadata = {
+  title: 'Store',
+  description: 'Shop official Sanga apparel and merchandise supporting the Vaishnava youth community.',
+  alternates: { canonical: 'https://www.sangainitiative.org/store' },
+};
 
 export default async function StorePage() {
   const products = await getProducts();
