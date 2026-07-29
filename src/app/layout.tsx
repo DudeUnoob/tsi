@@ -185,23 +185,20 @@ const visby = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.sangainitiative.org"),
   title: "Sanga | A Vaishnava Youth Collective",
   description: "Sanga is a Vaishnava Youth Collective for friendship, growth, and shared experience in Krishna consciousness.",
   keywords: ["Sanga", "Vaishnava", "Youth Collective", "Krishna consciousness", "Bhakti Yoga", "Retreats", "Camp Ignite"],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "Sanga | A Vaishnava Youth Collective",
     description: "Creating spaces for friendship, growth, and shared experience in Krishna consciousness.",
     url: "https://www.sangainitiative.org",
     siteName: "Sanga",
+    locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "https://images.squarespace-cdn.com/content/v1/55c3a641e4b01d44af64ae03/1515991554064-56AD4XMHTIJODR105R7N/Copy+of+TSI_logo_rev.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Sanga Logo",
-      }
-    ]
   },
   twitter: {
     card: "summary_large_image",
