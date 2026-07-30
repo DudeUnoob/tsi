@@ -1,42 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { subscribeNewsletterAction } from '@/app/actions/public';
-import { Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
 
 export default function Footer() {
   const pathname = usePathname();
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
 
   if (pathname?.startsWith('/admin')) {
     return null;
   }
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setStatus('loading');
-    try {
-      const res = await subscribeNewsletterAction(email);
-      if (res.success) {
-        setStatus('success');
-        setEmail('');
-        setMessage(res.message);
-      } else {
-        setStatus('error');
-        setMessage(res.message);
-      }
-    } catch {
-      setStatus('error');
-      setMessage('Something went wrong. Please try again.');
-    }
-  };
 
   return (
     <footer className="bg-plum text-linen pt-16 pb-8 border-t border-linen/10 font-sans">
@@ -97,7 +71,7 @@ export default function Footer() {
         {/* Links Column */}
         <div className="col-span-1 md:col-span-3">
           <h3 className="font-display text-lg font-bold text-[var(--color-linen)] mb-4 uppercase tracking-widest text-xs">Quick Links</h3>
-          <ul className="space-y-3 text-sm">
+          <ul className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <li>
               <Link href="/" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Home
@@ -141,43 +115,21 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Newsletter Column */}
+        {/* Community Column */}
         <div className="col-span-1 md:col-span-5 flex flex-col space-y-4">
-          <h3 className="font-display text-lg font-bold text-[var(--color-linen)] uppercase tracking-widest text-xs">Join our newsletter</h3>
+          <h3 className="font-display text-lg font-bold text-[var(--color-linen)] uppercase tracking-widest text-xs">Join our community</h3>
           <p className="text-sm text-[var(--color-linen)]/70 leading-relaxed font-light">
-            Stay updated on upcoming retreats, local events, and online programs.
+            Stay connected with Sanga between retreats, local events, and online programs.
           </p>
-          
-          <form onSubmit={handleSubscribe} className="relative flex items-center mt-2 max-w-md">
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={status === 'loading'}
-              required
-              className="w-full px-5 py-3.5 bg-[var(--color-linen)]/5 border border-[var(--color-linen)]/15 rounded-full text-sm text-[var(--color-linen)] placeholder-[var(--color-linen)]/40 focus:outline-none focus:border-[var(--color-pink)] focus:ring-1 focus:ring-[var(--color-pink)] transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="absolute right-1.5 p-2.5 bg-[var(--color-pink)] hover:bg-[var(--color-sunshine)] text-[var(--color-warm-black)] rounded-full hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
-              aria-label="Subscribe"
-            >
-              {status === 'loading' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ArrowRight className="h-4 w-4" />
-              )}
-            </button>
-          </form>
-
-          {status === 'success' && (
-            <p className="text-xs text-[#66CC6E] font-medium animate-fadeIn">{message}</p>
-          )}
-          {status === 'error' && (
-            <p className="text-xs text-[var(--color-sunshine)] font-medium animate-fadeIn">{message}</p>
-          )}
+          <a
+            href="https://sanga.mn.co/share/Dl_EkHm4p0YlMWQU?utm_source=manual"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-2 inline-flex w-fit min-w-60 items-center justify-center gap-3 rounded-full bg-[var(--color-linen)] px-6 py-4 text-sm font-black text-[var(--color-plum)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-sunshine)] hover:text-[var(--color-warm-black)] active:translate-y-0"
+          >
+            Join the community
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </a>
         </div>
 
       </div>

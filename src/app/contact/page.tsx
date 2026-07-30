@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function ContactPage() {
   const settings = await getSiteSettings();
   const email = settings.contact_email.trim();
-  const mightyNetworksUrl = settings.mighty_networks_url.trim();
+  const mightyNetworksUrl = settings.mighty_networks_url.trim() || 'https://sanga.mn.co/share/Dl_EkHm4p0YlMWQU?utm_source=manual';
   const instagramUrl = settings.instagram_url.trim();
   const facebookUrl = settings.facebook_url.trim();
   const links = [
@@ -27,9 +27,9 @@ export default async function ContactPage() {
     },
     mightyNetworksUrl && {
       title: 'Mighty Networks',
-      description: 'Sign in to the Sanga community and keep the connection going year-round.',
+      description: 'Join the Sanga community and keep the connection going year-round.',
       href: mightyNetworksUrl,
-      label: 'Open the community',
+      label: 'Join the Mighty Network',
       icon: Users,
       external: true,
     },
@@ -77,7 +77,7 @@ export default async function ContactPage() {
 
       <main className="mx-auto max-w-6xl px-6 pt-14">
         {links.length > 0 ? (
-          <div className="grid gap-7 md:grid-cols-2">
+          <div className="grid gap-7 md:grid-cols-3">
             {links.map(({ title, description, href, label, icon: Icon, external }) => (
               <article key={title} className="flex min-h-64 flex-col rounded-[2.25rem] border border-plum/10 bg-white/45 p-8 shadow-sm">
                 <Icon className="h-8 w-8 text-pink" />

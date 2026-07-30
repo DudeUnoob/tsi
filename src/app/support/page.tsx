@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { getCachedSiteSettings as getSiteSettings } from '@/lib/cached-data';
-import { Heart, ShieldCheck, DollarSign, Calendar, ArrowUpRight } from 'lucide-react';
+import Script from 'next/script';
+import { Heart, ShieldCheck, DollarSign, Calendar } from 'lucide-react';
 
 export const revalidate = 300; // Cached; admin saves bust the tag via /api/revalidate
 export const metadata: Metadata = {
@@ -10,11 +10,14 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.sangainitiative.org/support' },
 };
 
-export default async function SupportPage() {
-  const settings = await getSiteSettings();
-
+export default function SupportPage() {
   return (
     <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
+      <Script
+        src="https://donorbox.org/widgets.js"
+        type="module"
+        strategy="afterInteractive"
+      />
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Header Section */}
@@ -32,32 +35,28 @@ export default async function SupportPage() {
 
         {/* Action Donation Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
-          {/* Card 1: One-time donation */}
-          <div className="bg-[var(--color-linen)] p-8 rounded-3xl border border-[var(--color-plum)]/15 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+          {/* Donorbox campaign: monthly-donors-15 */}
+          <div className="donation-widget-card bg-[var(--color-linen)] p-6 sm:p-8 rounded-3xl border border-[var(--color-plum)]/15 flex flex-col shadow-sm">
             <div className="space-y-4">
               <div className="p-3.5 bg-[var(--color-pink)]/15 rounded-2xl w-fit text-[var(--color-plum)] border border-[var(--color-pink)]/10 shadow-sm">
                 <DollarSign className="h-6 w-6" />
               </div>
-              <h2 className="font-display text-2xl font-bold text-[var(--color-plum)]">One-Time Gift</h2>
+              <h2 className="font-display text-2xl font-bold text-[var(--color-plum)]">Support Sanga Today</h2>
               <p className="text-sm text-[var(--color-warm-black)]/80 leading-relaxed font-sans font-light">
-                Support a specific retreat, sponsor a speaker, or help fund supplies. A one-time donation provides immediate resources for our active events.
+                Your gift helps make retreats, speakers, and supplies available to our growing community.
               </p>
             </div>
-            
-            <div className="pt-8">
-              <a
-                href={settings.one_time_donation_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full text-center px-6 py-4 bg-[var(--color-plum)] text-[var(--color-linen)] hover:bg-[var(--color-pink)] hover:text-[var(--color-linen)] font-black text-xs uppercase tracking-widest rounded-full shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center justify-center gap-1.5 active:scale-97 cursor-pointer"
-              >
-                Donate Once <ArrowUpRight className="h-4 w-4" />
-              </a>
+            <div className="donation-widget-frame mt-7">
+              {React.createElement('dbox-widget', {
+                campaign: 'monthly-donors-15',
+                type: 'donation_form',
+                'enable-auto-scroll': 'true',
+              })}
             </div>
           </div>
 
-          {/* Card 2: Monthly Devotee */}
-          <div className="bg-[var(--color-linen)] p-8 rounded-3xl border border-[var(--color-plum)]/15 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+          {/* Donorbox campaign: monthly-donors-15-2 */}
+          <div className="donation-widget-card bg-[var(--color-linen)] p-6 sm:p-8 rounded-3xl border border-[var(--color-plum)]/15 flex flex-col shadow-sm">
             <div className="space-y-4">
               <div className="p-3.5 bg-[var(--color-sunshine)]/15 rounded-2xl w-fit text-[var(--color-plum)] border border-[var(--color-sunshine)]/10 shadow-sm">
                 <Calendar className="h-6 w-6" />
@@ -67,16 +66,12 @@ export default async function SupportPage() {
                 Become a pillar of Sanga&apos;s future. Ongoing monthly support helps us budget, lease retreat sites in advance, and plan scholarships for those in need.
               </p>
             </div>
-            
-            <div className="pt-8">
-              <a
-                href={settings.monthly_donation_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full text-center px-6 py-4 bg-[var(--color-linen)] border-2 border-[var(--color-plum)] text-[var(--color-plum)] hover:bg-[var(--color-plum)]/5 font-black text-xs uppercase tracking-widest rounded-full transition-all duration-200 inline-flex items-center justify-center gap-1.5 active:scale-97 cursor-pointer"
-              >
-                Become a Monthly Donor <ArrowUpRight className="h-4 w-4" />
-              </a>
+            <div className="donation-widget-frame mt-7">
+              {React.createElement('dbox-widget', {
+                campaign: 'monthly-donors-15-2',
+                type: 'donation_form',
+                'enable-auto-scroll': 'true',
+              })}
             </div>
           </div>
         </div>
