@@ -71,7 +71,7 @@ export default function Footer() {
         {/* Links Column */}
         <div className="col-span-1 md:col-span-3">
           <h3 className="font-display text-lg font-bold text-[var(--color-linen)] mb-4 uppercase tracking-widest text-xs">Quick Links</h3>
-          <ul className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
             <li>
               <Link href="/" className="text-[var(--color-linen)]/75 hover:text-[var(--color-pink)] transition-colors font-medium">
                 Home
