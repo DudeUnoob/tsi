@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowRight, BookHeart, MessageCircleHeart, Sparkles, Users } from 'lucide-react';
 
@@ -26,12 +25,14 @@ export default function HeartspacePage() {
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-linen/85">
               A low-pressure place to study meaningful texts, ask real questions, and share what is moving in your spiritual life.
             </p>
-            <Link
-              href="/community?source=heartspace"
+            <a
+              href="https://sanga.mn.co/share/VDBRE4q6Njl0Aftf?utm_source=manual"
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-9 inline-flex items-center rounded-full bg-sunshine px-8 py-4 text-sm font-black uppercase tracking-wider text-plum shadow-lg transition-transform hover:-translate-y-0.5"
             >
               Join Heartspace <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            </a>
           </div>
         </section>
 
