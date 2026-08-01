@@ -10,6 +10,7 @@ import {
   attachStripeSession,
   applySessionTransition,
   InventoryUnavailableError,
+  ProductUnavailableError,
   reconcileExpiredReservationsForItems,
   releaseReservation,
   reserveOrder,
@@ -18,33 +19,9 @@ import {
 import { getAdminDb } from '@/lib/firebase-admin';
 import { createCheckoutManagementToken } from '@/lib/checkout-token';
 import { getStripe } from '@/lib/stripe-server';
+import { getCheckoutOrigin } from '@/lib/checkout-origin';
 
 export const runtime = 'nodejs';
-
-function getAppUrl(request: Request) {
-  // Every Vercel deployment gets its own URL. Prefer it over a configured
-  // canonical URL so forks and previews return customers to the deployment
-  // where they began Checkout.
-  const configured = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_APP_URL || '';
-  if (configured) {
-    const url = new URL(configured);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-      throw new Error('The application URL must use HTTP or HTTPS.');
-    }
-    return url.origin;
-  }
-
-  const localUrl = new URL(request.url);
-  if (
-    !process.env.VERCEL
-    && ['localhost', '127.0.0.1', '::1'].includes(localUrl.hostname)
-  ) {
-    return localUrl.origin;
-  }
-  throw new Error('NEXT_PUBLIC_APP_URL is required for Checkout.');
-}
 
 export async function POST(request: Request) {
   let orderId = '';
@@ -118,7 +95,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const appUrl = getAppUrl(request);
+    const appUrl = getCheckoutOrigin(request);
     const managementToken = createCheckoutManagementToken(orderId);
     const session = await stripe.checkout.sessions.create({
       integration_identifier: 'tsi_web_qkrtmzpa',
@@ -181,13 +158,21 @@ export async function POST(request: Request) {
         console.error('Failed to release checkout reservation:', releaseError);
       }
     }
-    console.error('Stripe Checkout API route error:', error);
+    const isAvailabilityConflict =
+      error instanceof InventoryUnavailableError
+      || error instanceof ProductUnavailableError;
+    if (!isAvailabilityConflict) {
+      console.error('Stripe Checkout API route error:', error);
+    }
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Unable to start checkout.',
         attemptTerminal,
       },
-      { status: error instanceof InventoryUnavailableError ? 409 : 500 },
+      {
+        status:
+          isAvailabilityConflict ? 409 : 500,
+      },
     );
   }
 }
@@ -248,7 +233,20 @@ export async function GET(request: Request) {
       amountTotal: session.amount_total,
       currency: session.currency,
     });
-  } catch {
-    return NextResponse.json({ error: 'Checkout Session not found.' }, { status: 404 });
+  } catch (error) {
+    const statusCode = typeof error === 'object'
+      && error !== null
+      && 'statusCode' in error
+      && typeof error.statusCode === 'number'
+      ? error.statusCode
+      : null;
+    if (statusCode === 404) {
+      return NextResponse.json({ error: 'Checkout Session not found.' }, { status: 404 });
+    }
+    console.error('Checkout verification failed:', error);
+    return NextResponse.json(
+      { error: 'Checkout verification is temporarily unavailable. Please retry.' },
+      { status: 503 },
+    );
   }
 }

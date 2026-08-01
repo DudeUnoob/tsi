@@ -30,29 +30,8 @@ import {
   type CheckoutClientState as CheckoutState,
 } from '@/lib/checkout-client';
 
-function createCheckoutWindow() {
-  const checkoutWindow = window.open('', '_blank');
-  if (!checkoutWindow) return null;
-  try {
-    checkoutWindow.opener = null;
-    checkoutWindow.document.title = 'Opening secure Checkout';
-    checkoutWindow.document.body.textContent = 'Opening secure Stripe Checkout…';
-  } catch {
-    // The placeholder is optional; navigation still works if a browser blocks
-    // access to its initial about:blank document.
-  }
-  return checkoutWindow;
-}
-
-function navigateCheckoutWindow(checkoutWindow: Window, url: string) {
-  if (checkoutWindow.closed) return false;
-  try {
-    checkoutWindow.location.replace(url);
-    checkoutWindow.focus();
-    return true;
-  } catch {
-    return false;
-  }
+function navigateToStripeCheckout(url: string) {
+  window.location.assign(url);
 }
 
 export default function CartPage() {
@@ -70,7 +49,6 @@ export default function CartPage() {
   const [cartMutationLoading, setCartMutationLoading] = useState(false);
   const cartMutationRunning = useRef(false);
   const checkoutLaunchRunning = useRef(false);
-  const checkoutWindowRef = useRef<Window | null>(null);
 
   const requestItems = useMemo(
     () => cartItems.map(item => ({
@@ -286,21 +264,6 @@ export default function CartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey, quoteRefresh, activeCheckout]);
 
-  const openCheckoutInNewTab = (url: string) => {
-    const checkoutWindow = createCheckoutWindow();
-    if (!checkoutWindow) {
-      setCheckoutError('Allow pop-ups for this site, then open Checkout again.');
-      return false;
-    }
-    checkoutWindowRef.current = checkoutWindow;
-    if (!navigateCheckoutWindow(checkoutWindow, url)) {
-      checkoutWindow.close();
-      setCheckoutError('The Checkout tab could not be opened. Please try again.');
-      return false;
-    }
-    return true;
-  };
-
   const handleCancelCheckout = async () => {
     if (!activeCheckout?.token) return;
     setCheckoutStateLoading(true);
@@ -323,9 +286,6 @@ export default function CartPage() {
       if (!stillCurrent) return;
       const state = data as CheckoutState;
       if (state.reservationStatus === 'released') {
-        if (checkoutWindowRef.current && !checkoutWindowRef.current.closed) {
-          checkoutWindowRef.current.close();
-        }
         storeActiveCheckout(null);
         setQuoteRefresh(value => value + 1);
       } else if (
@@ -350,7 +310,6 @@ export default function CartPage() {
   const submitCheckoutAttempt = async (
     attempt: ActiveCheckout,
     items: Array<{ productId: number; variant: string; quantity: number }>,
-    checkoutWindow: Window,
   ) => {
     setIsSubmitting(true);
     setCheckoutError('');
@@ -440,14 +399,8 @@ export default function CartPage() {
         token: data.managementToken,
         expiresAt: data.reservationExpiresAt,
       });
-      checkoutWindowRef.current = checkoutWindow;
-      if (!navigateCheckoutWindow(checkoutWindow, data.url)) {
-        throw new Error(
-          'Checkout was reserved, but the new tab was closed. Use Resume Checkout to continue.',
-        );
-      }
+      navigateToStripeCheckout(data.url);
     } catch (error) {
-      if (!checkoutWindow.closed) checkoutWindow.close();
       setCheckoutError(error instanceof Error ? error.message : 'Unable to start checkout.');
     } finally {
       setIsSubmitting(false);
@@ -463,7 +416,6 @@ export default function CartPage() {
     ) return;
 
     checkoutLaunchRunning.current = true;
-    let checkoutWindow: Window | null = null;
     try {
       if (
         activeCheckout?.token
@@ -471,18 +423,11 @@ export default function CartPage() {
         && checkoutState?.sessionStatus === 'open'
         && checkoutState.url
       ) {
-        openCheckoutInNewTab(checkoutState.url);
+        navigateToStripeCheckout(checkoutState.url);
         return;
       }
       if (activeCheckout?.token) {
         setCheckoutError('Cancel the active Checkout reservation before starting another one.');
-        return;
-      }
-
-      const openedCheckoutWindow = createCheckoutWindow();
-      checkoutWindow = openedCheckoutWindow;
-      if (!openedCheckoutWindow) {
-        setCheckoutError('Allow pop-ups for this site, then start Checkout again.');
         return;
       }
 
@@ -492,14 +437,12 @@ export default function CartPage() {
             createStoredCartRequestKey(localStorage.getItem(CART_STORAGE_KEY))
             !== requestKey
           ) {
-            openedCheckoutWindow.close();
             setCheckoutError(
               'The cart changed in another tab. Its latest contents are loading; review them before Checkout.',
             );
             return;
           }
         } catch {
-          openedCheckoutWindow.close();
           setCheckoutError('The stored cart is invalid. Reload it before starting Checkout.');
           return;
         }
@@ -507,7 +450,6 @@ export default function CartPage() {
         try {
           storedCheckout = readStoredCheckout(localStorage);
         } catch {
-          openedCheckoutWindow.close();
           setCheckoutError(
             'Checkout recovery data is invalid. Reload before starting another payment.',
           );
@@ -516,12 +458,10 @@ export default function CartPage() {
         const existingAttempt = storedCheckout || activeCheckout;
         if (existingAttempt?.token) {
           setActiveCheckout(existingAttempt);
-          openedCheckoutWindow.close();
           setCheckoutError('Another tab already started Checkout. Resume or cancel that Session.');
           return;
         }
         if (existingAttempt && existingAttempt.cartKey !== requestKey) {
-          openedCheckoutWindow.close();
           setActiveCheckout(existingAttempt);
           setCheckoutError(
             'Another tab is recovering Checkout for a different cart. Recover or cancel it first.',
@@ -536,12 +476,11 @@ export default function CartPage() {
         };
         if (!existingAttempt) storeActiveCheckout(attempt);
 
-        await submitCheckoutAttempt(attempt, requestItems, openedCheckoutWindow);
+        await submitCheckoutAttempt(attempt, requestItems);
       };
 
       await withCommerceBrowserLock(startOrRecover);
     } catch (error) {
-      if (checkoutWindow && !checkoutWindow.closed) checkoutWindow.close();
       setCheckoutError(
         error instanceof Error
           ? error.message
@@ -567,9 +506,6 @@ export default function CartPage() {
         return;
       }
       if (result.cancelledCheckout) {
-        if (checkoutWindowRef.current && !checkoutWindowRef.current.closed) {
-          checkoutWindowRef.current.close();
-        }
         setCheckoutState(null);
         setQuoteRefresh(value => value + 1);
       }
@@ -624,8 +560,8 @@ export default function CartPage() {
                 {activeCheckout.token && activeCheckout.expiresAt
                   ? (
                     <>
-                      Stripe Checkout is open in a separate tab. Editing this cart safely
-                      cancels that Session first, then refreshes price and availability.
+                      Checkout is active. Editing this cart safely cancels that Session
+                      first, then refreshes price and availability.
                       The hold expires at {new Date(activeCheckout.expiresAt).toLocaleTimeString()}.
                     </>
                   )
@@ -638,7 +574,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     disabled={checkoutStateLoading || !checkoutState?.url}
-                    onClick={() => checkoutState?.url && openCheckoutInNewTab(checkoutState.url)}
+                    onClick={() => checkoutState?.url && navigateToStripeCheckout(checkoutState.url)}
                     className="px-4 py-2.5 rounded-xl bg-plum text-linen text-xs font-black uppercase tracking-wider disabled:opacity-40 flex items-center gap-2"
                   >
                     <RotateCcw className="h-3.5 w-3.5" /> Resume

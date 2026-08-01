@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 import Stripe from 'stripe';
-import { CACHE_TAGS } from '@/lib/cache-tags';
 import {
   applySessionTransition,
   markPaymentRefunded,
@@ -68,19 +66,6 @@ export async function POST(request: Request) {
       }
       default:
         break;
-    }
-
-    // A completed or expired checkout moves stock, and the store pages read
-    // their counts from the tagged cache — drop it so shoppers do not see
-    // availability that a just-processed order already consumed.
-    //
-    // Deliberately non-fatal: the Firestore transition above has already been
-    // committed, so failing the response here would make Stripe redeliver an
-    // event we have processed. A briefly stale stock count is the lesser evil.
-    try {
-      revalidateTag(CACHE_TAGS.inventory, { expire: 0 });
-    } catch (error) {
-      console.warn('Inventory cache revalidation failed after webhook:', error);
     }
 
     return NextResponse.json({ received: true });

@@ -17,12 +17,19 @@ import {
   LayoutDashboard, Home, Calendar, ShoppingBag, Heart,
   MessageCircle, FileText, Image as ImageIcon, LogOut,
   Users, Plus, Trash2, Edit, Check, Download, AlertTriangle, Settings as SettingsIcon,
-  ExternalLink, Search, X, Upload
+  ExternalLink, Search, X, Upload, RefreshCw
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CURRENCY, formatMoney, legacyPriceToCents } from '@/lib/commerce';
+import GalleryManager from '@/components/GalleryManager';
+import {
+  normalizeGallerySeries,
+  retreatSeries,
+  type RetreatAlbum,
+  type RetreatSeries,
+} from '@/lib/gallery-albums';
 
 interface Subscriber {
   email: string;
@@ -237,7 +244,7 @@ export default function AdminDashboard() {
   const [authError, setAuthError] = useState('');
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'homepage' | 'gatherings' | 'store' | 'support' | 'community' | 'resources' | 'media' | 'submissions' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'homepage' | 'gatherings' | 'store' | 'support' | 'community' | 'resources' | 'media' | 'gallery' | 'submissions' | 'settings'>('overview');
 
   const defaultSiteSettings: SiteSettings = {
     hero_headline: "Connecting Young Adults to Ancient Bhakti Wisdom",
@@ -262,7 +269,8 @@ export default function AdminDashboard() {
     monthly_donation_url: "",
     color_palette: "default",
     hero_slideshow_images: [],
-    hero_slideshow_hidden: false
+    hero_slideshow_hidden: false,
+    gallery_series: [],
   };
 
   // Loaded site states
@@ -289,6 +297,8 @@ export default function AdminDashboard() {
   const [regEventFilter, setRegEventFilter] = useState<number | 'all'>('all');
 
   const [toastMessage, setToastMessage] = useState('');
+  const [gallerySaving, setGallerySaving] = useState(false);
+  const [galleryDraft, setGalleryDraft] = useState<RetreatSeries[]>(retreatSeries);
 
   interface ProductInventoryView {
     product_id: number;
@@ -298,6 +308,38 @@ export default function AdminDashboard() {
     reserved: number;
     sold: number;
   }
+
+  const refreshCommerce = React.useCallback(async () => {
+    if (!isSupabaseConfigured) return;
+    const commerce = await commerceAdminRequest('GET');
+    setProducts(commerce.products as StoreProduct[]);
+    const invs: Record<number, ProductInventoryView[]> = {};
+    for (const item of commerce.inventory as Array<{
+      product_id: number;
+      variant: string;
+      available: number;
+      on_hand: number;
+      reserved: number;
+      sold: number;
+    }>) {
+      (invs[item.product_id] ||= []).push({
+        product_id: item.product_id,
+        size: item.variant,
+        available: item.available,
+        on_hand: item.on_hand,
+        reserved: item.reserved,
+        sold: item.sold,
+      });
+    }
+    setAllInventories(invs);
+    const refreshedOrders = commerce.orders as Order[];
+    setOrders(refreshedOrders);
+    setSelectedOrder(current =>
+      current
+        ? refreshedOrders.find(order => order.id === current.id) || null
+        : null,
+    );
+  }, []);
 
   // Form edit states (for Gatherings, Store, and Resources edit modals)
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
@@ -362,6 +404,7 @@ export default function AdminDashboard() {
     const loadData = async () => {
       const s = await getSiteSettings();
       setSiteSettings(s);
+      setGalleryDraft(normalizeGallerySeries(s.gallery_series, retreatSeries));
       setSlideshowUrls(s.hero_slideshow_images ?? ['', '', '']);
       setSlideshowLabels(s.hero_slideshow_labels ?? ['', '', '']);
 
@@ -369,28 +412,7 @@ export default function AdminDashboard() {
       setEvents(e);
 
       if (isSupabaseConfigured) {
-        const commerce = await commerceAdminRequest('GET');
-        setProducts(commerce.products as StoreProduct[]);
-        const invs: Record<number, ProductInventoryView[]> = {};
-        for (const item of commerce.inventory as Array<{
-          product_id: number;
-          variant: string;
-          available: number;
-          on_hand: number;
-          reserved: number;
-          sold: number;
-        }>) {
-          (invs[item.product_id] ||= []).push({
-            product_id: item.product_id,
-            size: item.variant,
-            available: item.available,
-            on_hand: item.on_hand,
-            reserved: item.reserved,
-            sold: item.sold,
-          });
-        }
-        setAllInventories(invs);
-        setOrders(commerce.orders as Order[]);
+        await refreshCommerce();
       } else {
         const p = await getProducts({ all: true });
         setProducts(p);
@@ -439,7 +461,29 @@ export default function AdminDashboard() {
     if (!authLoading && (session || !isSupabaseConfigured)) {
       loadData();
     }
-  }, [authLoading, session]);
+  }, [authLoading, session, refreshCommerce]);
+
+  useEffect(() => {
+    if (
+      !isSupabaseConfigured
+      || authLoading
+      || !session
+      || (activeTab !== 'store' && !(activeTab === 'submissions' && subTab === 'orders'))
+    ) {
+      return undefined;
+    }
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      refreshCommerce().catch(error => console.warn('Commerce refresh failed:', error));
+    };
+    const interval = window.setInterval(refreshWhenVisible, 15_000);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
+  }, [activeTab, authLoading, refreshCommerce, session, subTab]);
 
   // Auth handles
   const handleLogin = async (e?: React.FormEvent) => {
@@ -501,6 +545,21 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error(err);
       triggerToast(`Error saving settings: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const saveGallery = async (series: RetreatSeries[]) => {
+    setGallerySaving(true);
+    try {
+      const result = await saveSiteSettings({ gallery_series: series });
+      if (!result.success) throw new Error(result.message || 'Gallery save failed.');
+      setSiteSettings(current => ({ ...current, gallery_series: series }));
+      setGalleryDraft(series);
+      await revalidatePublicCache(['site-settings']);
+      triggerToast('Gallery updated successfully!');
+      router.refresh();
+    } finally {
+      setGallerySaving(false);
     }
   };
 
@@ -618,27 +677,7 @@ export default function AdminDashboard() {
           .filter(item => payload.variant_type === 'size' ? item.size !== 'OS' : item.size === 'OS')
           .map(item => ({ variant: item.size, on_hand: item.on_hand })),
       });
-      const commerce = await commerceAdminRequest('GET');
-      setProducts(commerce.products as StoreProduct[]);
-      const invs: Record<number, ProductInventoryView[]> = {};
-      for (const item of commerce.inventory as Array<{
-        product_id: number;
-        variant: string;
-        available: number;
-        on_hand: number;
-        reserved: number;
-        sold: number;
-      }>) {
-        (invs[item.product_id] ||= []).push({
-          product_id: item.product_id,
-          size: item.variant,
-          available: item.available,
-          on_hand: item.on_hand,
-          reserved: item.reserved,
-          sold: item.sold,
-        });
-      }
-      setAllInventories(invs);
+      await refreshCommerce();
       setEditingProduct(null);
       triggerToast('Store product and inventory updated!');
     } catch (err) {
@@ -676,8 +715,7 @@ export default function AdminDashboard() {
     }
     try {
       const result = await commerceAdminRequest('PATCH', { action: 'reconcile' });
-      const commerce = await commerceAdminRequest('GET');
-      setOrders(commerce.orders as Order[]);
+      await refreshCommerce();
       triggerToast(
         `Stripe checked ${result.scanned}: ${result.released} released, `
         + `${result.finalized} finalized, ${result.processing} processing, ${result.errors} errors.`,
@@ -886,6 +924,7 @@ export default function AdminDashboard() {
               { id: 'community', label: 'Community Links', icon: MessageCircle },
               { id: 'resources', label: 'Resources', icon: FileText },
               { id: 'media', label: 'Media Library', icon: ImageIcon },
+              { id: 'gallery', label: 'Gallery Manager', icon: ImageIcon },
               { id: 'submissions', label: 'Submissions', icon: Users },
               { id: 'settings', label: 'General & Themes', icon: SettingsIcon },
             ].map((tab) => {
@@ -943,6 +982,7 @@ export default function AdminDashboard() {
               { id: 'community', label: 'Community', icon: MessageCircle },
               { id: 'resources', label: 'Resources', icon: FileText },
               { id: 'media', label: 'Media', icon: ImageIcon },
+              { id: 'gallery', label: 'Gallery', icon: ImageIcon },
               { id: 'submissions', label: 'Submissions', icon: Users },
               { id: 'settings', label: 'Settings', icon: SettingsIcon },
             ].map((tab) => {
@@ -1859,16 +1899,27 @@ export default function AdminDashboard() {
                 <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Store Products Editor</h1>
                 <p className="text-sm text-warm-black/60">Manage physical merchandise, trusted prices, and transactional variant inventory.</p>
               </div>
-              <button
-                onClick={() => setEditingProduct({
-                  product_title: '', slug: '', description: '', price: '$0.00',
-                  price_cents: 0, currency: 'usd', variant_type: 'size',
-                  image: '', status: 'available', featured: false, published: true
-                })}
-                className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
-              >
-                <Plus className="mr-2 h-4.5 w-4.5" /> Add Product
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => refreshCommerce()
+                    .then(() => triggerToast('Commerce data refreshed.'))
+                    .catch(error => triggerToast(error instanceof Error ? error.message : 'Refresh failed.'))}
+                  className="px-5 py-3 bg-[var(--color-linen)] text-plum border border-plum/20 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm flex items-center"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+                </button>
+                <button
+                  onClick={() => setEditingProduct({
+                    product_title: '', slug: '', description: '', price: '$0.00',
+                    price_cents: 0, currency: 'usd', variant_type: 'size',
+                    image: '', status: 'available', featured: false, published: true
+                  })}
+                  className="px-6 py-3.5 bg-plum hover:bg-[var(--color-sunshine)] text-[var(--color-linen)] hover:text-plum text-xs font-bold uppercase tracking-wider rounded-full shadow-md flex items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-0.5"
+                >
+                  <Plus className="mr-2 h-4.5 w-4.5" /> Add Product
+                </button>
+              </div>
             </div>
 
             {/* List products */}
@@ -2017,6 +2068,7 @@ export default function AdminDashboard() {
                           >
                             <option value="available">Available</option>
                             <option value="unavailable">Unavailable</option>
+                            <option value="coming-soon">Coming Soon</option>
                           </select>
                         </div>
                         <div className="space-y-2">
@@ -2476,6 +2528,34 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'gallery' && (
+          <div className="space-y-8">
+            <div>
+              <h1 className="font-display text-4xl font-bold text-plum tracking-tight">Gallery Manager</h1>
+              <p className="text-sm text-warm-black/60">
+                Manage the groups and albums displayed on the public gallery page.
+              </p>
+            </div>
+            <div className="bg-[var(--color-linen)] border border-plum/10 rounded-[2rem] p-5 sm:p-8 shadow-md">
+              <GalleryManager
+                value={galleryDraft}
+                onChange={setGalleryDraft}
+                onSave={saveGallery}
+                saving={gallerySaving}
+                renderCoverUploader={(album: RetreatAlbum, onChange) => (
+                  <ImageUploader
+                    label="Manual cover image"
+                    value={album.coverImage || ''}
+                    onChange={onChange}
+                    onToast={triggerToast}
+                    folder="gallery"
+                  />
+                )}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Tab 9: Form Submissions */}
         {activeTab === 'submissions' && (
           <div className="min-w-0 space-y-6">
@@ -2619,6 +2699,15 @@ export default function AdminDashboard() {
                     <p className="text-xs text-warm-black/60">Purchases logged from merchandise shopping cart.</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => refreshCommerce()
+                        .then(() => triggerToast('Orders refreshed.'))
+                        .catch(error => triggerToast(error instanceof Error ? error.message : 'Refresh failed.'))}
+                      className="px-4 py-2.5 bg-[var(--color-linen)] hover:bg-plum/5 text-plum border border-plum/20 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm flex items-center justify-center"
+                    >
+                      <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+                    </button>
                     <button
                       onClick={handleReconcileReservations}
                       className="px-4 py-2.5 bg-[var(--color-linen)] hover:bg-plum/5 text-plum border border-plum/20 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm flex items-center justify-center cursor-pointer transition-all duration-300"
@@ -3000,7 +3089,12 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     <select
-                      disabled={selectedOrder.inventory_exception}
+                      disabled={
+                        selectedOrder.inventory_exception
+                        || selectedOrder.payment_status !== 'paid'
+                        || selectedOrder.reservation_status !== 'committed'
+                        || Boolean(selectedOrder.inventory_restocked_at)
+                      }
                       value={selectedOrder.fulfillment_status || (selectedOrder.status === 'completed' ? 'completed' : 'unfulfilled')}
                       onChange={(e) => setSelectedOrder({
                         ...selectedOrder,
@@ -3017,14 +3111,24 @@ export default function AdminDashboard() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
-                      disabled={selectedOrder.inventory_exception}
+                      disabled={
+                        selectedOrder.inventory_exception
+                        || selectedOrder.payment_status !== 'paid'
+                        || selectedOrder.reservation_status !== 'committed'
+                        || Boolean(selectedOrder.inventory_restocked_at)
+                      }
                       value={selectedOrder.carrier || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, carrier: e.target.value })}
                       placeholder="Carrier"
                       className="min-w-0 px-3 py-2 bg-linen rounded-xl border border-plum/15 text-xs"
                     />
                     <input
-                      disabled={selectedOrder.inventory_exception}
+                      disabled={
+                        selectedOrder.inventory_exception
+                        || selectedOrder.payment_status !== 'paid'
+                        || selectedOrder.reservation_status !== 'committed'
+                        || Boolean(selectedOrder.inventory_restocked_at)
+                      }
                       value={selectedOrder.tracking_number || ''}
                       onChange={(e) => setSelectedOrder({ ...selectedOrder, tracking_number: e.target.value })}
                       placeholder="Tracking number"
@@ -3032,7 +3136,12 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <button
-                    disabled={selectedOrder.inventory_exception}
+                    disabled={
+                      selectedOrder.inventory_exception
+                      || selectedOrder.payment_status !== 'paid'
+                      || selectedOrder.reservation_status !== 'committed'
+                      || Boolean(selectedOrder.inventory_restocked_at)
+                    }
                     onClick={async () => {
                       try {
                         await commerceAdminRequest('PATCH', {
@@ -3054,6 +3163,33 @@ export default function AdminDashboard() {
                   >
                     Save Fulfillment
                   </button>
+                  {(selectedOrder.payment_status === 'refunded'
+                    || selectedOrder.fulfillment_status === 'cancelled') && (
+                    <button
+                      type="button"
+                      disabled={Boolean(selectedOrder.inventory_restocked_at)}
+                      onClick={async () => {
+                        if (!confirm('Return every item in this order to on-hand inventory? This can only be done once.')) {
+                          return;
+                        }
+                        try {
+                          await commerceAdminRequest('PATCH', {
+                            action: 'restock_order',
+                            orderId: String(selectedOrder.id),
+                          });
+                          await refreshCommerce();
+                          triggerToast('Order inventory restocked.');
+                        } catch (error) {
+                          triggerToast(error instanceof Error ? error.message : 'Restock failed.');
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-plum/20 text-plum rounded-xl text-[10px] font-black uppercase tracking-wider disabled:opacity-40"
+                    >
+                      {selectedOrder.inventory_restocked_at
+                        ? 'Inventory already restocked'
+                        : 'Restock returned items'}
+                    </button>
+                  )}
                 </div>
 
                 {/* Purchased items table */}

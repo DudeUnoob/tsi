@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import type Stripe from 'stripe';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }));
+
 const emulatorEnabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 const describeEmulator = emulatorEnabled ? describe : describe.skip;
 
@@ -14,6 +16,11 @@ describeEmulator('commerce Firestore transactions', () => {
   let synchronizeCheckoutOrder: typeof import('./commerce-server')['synchronizeCheckoutOrder'];
   let saveCommerceProduct: typeof import('./commerce-server')['saveCommerceProduct'];
   let markPaymentRefunded: typeof import('./commerce-server')['markPaymentRefunded'];
+  let reconcileExpiredReservations:
+    typeof import('./commerce-server')['reconcileExpiredReservations'];
+  let restockOrder: typeof import('./commerce-server')['restockOrder'];
+  let updateOrderFulfillment:
+    typeof import('./commerce-server')['updateOrderFulfillment'];
   const productId = 990001;
   const inventoryId = `${productId}_M`;
 
@@ -29,6 +36,9 @@ describeEmulator('commerce Firestore transactions', () => {
       synchronizeCheckoutOrder,
       saveCommerceProduct,
       markPaymentRefunded,
+      reconcileExpiredReservations,
+      restockOrder,
+      updateOrderFulfillment,
     } =
       await import('./commerce-server'));
   });
@@ -503,6 +513,104 @@ describeEmulator('commerce Firestore transactions', () => {
     expect(order.data()?.payment_status).toBe('refunded');
     const inventory = await db.collection('product_inventory').doc(inventoryId).get();
     expect(inventory.data()).toMatchObject({ on_hand: 0, reserved: 0, sold: 1 });
+  });
+
+  it('restocks a refunded order exactly once and writes both audits', async () => {
+    const attemptId = randomUUID();
+    await reserveOrder(attemptId, [{ productId, variant: 'M', quantity: 1 }]);
+    const paid = checkoutSession(attemptId, {
+      status: 'complete',
+      payment_status: 'paid',
+      payment_intent: `pi_${attemptId}`,
+    });
+    await attachStripeSession(attemptId, paid);
+    await applySessionTransition('evt_paid_for_restock', paid, 'paid');
+    await markPaymentRefunded('evt_refund_for_restock', `pi_${attemptId}`);
+
+    const actor = { uid: 'admin-restock', email: 'admin@example.com' };
+    const first = await restockOrder(actor, attemptId);
+    const repeated = await restockOrder(actor, attemptId);
+
+    expect(first).toMatchObject({ applied: true, reason: 'restocked' });
+    expect(repeated).toMatchObject({
+      applied: false,
+      reason: 'already_restocked',
+      restockedAt: first.restockedAt,
+    });
+    const inventory = await db.collection('product_inventory').doc(inventoryId).get();
+    expect(inventory.data()).toMatchObject({ on_hand: 1, reserved: 0, sold: 0 });
+    const order = await db.collection('orders').doc(attemptId).get();
+    expect(order.data()).toMatchObject({
+      inventory_restocked_by: actor.uid,
+      last_transition_source: 'admin.restock',
+    });
+    const [orderAudits, inventoryAudits] = await Promise.all([
+      db.collection('order_audit')
+        .where('order_id', '==', attemptId)
+        .where('action', '==', 'order_restocked')
+        .get(),
+      db.collection('inventory_audit')
+        .where('order_id', '==', attemptId)
+        .where('action', '==', 'order_restocked')
+        .get(),
+    ]);
+    expect(orderAudits.size).toBe(1);
+    expect(inventoryAudits.size).toBe(1);
+  });
+
+  it('allows fulfillment only after paid inventory is committed', async () => {
+    const actor = { uid: 'admin-fulfillment', email: 'admin@example.com' };
+    const attemptId = randomUUID();
+    await reserveOrder(attemptId, [{ productId, variant: 'M', quantity: 1 }]);
+    await expect(updateOrderFulfillment(
+      actor,
+      attemptId,
+      'processing',
+      '',
+      '',
+    )).rejects.toThrow('Only paid orders');
+
+    const paid = checkoutSession(attemptId, {
+      status: 'complete',
+      payment_status: 'paid',
+      payment_intent: `pi_${attemptId}`,
+    });
+    await attachStripeSession(attemptId, paid);
+    await applySessionTransition('evt_paid_for_fulfillment', paid, 'paid');
+    await updateOrderFulfillment(actor, attemptId, 'shipped', 'USPS', 'TRACK123');
+
+    const order = await db.collection('orders').doc(attemptId).get();
+    expect(order.data()).toMatchObject({
+      payment_status: 'paid',
+      reservation_status: 'committed',
+      fulfillment_status: 'shipped',
+      carrier: 'USPS',
+      tracking_number: 'TRACK123',
+    });
+  });
+
+  it('drains every expired reservation in bounded batches', async () => {
+    await db.collection('product_inventory').doc(inventoryId).update({ on_hand: 3 });
+    const attempts = [randomUUID(), randomUUID(), randomUUID()];
+    for (const attemptId of attempts) {
+      await reserveOrder(attemptId, [{ productId, variant: 'M', quantity: 1 }]);
+      await db.collection('orders').doc(attemptId).update({
+        reservation_expires_at: '2020-01-01T00:00:00.000Z',
+      });
+    }
+
+    const result = await reconcileExpiredReservations(
+      stripeClient(checkoutSession('unused')),
+      2,
+    );
+    expect(result).toMatchObject({
+      scanned: 3,
+      released: 3,
+      errors: 0,
+      batches: 2,
+    });
+    const inventory = await db.collection('product_inventory').doc(inventoryId).get();
+    expect(inventory.data()).toMatchObject({ on_hand: 3, reserved: 0, sold: 0 });
   });
 });
 

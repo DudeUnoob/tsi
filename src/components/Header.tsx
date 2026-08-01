@@ -165,21 +165,44 @@ export default function Header() {
       </div>
 
       {/* Organic Curved Bottom Divider */}
-      <div 
-        className="absolute top-full left-0 right-0 hidden w-full overflow-hidden leading-none pointer-events-none z-30 md:block"
+      <div
+        className="pointer-events-none absolute top-full right-0 left-0 z-30 w-full overflow-hidden leading-none md:hidden"
+        aria-hidden="true"
         style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.04))' }}
       >
-        <svg 
-          className="relative block w-full h-16 text-linen fill-current" 
-          viewBox="0 0 1200 120" 
+        <svg
+          className="relative block h-10 w-full fill-current text-brand-plum/10 sm:h-12"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+        >
+          <path d="M0,0 H1200 V12 C900,76 300,76 0,12 Z" />
+        </svg>
+        <svg
+          className="absolute top-0 left-0 h-10 w-full fill-none stroke-current text-brand-plum/15 sm:h-12"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          strokeWidth="1.5"
+        >
+          <path d="M0,12 C300,76 900,76 1200,12" />
+        </svg>
+      </div>
+
+      <div
+        className="pointer-events-none absolute top-full right-0 left-0 z-30 hidden w-full overflow-hidden leading-none md:block"
+        aria-hidden="true"
+        style={{ filter: 'drop-shadow(0 6px 5px rgba(0,0,0,0.04))' }}
+      >
+        <svg
+          className="relative block h-16 w-full fill-current text-linen"
+          viewBox="0 0 1200 120"
           preserveAspectRatio="none"
         >
           <path d="M0,0 C26.9,4.75,55.05,16.35,80,25.23C135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3 L1200,0 L0,0 Z" />
         </svg>
-        <svg 
-          className="absolute top-0 left-0 w-full h-16 text-plum/10 stroke-current fill-none" 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
+        <svg
+          className="absolute top-0 left-0 h-16 w-full fill-none stroke-current text-plum/10"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
           strokeWidth="1.5"
         >
           <path d="M0,0 C26.9,4.75,55.05,16.35,80,25.23C135.66,45.09,194.3,55.57,253,58.38A855,855,0,0,0,321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3" />

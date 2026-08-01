@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 import GalleryClient from '@/components/GalleryClient';
-import { getAlbumCovers, retreatSeries } from '@/lib/gallery-albums';
+import { getCachedSiteSettings } from '@/lib/cached-data';
+import {
+  getAlbumCovers,
+  normalizeGallerySeries,
+  publicGallerySeries,
+  retreatSeries,
+} from '@/lib/gallery-albums';
 
 // Album covers change rarely, and a stale cover still links to the right album.
 export const revalidate = 86400;
@@ -13,7 +19,10 @@ export const metadata: Metadata = {
 };
 
 export default async function GalleryPage() {
-  const covers = await getAlbumCovers(retreatSeries);
+  const settings = await getCachedSiteSettings();
+  const configuredSeries = (settings as unknown as Record<string, unknown>).gallery_series;
+  const series = publicGallerySeries(normalizeGallerySeries(configuredSeries, retreatSeries));
+  const covers = await getAlbumCovers(series);
 
-  return <GalleryClient series={retreatSeries} covers={covers} />;
+  return <GalleryClient series={series} covers={covers} />;
 }

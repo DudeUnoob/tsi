@@ -32,10 +32,10 @@ describe('runtime regressions', () => {
     expect(source).not.toContain('col-span-12 md:col-span');
   });
 
-  it('renders the registration portal without effect-driven mount state', () => {
-    const source = readSource('./RegistrationModal.tsx');
+  it('does not expose the retired simulated card-payment order action', () => {
+    const source = readSource('../app/actions/public.ts');
 
-    expect(source).not.toContain('setMounted');
-    expect(source).toContain("typeof document !== 'undefined'");
+    expect(source).not.toContain('createOrderAction');
+    expect(source).not.toContain('createOrder(');
   });
 });

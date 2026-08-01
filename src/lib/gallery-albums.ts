@@ -16,6 +16,10 @@ export interface RetreatAlbum {
   url?: string;
   /** Shown in place of the link when `url` is absent. */
   pendingNote?: string;
+  /** Lets editors stage an album without exposing it publicly. */
+  published?: boolean;
+  /** Optional editor-selected cover. Takes precedence over the Google Photos cover. */
+  coverImage?: string;
 }
 
 export interface RetreatSeries {
@@ -23,6 +27,8 @@ export interface RetreatSeries {
   name: string;
   blurb: string;
   albums: RetreatAlbum[];
+  /** Lets editors stage a whole gallery group without exposing it publicly. */
+  published?: boolean;
 }
 
 /**
@@ -58,6 +64,14 @@ export const retreatSeries: RetreatSeries[] = [
         title: 'Summit 2024',
         dates: 'Summer 2024',
         year: 2024,
+        media: 'photos',
+        pendingNote: 'We are still tracking this album down. Check back soon.',
+      },
+      {
+        id: 'summit-2023',
+        title: 'Summit 2023',
+        dates: 'Summer 2023',
+        year: 2023,
         media: 'photos',
         pendingNote: 'We are still tracking this album down. Check back soon.',
       },
@@ -138,9 +152,157 @@ export const retreatSeries: RetreatSeries[] = [
 
 export type AlbumCovers = Record<string, string>;
 
-/** Every album that currently has a live share link. */
+const SAFE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function nonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function optionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string';
+}
+
+function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function isGooglePhotosUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'photos.app.goo.gl';
+  } catch {
+    return false;
+  }
+}
+
+function parseAlbum(value: unknown): RetreatAlbum | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const album = value as Record<string, unknown>;
+
+  if (
+    !nonEmptyString(album.id) ||
+    !SAFE_ID.test(album.id) ||
+    !nonEmptyString(album.title) ||
+    !nonEmptyString(album.dates) ||
+    typeof album.year !== 'number' ||
+    !Number.isInteger(album.year) ||
+    album.year < 2000 ||
+    album.year > 2100 ||
+    (album.media !== 'photos' && album.media !== 'videos') ||
+    !optionalString(album.subtitle) ||
+    !optionalString(album.location) ||
+    !optionalString(album.pendingNote) ||
+    !optionalString(album.url) ||
+    !optionalString(album.coverImage) ||
+    (album.published !== undefined && typeof album.published !== 'boolean')
+  ) {
+    return undefined;
+  }
+
+  const url = nonEmptyString(album.url) ? album.url.trim() : undefined;
+  const coverImage = nonEmptyString(album.coverImage) ? album.coverImage.trim() : undefined;
+  const pendingNote = nonEmptyString(album.pendingNote) ? album.pendingNote.trim() : undefined;
+  if ((url && !isGooglePhotosUrl(url)) || (coverImage && !isHttpsUrl(coverImage))) {
+    return undefined;
+  }
+  if (!url && !pendingNote) return undefined;
+
+  return {
+    id: album.id.trim(),
+    title: album.title.trim(),
+    subtitle: nonEmptyString(album.subtitle) ? album.subtitle.trim() : undefined,
+    location: nonEmptyString(album.location) ? album.location.trim() : undefined,
+    dates: album.dates.trim(),
+    year: album.year as number,
+    media: album.media,
+    url,
+    pendingNote,
+    published: album.published as boolean | undefined,
+    coverImage,
+  };
+}
+
+/**
+ * Validates editor-provided gallery settings as one atomic document. Any
+ * malformed group, album, URL, or duplicate id falls back to compiled content
+ * so a partial admin edit can never take the public gallery down.
+ */
+export function normalizeGallerySeries(
+  value: unknown,
+  fallback: RetreatSeries[] = retreatSeries,
+): RetreatSeries[] {
+  if (!Array.isArray(value) || value.length === 0) return fallback;
+
+  const groupIds = new Set<string>();
+  const albumIds = new Set<string>();
+  const normalized: RetreatSeries[] = [];
+
+  for (const item of value) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return fallback;
+    const group = item as Record<string, unknown>;
+    if (
+      !nonEmptyString(group.id) ||
+      !SAFE_ID.test(group.id) ||
+      !nonEmptyString(group.name) ||
+      typeof group.blurb !== 'string' ||
+      !Array.isArray(group.albums) ||
+      (group.published !== undefined && typeof group.published !== 'boolean') ||
+      groupIds.has(group.id)
+    ) {
+      return fallback;
+    }
+
+    const albums: RetreatAlbum[] = [];
+    for (const albumValue of group.albums) {
+      const album = parseAlbum(albumValue);
+      if (!album || albumIds.has(album.id)) return fallback;
+      albumIds.add(album.id);
+      albums.push(album);
+    }
+
+    groupIds.add(group.id);
+    normalized.push({
+      id: group.id.trim(),
+      name: group.name.trim(),
+      blurb: group.blurb.trim(),
+      published: group.published as boolean | undefined,
+      albums,
+    });
+  }
+
+  return normalized;
+}
+
+/** Removes editor-only drafts and groups that have nothing public to show. */
+export function publicGallerySeries(series: RetreatSeries[]): RetreatSeries[] {
+  return series.flatMap(group => {
+    if (group.published === false) return [];
+    const albums = group.albums.filter(album => album.published !== false);
+    return albums.length > 0 ? [{ ...group, albums }] : [];
+  });
+}
+
+/** Resolves a URL hash to a visible gallery group, with Summit as the default. */
+export function galleryGroupFromHash(series: RetreatSeries[], hash: string): string | undefined {
+  const fallback = series.find(group => group.id === 'summit')?.id ?? series[0]?.id;
+  let requested = hash.replace(/^#/, '');
+  try {
+    requested = decodeURIComponent(requested);
+  } catch {
+    return fallback;
+  }
+  return series.some(group => group.id === requested) ? requested : fallback;
+}
+
+/** Every published album that currently has a live share link. */
 export function linkedAlbums(series: RetreatSeries[] = retreatSeries): RetreatAlbum[] {
-  return series.flatMap(group => group.albums.filter(album => Boolean(album.url)));
+  return publicGallerySeries(series).flatMap(group =>
+    group.albums.filter(album => Boolean(album.url)),
+  );
 }
 
 /**
@@ -202,8 +364,19 @@ async function fetchAlbumCover(album: RetreatAlbum): Promise<[string, string] | 
 export async function getAlbumCovers(
   series: RetreatSeries[] = retreatSeries,
 ): Promise<AlbumCovers> {
-  const results = await Promise.all(linkedAlbums(series).map(fetchAlbumCover));
+  const albums = publicGallerySeries(series).flatMap(group => group.albums);
+  const manualCovers: [string, string][] = albums
+    .filter((album): album is RetreatAlbum & { coverImage: string } => Boolean(album.coverImage))
+    .map(album => [album.id, album.coverImage]);
+  const results = await Promise.all(
+    albums
+      .filter(album => album.url && !album.coverImage)
+      .map(fetchAlbumCover),
+  );
   return Object.fromEntries(
-    results.filter((entry): entry is [string, string] => Boolean(entry)),
+    [
+      ...results.filter((entry): entry is [string, string] => Boolean(entry)),
+      ...manualCovers,
+    ],
   );
 }

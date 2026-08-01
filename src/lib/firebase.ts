@@ -36,6 +36,7 @@ export interface Order {
   last_transition_source?: string;
   inventory_exception?: boolean;
   inventory_exception_details?: string[];
+  inventory_restocked_at?: string;
   carrier?: string;
   tracking_number?: string;
   items: Array<{
@@ -203,7 +204,8 @@ const defaultSiteSettings: SiteSettings = {
   promo_video_cover_url: "",
   hero_slideshow_images: [],
   hero_slideshow_labels: [],
-  hero_slideshow_hidden: false
+  hero_slideshow_hidden: false,
+  gallery_series: [],
 };
 
 // Helper: Safe LocalStorage operations
@@ -250,6 +252,14 @@ const defaultMockInventory: ProductInventory[] = [
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   if (!isFirebaseConfigured) {
+    const stored = getLocalStorageItem('sanga_mock_site_settings');
+    if (stored) {
+      try {
+        return { ...defaultSiteSettings, ...JSON.parse(stored) as Partial<SiteSettings> };
+      } catch {
+        // Fall through to the compiled defaults when local data is corrupt.
+      }
+    }
     return defaultSiteSettings;
   }
   try {
@@ -335,7 +345,11 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
         price: formatMoney(priceCents),
         currency: 'usd',
         variant_type: product.variant_type === 'one_size' ? 'one_size' : 'size',
-        status: product.status === 'unavailable' ? 'unavailable' : 'available',
+        status: product.status === 'coming-soon'
+          ? 'coming-soon'
+          : product.status === 'unavailable'
+            ? 'unavailable'
+            : 'available',
       };
     });
     if (options?.featuredOnly) {
@@ -365,7 +379,11 @@ export async function getProducts(options?: { featuredOnly?: boolean; all?: bool
         price: formatMoney(priceCents),
         currency: 'usd',
         variant_type: data.variant_type === 'one_size' ? 'one_size' : 'size',
-        status: data.status === 'unavailable' ? 'unavailable' : 'available',
+        status: data.status === 'coming-soon'
+          ? 'coming-soon'
+          : data.status === 'unavailable'
+            ? 'unavailable'
+            : 'available',
       } as StoreProduct);
     });
     if (options?.featuredOnly) {
@@ -508,35 +526,6 @@ export async function getOrders(): Promise<Order[]> {
   } catch (e) {
     console.error("Firebase getOrders error:", e);
     return defaultMockOrders;
-  }
-}
-
-export async function createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<{ success: boolean; order?: Order; message?: string }> {
-  if (!isFirebaseConfigured) {
-    const orders = await getOrders();
-    const newOrder: Order = {
-      ...orderData,
-      id: orders.length > 0
-        ? Math.max(...orders.map(order => Number(order.id) || 0)) + 1
-        : 1,
-      created_at: new Date().toISOString()
-    };
-    setLocalStorageItem('sanga_mock_orders', JSON.stringify([newOrder, ...orders]));
-    return { success: true, order: newOrder };
-  }
-  try {
-    const docRef = doc(db!, 'orders', orderData.order_ref);
-    const newOrder: Order = {
-      ...orderData,
-      id: Date.now(),
-      created_at: new Date().toISOString()
-    };
-    await setDoc(docRef, newOrder);
-    return { success: true, order: newOrder };
-  } catch (e) {
-    const err = e as Error;
-    console.error("Firebase createOrder error:", err);
-    return { success: false, message: err.message };
   }
 }
 
@@ -903,6 +892,15 @@ export async function deleteResource(id: number): Promise<{ success: boolean; me
 
 export async function saveSiteSettings(updatedSettings: Partial<SiteSettings>): Promise<{ success: boolean; message?: string }> {
   if (!isFirebaseConfigured) {
+    const stored = getLocalStorageItem('sanga_mock_site_settings');
+    let current: Partial<SiteSettings> = {};
+    if (stored) {
+      try { current = JSON.parse(stored) as Partial<SiteSettings>; } catch {}
+    }
+    setLocalStorageItem(
+      'sanga_mock_site_settings',
+      JSON.stringify({ ...current, ...sanitizeObject(updatedSettings) }),
+    );
     return { success: true };
   }
   try {

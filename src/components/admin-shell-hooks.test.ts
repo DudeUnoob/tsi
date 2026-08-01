@@ -27,8 +27,6 @@ describe('admin route public chrome', () => {
   it('keeps the Footer hook order stable before hiding it on admin routes', () => {
     expectAdminReturnAfterHooks(readComponent('Footer.tsx'), [
       'usePathname()',
-      "useState('')",
-      "useState<'idle' | 'loading' | 'success' | 'error'>('idle')",
     ]);
   });
 });

@@ -73,6 +73,55 @@ describe('Stripe webhook route', () => {
     expect(applySessionTransition).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['checkout.session.async_payment_succeeded', 'paid'],
+    ['checkout.session.async_payment_failed', 'failed'],
+    ['checkout.session.expired', 'expired'],
+  ] as const)('dispatches %s as a %s transition', async (type, transition) => {
+    const event = {
+      id: `evt_${transition}`,
+      object: 'event',
+      type,
+      data: {
+        object: {
+          id: `cs_test_${transition}`,
+          object: 'checkout.session',
+          payment_status: transition === 'paid' ? 'paid' : 'unpaid',
+          status: transition === 'expired' ? 'expired' : 'complete',
+        },
+      },
+    };
+    const { POST } = await import('./route');
+    const response = await POST(signedRequest(event));
+    expect(response.status).toBe(200);
+    expect(applySessionTransition).toHaveBeenCalledWith(
+      `evt_${transition}`,
+      expect.objectContaining({ id: `cs_test_${transition}` }),
+      transition,
+      'stripe.webhook',
+    );
+  });
+
+  it('marks a fully refunded charge without invoking inventory restock', async () => {
+    const { POST } = await import('./route');
+    const response = await POST(signedRequest({
+      id: 'evt_refunded',
+      object: 'event',
+      type: 'charge.refunded',
+      data: {
+        object: {
+          id: 'ch_refunded',
+          object: 'charge',
+          refunded: true,
+          payment_intent: 'pi_refunded',
+        },
+      },
+    }));
+    expect(response.status).toBe(200);
+    expect(markPaymentRefunded).toHaveBeenCalledWith('evt_refunded', 'pi_refunded');
+    expect(applySessionTransition).not.toHaveBeenCalled();
+  });
+
   it('rejects a signed payload that is not valid JSON', async () => {
     const payload = 'not-json';
     const signature = Stripe.webhooks.generateTestHeaderString({

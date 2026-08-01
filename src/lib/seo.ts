@@ -13,7 +13,7 @@ export function getDeploymentUrl() {
     || process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
   if (productionHost) return `https://${productionHost}`;
 
-  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const configuredUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
   if (configuredUrl) return new URL(configuredUrl).origin;
 
   return CANONICAL_SITE_URL;

@@ -38,12 +38,15 @@ Vercel is the recommended hosting platform for Next.js applications, offering au
    - `FIREBASE_ADMIN_PROJECT_ID` = `tsiwebsite`
    - `STRIPE_SECRET_KEY` = *Stripe restricted key for the selected environment*
    - `STRIPE_WEBHOOK_SECRET` = *Signing secret for the deployed webhook destination*
+   - `PAYMENTS_MODE` = *`test` until launch, then `live` with matching keys*
+   - `STRIPE_ACCOUNT_ID` = *Expected Stripe account ID for build-time verification*
    - `CHECKOUT_TOKEN_SECRET` = *Separate random HMAC secret for Checkout Resume/Cancel*
    - `CRON_SECRET` = *Random secret for inventory reconciliation*
-   - `NEXT_PUBLIC_APP_URL` = *The canonical deployed origin*
-3. Keep Stripe sandbox/test credentials in Preview until checkout and webhook
-   fulfillment have been verified. Never expose either Stripe secret through a
-   `NEXT_PUBLIC_` variable.
+   - `APP_URL` = *The stable public deployed origin used for Stripe callbacks*
+3. Keep Stripe sandbox/test credentials in Preview and use
+   `PAYMENTS_MODE=test` for any test-mode Production release. Switch the key,
+   webhook signing secret, and `PAYMENTS_MODE=live` together at launch. Never
+   expose either Stripe secret through a `NEXT_PUBLIC_` variable.
 4. *Note: If Firebase variables are absent, public pages use local mock data.
    Checkout fails closed if Stripe server credentials are absent.*
 

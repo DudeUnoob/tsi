@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
-import { CACHE_TAGS } from '@/lib/cache-tags';
 import {
   archiveCommerceProduct,
   listAdminCommerce,
   reconcileExpiredReservations,
+  restockOrder,
   retryInventoryAllocation,
   saveCommerceProduct,
   updateOrderFulfillment,
@@ -25,7 +24,7 @@ const productSchema = z.object({
   price_cents: z.number().int().nonnegative(),
   currency: z.literal(CURRENCY),
   variant_type: z.enum(['size', 'one_size']),
-  status: z.enum(['available', 'unavailable']),
+  status: z.enum(['available', 'unavailable', 'coming-soon']),
   featured: z.boolean(),
   published: z.boolean(),
 });
@@ -57,23 +56,11 @@ const actionSchema = z.discriminatedUnion('action', [
     action: z.literal('resolve_inventory_exception'),
     orderId: z.string().min(1).max(128),
   }),
+  z.object({
+    action: z.literal('restock_order'),
+    orderId: z.string().min(1).max(128),
+  }),
 ]);
-
-/**
- * The store pages read products and stock from the tagged ISR cache, so any
- * write here has to invalidate those tags or the catalogue shows stale stock.
- * `expire: 0` makes the next request re-read rather than serving stale data.
- */
-function bustCommerceCache() {
-  // Non-fatal: the write already succeeded, so a cache hiccup must not turn a
-  // completed admin action into a 500 that invites a duplicate retry.
-  try {
-    revalidateTag(CACHE_TAGS.products, { expire: 0 });
-    revalidateTag(CACHE_TAGS.inventory, { expire: 0 });
-  } catch (error) {
-    console.warn('Commerce cache revalidation failed:', error);
-  }
-}
 
 function authError(error: unknown) {
   const message = error instanceof Error ? error.message : '';
@@ -114,15 +101,14 @@ export async function PATCH(request: Request) {
       );
     } else if (payload.action === 'reconcile') {
       const result = await reconcileExpiredReservations(getStripe());
-      bustCommerceCache();
+      return NextResponse.json(result);
+    } else if (payload.action === 'resolve_inventory_exception') {
+      const result = await retryInventoryAllocation(getStripe(), payload.orderId, actor);
       return NextResponse.json(result);
     } else {
-      const result = await retryInventoryAllocation(getStripe(), payload.orderId, actor);
-      bustCommerceCache();
-      return NextResponse.json(result);
+      return NextResponse.json(await restockOrder(actor, payload.orderId));
     }
 
-    bustCommerceCache();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Admin commerce update failed:', error);

@@ -83,7 +83,7 @@ export interface StoreProduct {
   price_cents: number;
   currency: 'usd';
   variant_type: 'size' | 'one_size';
-  status: 'available' | 'unavailable';
+  status: 'available' | 'unavailable' | 'coming-soon';
   featured: boolean;
   published: boolean;
 }
@@ -169,6 +169,7 @@ export interface SiteSettings {
   hero_slideshow_images?: string[];
   hero_slideshow_labels?: string[];
   hero_slideshow_hidden?: boolean;
+  gallery_series?: RetreatSeries[];
 }
 
 // ----------------------------------------------------
@@ -186,3 +187,4 @@ export interface ProductInventory {
   sold?: number;
   available?: number;
 }
+import type { RetreatSeries } from './gallery-albums';

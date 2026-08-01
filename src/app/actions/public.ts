@@ -2,11 +2,9 @@
 
 import {
   createEventRegistration,
-  createOrder,
   subscribeNewsletter,
   submitContactForm,
   type EventRegistration,
-  type Order,
 } from '@/lib/firebase';
 
 /**
@@ -49,10 +47,4 @@ export async function createEventRegistrationAction(
   regData: Omit<EventRegistration, 'id' | 'created_at'>,
 ): Promise<{ success: boolean; registration?: EventRegistration; message?: string }> {
   return createEventRegistration(regData);
-}
-
-export async function createOrderAction(
-  orderData: Omit<Order, 'id' | 'created_at'>,
-): Promise<{ success: boolean; order?: Order; message?: string }> {
-  return createOrder(orderData);
 }

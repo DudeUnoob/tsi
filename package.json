@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "stripe:listen": "set -a; . ./.env.local; set +a; stripe listen --api-key \"$STRIPE_SECRET_KEY\" --events checkout.session.completed,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed,checkout.session.expired,charge.refunded --forward-to localhost:3000/api/stripe/webhook",
-    "build": "next build",
+    "build": "node scripts/validate_environment.mjs && next build",
+    "validate:env": "node scripts/validate_environment.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "npm run test:unit && npm run test:transactions",

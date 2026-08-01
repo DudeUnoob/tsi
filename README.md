@@ -86,7 +86,7 @@ The active backend is the Firebase project `tsiwebsite`. The `supabase/` directo
    STRIPE_SECRET_KEY=rk_test_...
    STRIPE_WEBHOOK_SECRET=whsec_...
    CHECKOUT_TOKEN_SECRET=a-long-random-server-only-value
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   APP_URL=http://localhost:3000
    ```
 3. Follow [docs/firebase-stripe-setup.md](docs/firebase-stripe-setup.md) to deploy
    Firestore rules, migrate catalog data, and configure admin credentials.
@@ -102,13 +102,22 @@ The active backend is the Firebase project `tsiwebsite`. The `supabase/` directo
 1. Push this code repository to your GitHub account.
 2. Go to the [Vercel Dashboard](https://vercel.com) and click **Add New** -> **Project**.
 3. Import your Sanga repository.
-4. Add every variable listed in `.env.example` to both **Production** and
-   **Preview**, using sandbox/test Stripe credentials until end-to-end
-   verification is complete. Do not add `GOOGLE_APPLICATION_CREDENTIALS`;
-   that variable is only for local development.
-5. Leave `NEXT_PUBLIC_APP_URL` unset on Vercel. Checkout automatically uses
-   the URL of the current fork, Preview, or Production deployment.
-6. Click **Deploy**. Vercel will bundle the optimized site and publish it.
+4. Add every variable listed in `.env.example` to **Production**. Set
+   `PAYMENTS_MODE=test` with test Stripe credentials until the live launch.
+   Switching to real payments requires changing the Stripe key and webhook
+   signing secret together, then setting `PAYMENTS_MODE=live` and redeploying.
+   Use test Stripe plus a non-production Firebase project in **Preview**. If a
+   test Firebase project is unavailable, leave Preview checkout credentials
+   unset so checkout fails closed. Do not add `GOOGLE_APPLICATION_CREDENTIALS`;
+   that variable is local-only.
+5. Set `APP_URL=https://tsi-henna.vercel.app` in Production. Never use
+   `VERCEL_URL` for Stripe callbacks because immutable deployments may be
+   protected by Vercel Authentication.
+6. `npm run build` validates required Production variables, Stripe mode, and
+   Stripe account ownership without printing secret values. Preview checkout
+   stays disabled unless test Stripe and non-production Firebase Admin
+   credentials are both present.
+7. Click **Deploy**. Vercel will bundle the optimized site and publish it.
 
 Vercel projects do not inherit encrypted variables from the upstream repository
 or from another Vercel project. Every fork therefore needs its own values for

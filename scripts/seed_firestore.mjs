@@ -130,7 +130,7 @@ const mockStoreProducts = [
     description: "Premium heavy-blend cotton hoodie featuring the clean classic logo on the chest. Designed to keep you warm and cozy at outdoor kirtans.",
     image: "/merch-hoodie.png",
     price: "$45",
-    status: "available",
+    status: "coming-soon",
     stripe_price_id: "",
     stripe_product_id: "",
     featured: true,

@@ -20,6 +20,8 @@ application.
 2. Create a restricted test key with only the permissions required by Checkout.
 3. Set `STRIPE_SECRET_KEY` locally and in the deployment environment. Never prefix
    it with `NEXT_PUBLIC_` and never store it in Firestore.
+   Set `PAYMENTS_MODE=test` and `STRIPE_ACCOUNT_ID` to the expected account so
+   deployment validates both the key mode and account ownership.
 4. Create a webhook event destination for
    `https://YOUR_DOMAIN/api/stripe/webhook`.
 5. Subscribe to:
@@ -29,12 +31,15 @@ application.
    - `checkout.session.expired`
    - `charge.refunded`
 6. Set the destination signing secret as `STRIPE_WEBHOOK_SECRET`.
+   At live launch, replace both Stripe secrets, set `PAYMENTS_MODE=live`, and
+   redeploy. No application-code change is required.
 7. Leave Checkout payment methods dynamic. In Stripe payment-method settings,
    enable only immediate methods you intend to support, such as cards, wallets,
    and Link.
 8. Do not enable Stripe Tax for the merchandise Checkout flow until tax
    registrations are confirmed.
-9. Set `NEXT_PUBLIC_APP_URL` to the canonical deployment origin.
+9. Set the server-only `APP_URL` to the stable public deployment origin
+   (`https://tsi-henna.vercel.app` in Production).
 10. Set a separate random `CHECKOUT_TOKEN_SECRET`. It signs the opaque
     Resume/Cancel capability stored in the customer's browser and must remain
     server-only.

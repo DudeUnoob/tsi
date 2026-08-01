@@ -1,6 +1,7 @@
 import 'server-only';
 
 import Stripe from 'stripe';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import {
   CURRENCY,
   CartLineInput,
@@ -24,6 +25,7 @@ import {
   isVariantAllowed,
 } from '@/lib/commerce';
 import { getAdminDb } from '@/lib/firebase-admin';
+import { invalidateCommerceCache } from '@/lib/commerce-cache';
 
 type FirestoreData = Record<string, unknown>;
 
@@ -31,6 +33,13 @@ export class InventoryUnavailableError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'InventoryUnavailableError';
+  }
+}
+
+export class ProductUnavailableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProductUnavailableError';
   }
 }
 
@@ -42,6 +51,9 @@ function toInteger(value: unknown, fallback = 0) {
 export function normalizeProduct(id: string, data: FirestoreData): CommerceProduct {
   const numericId = toInteger(data.id || id);
   const variantType = data.variant_type === 'one_size' ? 'one_size' : 'size';
+  const status = data.status === 'unavailable' || data.status === 'coming-soon'
+    ? data.status
+    : 'available';
   return {
     id: numericId,
     product_title: String(data.product_title || ''),
@@ -51,7 +63,7 @@ export function normalizeProduct(id: string, data: FirestoreData): CommerceProdu
     price_cents: toInteger(data.price_cents, legacyPriceToCents(data.price || '0')),
     currency: CURRENCY,
     variant_type: variantType,
-    status: data.status === 'unavailable' ? 'unavailable' : 'available',
+    status,
     featured: Boolean(data.featured),
     published: Boolean(data.published),
   };
@@ -122,7 +134,9 @@ export async function quoteCart(items: CartLineInput[]): Promise<CartQuote> {
     const product = normalizeProduct(productSnapshot.id, productSnapshot.data() as FirestoreData);
     const inventory = normalizeInventory(inventorySnapshot.data() as FirestoreData);
     if (!product.published || product.status !== 'available') {
-      throw new Error(`${product.product_title || 'A product'} is unavailable.`);
+      throw new ProductUnavailableError(
+        `${product.product_title || 'A product'} is unavailable.`,
+      );
     }
     assertVariantMatchesProduct(product, inventory.variant);
     if (line.quantity > inventory.available) {
@@ -162,7 +176,7 @@ export async function reserveOrder(
   const orderRef = db.collection('orders').doc(checkoutAttemptId);
   const auditRef = db.collection('inventory_audit').doc();
 
-  return db.runTransaction(async transaction => {
+  const result = await db.runTransaction(async transaction => {
     const orderSnapshot = await transaction.get(orderRef);
     if (orderSnapshot.exists) {
       const existingOrder = orderSnapshot.data() as CommerceOrder;
@@ -195,7 +209,9 @@ export async function reserveOrder(
       const line = lines[index];
 
       if (!product.published || product.status !== 'available') {
-        throw new Error(`${product.product_title || 'A product'} is unavailable.`);
+        throw new ProductUnavailableError(
+          `${product.product_title || 'A product'} is unavailable.`,
+        );
       }
       assertVariantMatchesProduct(product, inventory.variant);
       if (line.quantity > inventory.available) {
@@ -273,6 +289,8 @@ export async function reserveOrder(
     });
     return order;
   });
+  invalidateCommerceCache('inventory');
+  return result;
 }
 
 export async function attachStripeSession(
@@ -301,6 +319,7 @@ export async function attachStripeSession(
       updated_at: new Date().toISOString(),
     });
   });
+  invalidateCommerceCache('inventory');
 }
 
 function formatAddress(
@@ -359,7 +378,7 @@ export async function applySessionTransition(
   const orderAuditRef = db.collection('order_audit').doc();
   const inventoryAuditRef = db.collection('inventory_audit').doc();
 
-  return db.runTransaction(async transaction => {
+  const result = await db.runTransaction(async transaction => {
     const [eventSnapshot, orderSnapshot] = await Promise.all([
       transaction.get(eventRef),
       transaction.get(orderRef),
@@ -585,6 +604,10 @@ export async function applySessionTransition(
       reason,
     };
   });
+  if (result.applied || result.inventoryException) {
+    invalidateCommerceCache('inventory');
+  }
+  return result;
 }
 
 export async function markPaymentRefunded(eventId: string, paymentIntentId: string) {
@@ -630,6 +653,7 @@ export async function markPaymentRefunded(eventId: string, paymentIntentId: stri
       created_at: now,
     });
   });
+  invalidateCommerceCache('inventory');
 }
 
 export async function releaseReservation(
@@ -644,7 +668,7 @@ export async function releaseReservation(
   const orderRef = db.collection('orders').doc(orderId);
   const orderAuditRef = db.collection('order_audit').doc();
   const inventoryAuditRef = db.collection('inventory_audit').doc();
-  return db.runTransaction(async transaction => {
+  const released = await db.runTransaction(async transaction => {
     const orderSnapshot = await transaction.get(orderRef);
     if (!orderSnapshot.exists) return false;
     const order = orderSnapshot.data() as CommerceOrder;
@@ -707,6 +731,8 @@ export async function releaseReservation(
     });
     return true;
   });
+  if (released) invalidateCommerceCache('inventory');
+  return released;
 }
 
 export interface CheckoutOrderState {
@@ -809,37 +835,58 @@ export async function synchronizeCheckoutOrder(
   return toCheckoutOrderState(orderId, order, session);
 }
 
-export async function reconcileExpiredReservations(stripe: Stripe, limit = 100) {
+export async function reconcileExpiredReservations(stripe: Stripe, batchSize = 100) {
+  if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 250) {
+    throw new Error('Reconciliation batch size must be between 1 and 250.');
+  }
+
   const db = getAdminDb();
-  const snapshot = await db.collection('orders')
+  const cutoff = new Date().toISOString();
+  const baseQuery = db.collection('orders')
     .where('reservation_status', '==', 'reserved')
-    .where('reservation_expires_at', '<=', new Date().toISOString())
-    .limit(limit)
-    .get();
+    .where('reservation_expires_at', '<=', cutoff)
+    .orderBy('reservation_expires_at', 'asc');
 
   const result = {
-    scanned: snapshot.size,
+    scanned: 0,
     released: 0,
     finalized: 0,
     processing: 0,
     unchanged: 0,
     errors: 0,
+    batches: 0,
   };
-  for (const order of snapshot.docs) {
-    try {
-      const state = await synchronizeCheckoutOrder(stripe, order.id, 'reconcile');
-      if (state.reservationStatus === 'released') result.released += 1;
-      else if (state.reservationStatus === 'committed') result.finalized += 1;
-      else if (state.paymentStatus === 'processing') result.processing += 1;
-      else result.unchanged += 1;
-    } catch (error) {
-      result.errors += 1;
-      console.error('Checkout reconciliation retained reservation after error:', {
-        orderId: order.id,
-        message: error instanceof Error ? error.message : 'Unknown error',
-      });
+
+  let cursor: QueryDocumentSnapshot | undefined;
+  while (true) {
+    const snapshot = await (cursor
+      ? baseQuery.startAfter(cursor)
+      : baseQuery)
+      .limit(batchSize)
+      .get();
+    if (snapshot.empty) break;
+
+    result.batches += 1;
+    result.scanned += snapshot.size;
+    for (const order of snapshot.docs) {
+      try {
+        const state = await synchronizeCheckoutOrder(stripe, order.id, 'reconcile');
+        if (state.reservationStatus === 'released') result.released += 1;
+        else if (state.reservationStatus === 'committed') result.finalized += 1;
+        else if (state.paymentStatus === 'processing') result.processing += 1;
+        else result.unchanged += 1;
+      } catch (error) {
+        result.errors += 1;
+        console.error('Checkout reconciliation retained reservation after error:', {
+          orderId: order.id,
+          message: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
     }
+    cursor = snapshot.docs.at(-1);
+    if (snapshot.size < batchSize) break;
   }
+
   return result;
 }
 
@@ -1029,6 +1076,7 @@ export async function saveCommerceProduct(
       created_at: now,
     });
   });
+  invalidateCommerceCache('all');
 }
 
 export async function archiveCommerceProduct(
@@ -1051,6 +1099,124 @@ export async function archiveCommerceProduct(
     created_at: now,
   });
   await batch.commit();
+  invalidateCommerceCache('all');
+}
+
+export interface RestockOrderResult {
+  applied: boolean;
+  reason: 'restocked' | 'already_restocked';
+  restockedAt: string | null;
+}
+
+/**
+ * Return inventory only after an administrator has made an explicit decision.
+ * Refund webhooks never call this function. The order marker and stock writes
+ * share one transaction, making retries safe even if the client loses the
+ * response after Firestore commits.
+ */
+export async function restockOrder(
+  actor: { uid: string; email: string },
+  orderId: string,
+): Promise<RestockOrderResult> {
+  const db = getAdminDb();
+  const orderRef = db.collection('orders').doc(orderId);
+  const orderAuditRef = db.collection('order_audit').doc();
+  const inventoryAuditRef = db.collection('inventory_audit').doc();
+
+  const result = await db.runTransaction(async transaction => {
+    const orderSnapshot = await transaction.get(orderRef);
+    if (!orderSnapshot.exists) throw new Error('Order not found.');
+    const order = orderSnapshot.data() as CommerceOrder;
+    if (order.inventory_restocked_at) {
+      return {
+        applied: false,
+        reason: 'already_restocked' as const,
+        restockedAt: order.inventory_restocked_at,
+      };
+    }
+    if (
+      order.payment_status !== 'refunded'
+      && order.fulfillment_status !== 'cancelled'
+    ) {
+      throw new Error('Only refunded or cancelled orders can be restocked.');
+    }
+    if (order.reservation_status !== 'committed') {
+      throw new Error('This order does not have committed inventory to restock.');
+    }
+    if (order.inventory_exception) {
+      throw new Error('Resolve the inventory exception before restocking this order.');
+    }
+
+    const inventoryRefs = order.items.map(item =>
+      db.collection('product_inventory').doc(`${item.product_id}_${item.variant}`),
+    );
+    const inventorySnapshots = inventoryRefs.length
+      ? await transaction.getAll(...inventoryRefs)
+      : [];
+    if (
+      inventorySnapshots.length !== order.items.length
+      || inventorySnapshots.some(snapshot => !snapshot.exists)
+    ) {
+      throw new Error('Inventory records are missing; no stock was restored.');
+    }
+
+    const inventories = inventorySnapshots.map(snapshot =>
+      normalizeInventory(snapshot.data() as FirestoreData),
+    );
+    inventories.forEach((inventory, index) => {
+      if (inventory.sold < order.items[index].quantity) {
+        throw new Error('Sold inventory is inconsistent; no stock was restored.');
+      }
+    });
+
+    const now = new Date().toISOString();
+    inventories.forEach((inventory, index) => {
+      const quantity = order.items[index].quantity;
+      transaction.update(inventoryRefs[index], {
+        on_hand: inventory.on_hand + quantity,
+        reserved: inventory.reserved,
+        sold: inventory.sold - quantity,
+        updated_at: now,
+      });
+    });
+    transaction.update(orderRef, {
+      inventory_restocked_at: now,
+      inventory_restocked_by: actor.uid,
+      last_transition_source: 'admin.restock',
+      updated_at: now,
+    });
+    const auditItems = order.items.map(item => ({
+      product_id: item.product_id,
+      variant: item.variant,
+      quantity: item.quantity,
+    }));
+    transaction.create(orderAuditRef, {
+      actor_uid: actor.uid,
+      actor_email: actor.email,
+      order_id: orderId,
+      action: 'order_restocked',
+      source: 'admin.restock',
+      items: auditItems,
+      created_at: now,
+    });
+    transaction.create(inventoryAuditRef, {
+      actor_uid: actor.uid,
+      actor_email: actor.email,
+      order_id: orderId,
+      action: 'order_restocked',
+      source: 'admin.restock',
+      items: auditItems,
+      created_at: now,
+    });
+    return {
+      applied: true,
+      reason: 'restocked' as const,
+      restockedAt: now,
+    };
+  });
+
+  if (result.applied) invalidateCommerceCache('inventory');
+  return result;
 }
 
 export async function updateOrderFulfillment(
@@ -1067,14 +1233,21 @@ export async function updateOrderFulfillment(
   await db.runTransaction(async transaction => {
     const order = await transaction.get(orderRef);
     if (!order.exists) throw new Error('Order not found.');
-    if (order.data()?.inventory_exception) {
+    const orderData = order.data() as CommerceOrder;
+    if (orderData.payment_status !== 'paid') {
+      throw new Error('Only paid orders can be updated for fulfillment.');
+    }
+    if (orderData.reservation_status !== 'committed' || orderData.inventory_restocked_at) {
+      throw new Error('Fulfillment requires committed inventory.');
+    }
+    if (orderData.inventory_exception) {
       throw new Error('Resolve the inventory exception before updating fulfillment.');
     }
     transaction.update(orderRef, {
       fulfillment_status: fulfillmentStatus,
       carrier: carrier.trim(),
       tracking_number: trackingNumber.trim(),
-      status: fulfillmentStatus === 'completed' ? 'completed' : order.data()?.status,
+      status: fulfillmentStatus === 'completed' ? 'completed' : orderData.status,
       ...(fulfillmentStatus === 'shipped' ? { shipped_at: now } : {}),
       ...(fulfillmentStatus === 'completed' ? { completed_at: now } : {}),
       updated_at: now,
@@ -1090,6 +1263,7 @@ export async function updateOrderFulfillment(
       created_at: now,
     });
   });
+  invalidateCommerceCache('inventory');
 }
 
 export function normalizeLegacyOrderStatus(value: unknown): {

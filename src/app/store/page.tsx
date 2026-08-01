@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCachedProductInventory as getProductInventory, getCachedProducts as getProducts } from '@/lib/cached-data';
 import { ShoppingBag, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { getProductAvailability } from './product-availability';
 
 export const revalidate = 60; // Shorter: reflects stock counts
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default async function StorePage() {
   return (
     <div className="bg-linen min-h-screen py-16 font-sans text-warm-black">
       <div className="max-w-7xl mx-auto px-6">
-        
+
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <span className="text-xs uppercase tracking-widest text-pink font-black font-sans bg-plum/5 py-1.5 px-4 rounded-full border border-plum/10">
@@ -42,19 +43,27 @@ export default async function StorePage() {
         {products.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
             {products.map((product, idx) => {
-              const isAvailable = product.status === 'available';
-              const isSoldOut = inventoryByProduct
-                .get(product.id)
-                ?.every(item => (item.available ?? 0) < 1) ?? true;
-              
+              const inventory = inventoryByProduct.get(product.id) ?? [];
+              const {
+                isAvailable,
+                isComingSoon,
+                isSoldOut,
+                label: availabilityLabel,
+              } = getProductAvailability(product.status, inventory);
+              const canViewProduct = !isComingSoon;
+              const canPurchase = isAvailable && !isSoldOut;
+
               // Feature the hoodie, or the first product as fallback
-              const isFeatured = product.slug === 'sanga-rebrand-hoodie' || (idx === 0 && !products.some(p => p.slug === 'sanga-rebrand-hoodie'));
+              const isFeatured = product.slug === 'sanga-hoodie'
+                || (idx === 0 && !products.some(p => p.slug === 'sanga-hoodie'));
 
               if (isFeatured) {
                 return (
-                  <div 
+                  <div
                     key={product.id}
-                    className="col-span-1 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative"
+                    className={`col-span-1 md:col-span-8 group flex flex-col md:flex-row glass rounded-[2.5rem] overflow-hidden transition-all duration-300 relative ${
+                      isComingSoon ? 'cursor-default' : 'hover:shadow-2xl hover:-translate-y-1'
+                    }`}
                   >
                     {/* Featured label tag */}
                     <span className="absolute top-4 right-4 z-20 px-3.5 py-1 text-[8px] font-black uppercase tracking-widest bg-plum text-linen rounded-full shadow-sm select-none">
@@ -62,35 +71,59 @@ export default async function StorePage() {
                     </span>
 
                     {/* Image wrapper */}
-                    <Link 
-                      href={`/store/${product.slug}`}
-                      className="relative h-72 md:h-auto md:w-1/2 bg-plum/5 overflow-hidden block min-h-[300px]"
-                    >
+                    {canViewProduct ? (
+                      <Link
+                        href={`/store/${product.slug}`}
+                        className="relative h-72 md:h-auto md:w-1/2 bg-plum/5 overflow-hidden block min-h-[300px]"
+                      >
+                        {product.image ? (
+                          <Image
+                            src={product.image}
+                            alt={product.product_title}
+                            fill
+                            className="object-cover group-hover:scale-103 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-plum/20">
+                            <ShoppingBag className="h-16 w-16" />
+                          </div>
+                        )}
+
+                        {isSoldOut && (
+                          <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-linen rounded-full shadow-sm select-none">
+                            Sold Out
+                          </span>
+                        )}
+                        {!isAvailable && (
+                          <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-warm-black/25 text-linen rounded-full shadow-sm select-none">
+                            {availabilityLabel}
+                          </span>
+                        )}
+                      </Link>
+                    ) : (
+                      <div
+                        className="relative h-72 md:h-auto md:w-1/2 bg-plum/5 overflow-hidden block min-h-[300px]"
+                        aria-label={`${product.product_title} — Coming Soon`}
+                      >
                       {product.image ? (
-                        <Image 
-                          src={product.image} 
+                        <Image
+                          src={product.image}
                           alt={product.product_title}
                           fill
-                          className="object-cover group-hover:scale-103 transition-transform duration-500"
+                          className="object-cover transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-plum/20">
                           <ShoppingBag className="h-16 w-16" />
                         </div>
                       )}
-                      
-                      {/* Status Badge */}
-                      {isSoldOut && (
-                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-linen rounded-full shadow-sm select-none">
-                          Sold Out
-                        </span>
-                      )}
-                      {!isAvailable && !isSoldOut && (
-                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-warm-black/25 text-linen rounded-full shadow-sm select-none">
-                          Unavailable
-                        </span>
-                      )}
-                    </Link>
+                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-plum/55 backdrop-blur-[2px]">
+                          <span className="rounded-full border border-linen/40 bg-plum/90 px-6 py-3 font-display text-xl font-black uppercase tracking-widest text-linen shadow-xl">
+                            Coming Soon
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Description Box */}
                     <div className="p-8 flex-grow flex flex-col justify-between md:w-1/2 space-y-6">
@@ -98,10 +131,14 @@ export default async function StorePage() {
                         <span className="text-[10px] font-black uppercase tracking-widest text-pink">
                           Official Apparel
                         </span>
-                        <h2 className="font-display text-3xl font-black text-plum group-hover:text-pink transition-colors leading-tight">
-                          <Link href={`/store/${product.slug}`}>
-                            {product.product_title}
-                          </Link>
+                        <h2 className={`font-display text-3xl font-black text-plum transition-colors leading-tight ${
+                          canViewProduct ? 'group-hover:text-pink' : ''
+                        }`}>
+                          {canViewProduct ? (
+                            <Link href={`/store/${product.slug}`}>
+                              {product.product_title}
+                            </Link>
+                          ) : product.product_title}
                         </h2>
                         <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light">
                           {product.description}
@@ -112,8 +149,8 @@ export default async function StorePage() {
                         <span className="text-2xl font-display font-black text-plum">
                           {product.price}
                         </span>
-                        
-                        {isAvailable ? (
+
+                        {canPurchase ? (
                           <Link
                             href={`/store/${product.slug}`}
                             className="px-6 py-3.5 bg-plum text-linen hover:bg-pink hover:text-linen font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all duration-200 inline-flex items-center gap-1.5 active:scale-97 cursor-pointer"
@@ -125,7 +162,7 @@ export default async function StorePage() {
                             disabled
                             className="px-6 py-3.5 bg-warm-black/5 border border-warm-black/10 text-warm-black/40 font-black text-xs uppercase tracking-widest rounded-full cursor-not-allowed select-none"
                           >
-                            {isSoldOut ? 'Sold Out' : 'Unavailable'}
+                            {availabilityLabel}
                           </button>
                         )}
                       </div>
@@ -135,48 +172,78 @@ export default async function StorePage() {
               }
 
               return (
-                <div 
+                <div
                   key={product.id}
-                  className="col-span-1 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className={`col-span-1 md:col-span-4 group flex flex-col glass rounded-[2.5rem] overflow-hidden transition-all duration-300 ${
+                    isComingSoon ? 'cursor-default' : 'hover:shadow-xl hover:-translate-y-1'
+                  }`}
                 >
                   {/* Image wrapper */}
-                  <Link 
-                    href={`/store/${product.slug}`}
-                    className="relative h-64 w-full bg-plum/5 overflow-hidden block"
-                  >
+                  {canViewProduct ? (
+                    <Link
+                      href={`/store/${product.slug}`}
+                      className="relative h-64 w-full bg-plum/5 overflow-hidden block"
+                    >
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.product_title}
+                          fill
+                          className="object-cover group-hover:scale-103 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-plum/20">
+                          <ShoppingBag className="h-12 w-12" />
+                        </div>
+                      )}
+
+                      {isSoldOut && (
+                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-linen rounded-full shadow-sm select-none">
+                          Sold Out
+                        </span>
+                      )}
+                      {!isAvailable && (
+                        <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-warm-black/25 text-linen rounded-full shadow-sm select-none">
+                          {availabilityLabel}
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    <div
+                      className="relative h-64 w-full bg-plum/5 overflow-hidden block"
+                      aria-label={`${product.product_title} — Coming Soon`}
+                    >
                     {product.image ? (
-                      <Image 
-                        src={product.image} 
+                      <Image
+                        src={product.image}
                         alt={product.product_title}
                         fill
-                        className="object-cover group-hover:scale-103 transition-transform duration-500"
+                        className="object-cover transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-plum/20">
                         <ShoppingBag className="h-12 w-12" />
                       </div>
                     )}
-                    
-                    {/* Status Badge */}
-                    {isSoldOut && (
-                      <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-pink text-linen rounded-full shadow-sm select-none">
-                        Sold Out
-                      </span>
-                    )}
-                    {!isAvailable && !isSoldOut && (
-                      <span className="absolute top-4 left-4 px-3 py-1 text-[9px] font-black uppercase tracking-widest bg-warm-black/25 text-linen rounded-full shadow-sm select-none">
-                        Unavailable
-                      </span>
-                    )}
-                  </Link>
+                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-plum/55 backdrop-blur-[2px]">
+                        <span className="rounded-full border border-linen/40 bg-plum/90 px-5 py-2.5 font-display text-lg font-black uppercase tracking-widest text-linen shadow-xl">
+                          Coming Soon
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Description Box */}
                   <div className="p-6 flex-grow flex flex-col justify-between space-y-6">
                     <div className="space-y-3">
-                      <h2 className="font-display text-2xl font-bold text-plum group-hover:text-pink transition-colors leading-tight">
-                        <Link href={`/store/${product.slug}`}>
-                          {product.product_title}
-                        </Link>
+                      <h2 className={`font-display text-2xl font-bold text-plum transition-colors leading-tight ${
+                        canViewProduct ? 'group-hover:text-pink' : ''
+                      }`}>
+                        {canViewProduct ? (
+                          <Link href={`/store/${product.slug}`}>
+                            {product.product_title}
+                          </Link>
+                        ) : product.product_title}
                       </h2>
                       <p className="text-sm text-warm-black/85 leading-relaxed font-sans font-light line-clamp-3">
                         {product.description}
@@ -187,8 +254,8 @@ export default async function StorePage() {
                       <span className="text-xl font-display font-black text-plum">
                         {product.price}
                       </span>
-                      
-                      {isAvailable ? (
+
+                      {canPurchase ? (
                         <Link
                           href={`/store/${product.slug}`}
                           className="px-5 py-2.5 bg-plum text-linen hover:bg-pink hover:text-linen font-black text-xs uppercase tracking-widest rounded-full shadow-md transition-all duration-200 inline-flex items-center gap-1 active:scale-97 cursor-pointer"
@@ -200,7 +267,7 @@ export default async function StorePage() {
                           disabled
                           className="px-5 py-2.5 bg-warm-black/5 border border-warm-black/10 text-warm-black/40 font-black text-xs uppercase tracking-widest rounded-full cursor-not-allowed select-none"
                         >
-                          {isSoldOut ? 'Sold Out' : 'Unavailable'}
+                          {availabilityLabel}
                         </button>
                       )}
                     </div>

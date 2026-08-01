@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { getCachedProductInventory as getProductInventory, getCachedProducts as getProducts } from '@/lib/cached-data';
 import ProductForm from '@/components/ProductForm';
 import { ArrowLeft, Tag } from 'lucide-react';
+import { getProductAvailability } from '../product-availability';
 
 export const revalidate = 60; // Shorter: reflects stock counts
 
@@ -48,14 +49,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const isAvailable = product.status === 'available';
   const inventory = await getProductInventory(product.id);
-  const isSoldOut = inventory.every(item => (item.available ?? 0) < 1);
+  const {
+    isAvailable,
+    isComingSoon,
+    isSoldOut,
+    label: availabilityLabel,
+  } = getProductAvailability(product.status, inventory);
 
   return (
     <div className="bg-linen min-h-screen py-6 font-sans text-warm-black flex flex-col justify-center">
       <div className="max-w-7xl mx-auto px-6 w-full">
-        
+
         {/* Back Link */}
         <div className="mb-4">
           <Link
@@ -69,7 +74,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Product Workspace */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-linen rounded-3xl border border-plum/10 p-6 sm:p-8 shadow-sm">
-          
+
           {/* Left Column: Image Display */}
           <div className="lg:col-span-6 flex flex-col justify-center">
             <div className="relative h-[280px] sm:h-[360px] lg:h-[440px] w-full rounded-2xl bg-plum/5 border border-plum/10 overflow-hidden shadow-inner group">
@@ -95,8 +100,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
               )}
               {!isAvailable && !isSoldOut && (
                 <span className="absolute top-4 left-4 px-3 py-1 text-xs font-black uppercase tracking-widest bg-warm-black/20 text-linen rounded-full shadow shadow-black/10 select-none">
-                  Unavailable
+                  {availabilityLabel}
                 </span>
+              )}
+              {isComingSoon && (
+                <div className="absolute inset-0 flex items-center justify-center bg-plum/55 backdrop-blur-[2px]">
+                  <span className="rounded-full border border-linen/40 bg-plum/90 px-7 py-3 font-display text-xl font-black uppercase tracking-widest text-linen shadow-xl">
+                    Coming Soon
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -116,7 +128,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             <div className="pt-4 border-t border-plum/10">
-              {isAvailable ? (
+              {isComingSoon ? (
+                <div className="space-y-4 bg-sunshine/10 p-6 rounded-2xl border border-sunshine/30">
+                  <h3 className="font-display text-xl font-bold text-plum">
+                    Coming Soon
+                  </h3>
+                  <p className="text-sm text-warm-black/70 font-sans font-light leading-relaxed">
+                    This item is not available to purchase yet. Check back for the next merchandise drop.
+                  </p>
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-block px-5 py-2.5 bg-warm-black/5 border border-warm-black/10 text-warm-black/40 font-black text-xs uppercase tracking-widest rounded-xl cursor-not-allowed select-none"
+                  >
+                    Coming Soon
+                  </button>
+                </div>
+              ) : isAvailable ? (
                 <ProductForm product={product} inventory={inventory} />
               ) : (
                 <div className="space-y-4 bg-plum/5 p-6 rounded-2xl border border-plum/10">

@@ -36,7 +36,7 @@ export interface CommerceProduct {
   price_cents: number;
   currency: typeof CURRENCY;
   variant_type: 'size' | 'one_size';
-  status: 'available' | 'unavailable';
+  status: 'available' | 'unavailable' | 'coming-soon';
   featured: boolean;
   published: boolean;
 }
@@ -67,6 +67,8 @@ export type ReservationStatus = 'reserved' | 'committed' | 'released';
 
 export interface CommerceOrder {
   id: string;
+  /** Legacy aggregate state retained for the existing admin table. */
+  status?: string;
   checkout_attempt_id: string;
   stripe_checkout_session_id: string | null;
   stripe_checkout_url: string | null;
@@ -84,6 +86,8 @@ export interface CommerceOrder {
   reservation_release_reason?: string;
   inventory_exception?: boolean;
   inventory_exception_details?: string[];
+  inventory_restocked_at?: string;
+  inventory_restocked_by?: string;
   customer_name: string;
   customer_email: string;
   shipping_address: string;
