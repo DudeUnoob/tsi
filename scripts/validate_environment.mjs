@@ -120,8 +120,12 @@ if (appUrl) {
     errors.push('APP_URL must be a valid absolute origin.');
   }
 }
-if (isProduction && appUrl !== 'https://tsi-henna.vercel.app') {
-  errors.push('Production APP_URL must be https://tsi-henna.vercel.app.');
+const vercelProductionHostname = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+if (isProduction && appUrl && vercelProductionHostname) {
+  const expectedAppUrl = `https://${vercelProductionHostname}`;
+  if (appUrl !== expectedAppUrl) {
+    errors.push(`Production APP_URL must match ${expectedAppUrl}.`);
+  }
 }
 
 const serviceAccountValue = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();

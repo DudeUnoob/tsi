@@ -110,9 +110,10 @@ The active backend is the Firebase project `tsiwebsite`. The `supabase/` directo
    test Firebase project is unavailable, leave Preview checkout credentials
    unset so checkout fails closed. Do not add `GOOGLE_APPLICATION_CREDENTIALS`;
    that variable is local-only.
-5. Set `APP_URL=https://tsi-henna.vercel.app` in Production. Never use
-   `VERCEL_URL` for Stripe callbacks because immutable deployments may be
-   protected by Vercel Authentication.
+5. Set `APP_URL` to the project's stable production origin (for example,
+   `https://tsi-henna.vercel.app`). Never use `VERCEL_URL` for Stripe callbacks
+   because immutable deployments may be protected by Vercel Authentication.
+   Vercel builds also verify it against `VERCEL_PROJECT_PRODUCTION_URL`.
 6. `npm run build` validates required Production variables, Stripe mode, and
    Stripe account ownership without printing secret values. Preview checkout
    stays disabled unless test Stripe and non-production Firebase Admin

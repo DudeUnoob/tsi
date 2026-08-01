@@ -38,8 +38,8 @@ application.
    and Link.
 8. Do not enable Stripe Tax for the merchandise Checkout flow until tax
    registrations are confirmed.
-9. Set the server-only `APP_URL` to the stable public deployment origin
-   (`https://tsi-henna.vercel.app` in Production).
+9. Set the server-only `APP_URL` to that Vercel project's stable public
+   deployment origin (for example, `https://tsi-henna.vercel.app`).
 10. Set a separate random `CHECKOUT_TOKEN_SECRET`. It signs the opaque
     Resume/Cancel capability stored in the customer's browser and must remain
     server-only.
